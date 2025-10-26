@@ -281,6 +281,40 @@ class LocalizationModel {
                 // Badge message template
                 'BADGE_MESSAGE': 'Страхотна работа! Печелиш значка:',
                 
+                // Visual Badge Definitions
+                'VISUAL_BADGES': {
+                    'novice': {
+                        icon: '🌱',
+                        name: 'Начинаещ',
+                        description: 'Решени първите 5 задачи',
+                        threshold: 5
+                    },
+                    'learner': {
+                        icon: '📚',
+                        name: 'Ученик',
+                        description: 'Решени 10 задачи',
+                        threshold: 10
+                    },
+                    'achiever': {
+                        icon: '🌟',
+                        name: 'Постигач',
+                        description: 'Решени 20 задачи',
+                        threshold: 20
+                    },
+                    'expert': {
+                        icon: '⭐',
+                        name: 'Експерт',
+                        description: 'Решени 50 задачи',
+                        threshold: 50
+                    },
+                    'master': {
+                        icon: '🏆',
+                        name: 'Майстор',
+                        description: 'Решени 100 задачи',
+                        threshold: 100
+                    }
+                },
+                
                 // Error messages
                 'ERROR_INVALID_INPUT': 'ГРЕШКА: НЕВАЛИДЕН ВХОД',
                 'INCORRECT_ANSWER': 'НЕПРАВИЛНО. ОТГОВОР:',
@@ -441,6 +475,41 @@ class LocalizationModel {
                     'Amazing'
                 ],
                 'BADGE_MESSAGE': 'Great work! You earned a badge:',
+                
+                // Visual Badge Definitions
+                'VISUAL_BADGES': {
+                    'novice': {
+                        icon: '🌱',
+                        name: 'Novice',
+                        description: 'Solved first 5 problems',
+                        threshold: 5
+                    },
+                    'learner': {
+                        icon: '📚',
+                        name: 'Learner',
+                        description: 'Solved 10 problems',
+                        threshold: 10
+                    },
+                    'achiever': {
+                        icon: '🌟',
+                        name: 'Achiever',
+                        description: 'Solved 20 problems',
+                        threshold: 20
+                    },
+                    'expert': {
+                        icon: '⭐',
+                        name: 'Expert',
+                        description: 'Solved 50 problems',
+                        threshold: 50
+                    },
+                    'master': {
+                        icon: '🏆',
+                        name: 'Master',
+                        description: 'Solved 100 problems',
+                        threshold: 100
+                    }
+                },
+                
                 'ERROR_INVALID_INPUT': 'ERROR: INVALID INPUT',
                 'INCORRECT_ANSWER': 'INCORRECT. ANSWER:'
             }
@@ -488,5 +557,10 @@ class LocalizationModel {
     // Get available languages
     getAvailableLanguages() {
         return Object.keys(this.translations);
+    }
+    
+    // Get visual badges
+    getVisualBadges() {
+        return this.t('VISUAL_BADGES');
     }
 }

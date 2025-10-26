@@ -430,9 +430,13 @@ class AppController {
             this.model.updateScore();
             
             // Check if user earned a badge
-            const badgeMessage = this.model.checkBadge();
-            if (badgeMessage) {
-                this.view.showMessage(badgeMessage, false);
+            const badgeResult = this.model.checkBadge();
+            if (badgeResult) {
+                if (badgeResult.type === 'visual') {
+                    this.view.showVisualBadge(badgeResult.badge);
+                } else {
+                    this.view.showMessage(badgeResult.message, false);
+                }
             } else {
                 this.view.showMessage(this.model.getRandomRewardMessage(), false);
             }
@@ -472,9 +476,13 @@ class AppController {
                 // Final step completed - award points and show message
                 this.model.updateScore();
                 
-                const badgeMessage = this.model.checkBadge();
-                if (badgeMessage) {
-                    this.view.showMessage(badgeMessage, false);
+                const badgeResult = this.model.checkBadge();
+                if (badgeResult) {
+                    if (badgeResult.type === 'visual') {
+                        this.view.showVisualBadge(badgeResult.badge);
+                    } else {
+                        this.view.showMessage(badgeResult.message, false);
+                    }
                 } else {
                     this.view.showMessage(this.model.getRandomRewardMessage(), false);
                 }
