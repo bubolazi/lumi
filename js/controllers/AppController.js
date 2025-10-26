@@ -135,8 +135,10 @@ class AppController {
     selectOperation(operationName) {
         this.currentActivity = operationName;
         
+        console.log('[DEBUG] selectOperation called, stack before push:', JSON.stringify(this.navigationStack));
         // Only push 'activity' if it's not already on the stack
         this.pushToStackIfNotPresent('activity');
+        console.log('[DEBUG] selectOperation stack after push:', JSON.stringify(this.navigationStack));
         
         // Get the operation extension
         const operationExtension = this.activityManager.getOperationExtension(operationName);
@@ -176,8 +178,10 @@ class AppController {
     }
     
     initializeLevelSelection() {
+        console.log('[DEBUG] initializeLevelSelection called, stack before push:', JSON.stringify(this.navigationStack));
         // Only push 'level_select' if it's not already on the stack
         this.pushToStackIfNotPresent('level_select');
+        console.log('[DEBUG] initializeLevelSelection stack after push:', JSON.stringify(this.navigationStack));
         
         // Render level list for the selected operation
         this.view.renderLevelList(this.model.getLocalizedLevels());
@@ -209,8 +213,10 @@ class AppController {
         
         this.currentLevel = level;
         
+        console.log('[DEBUG] startLevel called, stack before push:', JSON.stringify(this.navigationStack));
         // Only push 'game' if it's not already on the stack
         this.pushToStackIfNotPresent('game');
+        console.log('[DEBUG] startLevel stack after push:', JSON.stringify(this.navigationStack));
         
         // Unbind keyboard selections when entering game screen
         this.view.unbindKeyboardSelections();
@@ -500,26 +506,37 @@ class AppController {
     
     // Navigate back to the previous screen
     navigateBack() {
+        console.log('[DEBUG] navigateBack called');
+        console.log('[DEBUG] Stack before pop:', JSON.stringify(this.navigationStack));
+        
         // Pop current state
         if (this.navigationStack.length > 0) {
             this.navigationStack.pop();
         }
+        
+        console.log('[DEBUG] Stack after pop:', JSON.stringify(this.navigationStack));
         
         // Get previous state
         const previousState = this.navigationStack.length > 0 
             ? this.navigationStack[this.navigationStack.length - 1] 
             : null;
         
+        console.log('[DEBUG] previousState:', previousState);
+        
         if (previousState === 'level_select') {
+            console.log('[DEBUG] Calling showLevelSelection()');
             // Go back to level selection - don't push to stack again
             this.showLevelSelection();
         } else if (previousState === 'activity') {
+            console.log('[DEBUG] Calling showOperationSelection()');
             // Go back to operation/activity selection - don't modify stack
             this.showOperationSelection();
         } else if (previousState === 'subject') {
+            console.log('[DEBUG] Calling showSubjectSelection()');
             // Go back to subject selection - don't modify stack
             this.showSubjectSelection();
         } else {
+            console.log('[DEBUG] No history, calling showSubjectSelection()');
             // No more history - show subject selection without resetting
             this.showSubjectSelection();
         }
@@ -529,10 +546,6 @@ class AppController {
     
     // Show level selection without modifying navigation stack
     showLevelSelection() {
-        // Ensure 'level_select' is on the stack when showing level selection
-        // This fixes the issue where navigating back from game skips level selection
-        this.pushToStackIfNotPresent('level_select');
-        
         // Render level list for the selected operation
         this.view.renderLevelList(this.model.getLocalizedLevels());
         
