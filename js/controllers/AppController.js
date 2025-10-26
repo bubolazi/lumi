@@ -135,10 +135,8 @@ class AppController {
     selectOperation(operationName) {
         this.currentActivity = operationName;
         
-        console.log('[DEBUG] selectOperation called, stack before push:', JSON.stringify(this.navigationStack));
         // Only push 'activity' if it's not already on the stack
         this.pushToStackIfNotPresent('activity');
-        console.log('[DEBUG] selectOperation stack after push:', JSON.stringify(this.navigationStack));
         
         // Get the operation extension
         const operationExtension = this.activityManager.getOperationExtension(operationName);
@@ -178,10 +176,8 @@ class AppController {
     }
     
     initializeLevelSelection() {
-        console.log('[DEBUG] initializeLevelSelection called, stack before push:', JSON.stringify(this.navigationStack));
         // Only push 'level_select' if it's not already on the stack
         this.pushToStackIfNotPresent('level_select');
-        console.log('[DEBUG] initializeLevelSelection stack after push:', JSON.stringify(this.navigationStack));
         
         // Render level list for the selected operation
         this.view.renderLevelList(this.model.getLocalizedLevels());
@@ -213,10 +209,8 @@ class AppController {
         
         this.currentLevel = level;
         
-        console.log('[DEBUG] startLevel called, stack before push:', JSON.stringify(this.navigationStack));
         // Only push 'game' if it's not already on the stack
         this.pushToStackIfNotPresent('game');
-        console.log('[DEBUG] startLevel stack after push:', JSON.stringify(this.navigationStack));
         
         // Unbind keyboard selections when entering game screen
         this.view.unbindKeyboardSelections();
@@ -265,18 +259,12 @@ class AppController {
             inputFilter = (e) => {
                 // Handle backspace for navigation only
                 if (e.key === 'Backspace') {
-                    console.log('[DEBUG] Input filter (Bulgarian): Backspace pressed, input =', this.view.getUserInput());
-                    // Check if input is empty - if so, navigate back
-                    if (this.view.getUserInput() === '') {
-                        console.log('[DEBUG] Input filter: Input empty, calling navigateBack()');
-                        this.navigateBack();
-                        e.preventDefault();
-                        return;
-                    }
-                    // If input has content, still navigate back (don't allow text editing)
-                    console.log('[DEBUG] Input filter: Input not empty, calling navigateBack()');
-                    this.navigateBack();
+                    // Prevent default browser behavior
                     e.preventDefault();
+                    // Stop event from bubbling to global handler
+                    e.stopPropagation();
+                    // Navigate back (input content doesn't matter for Bulgarian - always navigate)
+                    this.navigateBack();
                     return;
                 }
                 
@@ -308,8 +296,9 @@ class AppController {
                 if (e.key === 'Backspace') {
                     // Check if input is empty - if so, navigate back
                     if (this.view.getUserInput() === '') {
-                        this.navigateBack();
                         e.preventDefault();
+                        e.stopPropagation(); // Stop event from bubbling to global handler
+                        this.navigateBack();
                         return;
                     }
                     // Otherwise, allow normal backspace behavior
@@ -509,37 +498,26 @@ class AppController {
     
     // Navigate back to the previous screen
     navigateBack() {
-        console.log('[DEBUG] navigateBack called');
-        console.log('[DEBUG] Stack before pop:', JSON.stringify(this.navigationStack));
-        
         // Pop current state
         if (this.navigationStack.length > 0) {
             this.navigationStack.pop();
         }
-        
-        console.log('[DEBUG] Stack after pop:', JSON.stringify(this.navigationStack));
         
         // Get previous state
         const previousState = this.navigationStack.length > 0 
             ? this.navigationStack[this.navigationStack.length - 1] 
             : null;
         
-        console.log('[DEBUG] previousState:', previousState);
-        
         if (previousState === 'level_select') {
-            console.log('[DEBUG] Calling showLevelSelection()');
             // Go back to level selection - don't push to stack again
             this.showLevelSelection();
         } else if (previousState === 'activity') {
-            console.log('[DEBUG] Calling showOperationSelection()');
             // Go back to operation/activity selection - don't modify stack
             this.showOperationSelection();
         } else if (previousState === 'subject') {
-            console.log('[DEBUG] Calling showSubjectSelection()');
             // Go back to subject selection - don't modify stack
             this.showSubjectSelection();
         } else {
-            console.log('[DEBUG] No history, calling showSubjectSelection()');
             // No more history - show subject selection without resetting
             this.showSubjectSelection();
         }
