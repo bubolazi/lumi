@@ -11,7 +11,36 @@ class AppController {
         this.currentLevel = null; // Track current level
         this.navigationStack = []; // Stack for tracking navigation history
         
+        // Bind global navigation handler
+        this.bindGlobalNavigation();
+        
         this.initializeSubjectSelection();
+    }
+    
+    // Bind global keyboard handler for navigation
+    bindGlobalNavigation() {
+        this.globalNavigationHandler = (e) => {
+            // Only handle Backspace for navigation on selection screens
+            if (e.key === 'Backspace') {
+                // Check which screen is active
+                const activeScreen = document.querySelector('.screen.active');
+                if (!activeScreen) return;
+                
+                const screenId = activeScreen.id;
+                
+                // Only navigate back from selection screens (not game screen)
+                // Game screen handles its own navigation through input filter
+                if (screenId === 'level-select' || screenId === 'operation-select' || screenId === 'subject-select') {
+                    // Check if we can navigate back
+                    if (this.navigationStack.length > 0) {
+                        this.navigateBack();
+                        e.preventDefault();
+                    }
+                }
+            }
+        };
+        
+        document.addEventListener('keydown', this.globalNavigationHandler);
     }
     
     // Helper method to push state to navigation stack only if not already on top
