@@ -34,7 +34,22 @@ A beautiful, kid-friendly web application for preschool children to learn and pr
   - 3️⃣ Step 3: Calculate tens place
   - 4️⃣ Step 4: Combine final result
 
-### 🎉 Reward System
+### 🎉 Dual Badge System
+**Visual Milestone Badges:**
+- 🌱 **Novice** - First 5 problems solved
+- 📚 **Learner** - 10 problems solved
+- 🌟 **Achiever** - 20 problems solved
+- ⭐ **Expert** - 50 problems solved
+- 🏆 **Master** - 100 problems solved
+
+**Text Encouragement Badges:**
+- Awarded every 5 correct answers
+- Random animal + adjective combinations (e.g., "Умна Лисица")
+- Grammatically correct Bulgarian gender matching
+
+See [docs/BADGE_SYSTEM.md](docs/BADGE_SYSTEM.md) for detailed badge documentation.
+
+### 🎮 Additional Features
 - Animated reward messages for correct answers
 - Automatic progression to next problems
 - Score tracking and problem counter
@@ -103,10 +118,12 @@ lumi/
 
 ## Testing
 
-The application includes a comprehensive test suite with 38 automated tests covering:
+The application includes a comprehensive test suite with 68 automated tests covering:
 - Math operations (addition, subtraction, place value)
 - Bulgarian language activities (letters, syllables, words)
 - Navigation and state management
+- Visual badge system and milestone awards
+- Input handling and validation
 
 ```bash
 # Run tests
