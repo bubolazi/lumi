@@ -31,10 +31,12 @@ class AppController {
                 // Only navigate back from selection screens (not game screen)
                 // Game screen handles its own navigation through input filter
                 if (screenId === 'level-select' || screenId === 'operation-select' || screenId === 'subject-select') {
+                    // Prevent browser's default back navigation
+                    e.preventDefault();
+                    
                     // Check if we can navigate back
                     if (this.navigationStack.length > 0) {
                         this.navigateBack();
-                        e.preventDefault();
                     }
                 }
             }
