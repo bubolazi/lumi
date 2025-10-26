@@ -17,11 +17,11 @@ Visual badges are defined in `LocalizationModel` and include both Bulgarian and 
 
 | Icon | Bulgarian Name | English Name | Threshold | Description |
 |------|---------------|--------------|-----------|-------------|
-| 🌱 | Начинаещ | Novice | 5 problems | First milestone - encourages initial engagement |
-| 📚 | Ученик | Learner | 10 problems | Early progress recognition |
-| 🌟 | Постигач | Achiever | 20 problems | Significant commitment |
-| ⭐ | Експерт | Expert | 50 problems | Advanced skill level |
-| 🏆 | Майстор | Master | 100 problems | Ultimate achievement |
+| 🌱 | Начинаещ | Novice | 5 | First milestone - encourages initial engagement |
+| 📚 | Ученик | Learner | 10 | Early progress recognition |
+| 🌟 | Постигач | Achiever | 20 | Significant commitment |
+| ⭐ | Експерт | Expert | 50 | Advanced skill level |
+| 🏆 | Майстор | Master | 100 | Ultimate achievement |
 
 ### Implementation
 
@@ -156,9 +156,9 @@ The `checkBadge()` method checks in this order:
 ### Streak Management
 
 - `problemsSolved`: Total count, never resets, used for visual badges
-- `correctAnswersStreak`: Count of consecutive correct answers, resets after text badge
+- `correctAnswersStreak`: Count of consecutive correct answers, resets only after text badge awards
 
-Note: Visual badges do NOT reset the streak, allowing both systems to work independently.
+**Important**: Visual badges do NOT reset the streak. The streak continues accumulating through visual badge awards and only resets to 0 after a text badge is awarded. This allows both badge systems to operate independently.
 
 ## Testing
 
@@ -229,11 +229,13 @@ To modify text badge behavior:
 Modify the modulo check in `checkBadge()`:
 ```javascript
 // Currently every 5
-if (this.correctAnswersStreak % 5 === 0)
+if (this.correctAnswersStreak > 0 && this.correctAnswersStreak % 5 === 0)
 
 // Example: Every 10
-if (this.correctAnswersStreak % 10 === 0)
+if (this.correctAnswersStreak > 0 && this.correctAnswersStreak % 10 === 0)
 ```
+
+Note: The `correctAnswersStreak > 0` check prevents awarding badges when streak is 0.
 
 ### Add Animals/Adjectives
 Add to the appropriate gender lists in LocalizationModel:
