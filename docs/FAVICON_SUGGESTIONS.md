@@ -120,16 +120,20 @@ This document provides favicon suggestions for the Lumi learning app, a kid-frie
 ### Method 1: Online Favicon Generators (Easiest)
 **Recommended Tools:**
 1. **Favicon.io** (https://favicon.io)
+   - **Best for:** Quick generation from text, images, or emojis
+   - **Why recommended:** Simple interface, no signup required, instant results
    - Text to favicon: Generate from "L" or "Lumi"
    - Image to favicon: Upload a larger design
    - Emoji to favicon: Use 💡 (light bulb) or similar
    - Automatically generates all sizes
 
 2. **RealFaviconGenerator** (https://realfavicongenerator.net)
-   - Most comprehensive tool
+   - **Best for:** Comprehensive multi-platform support
+   - **Why recommended:** Most thorough tool with device-specific previews
    - Generates all formats and sizes
    - Provides preview across devices
    - Creates HTML code snippets
+   - Shows how favicon appears in various contexts
 
 **Process:**
 1. Create a simple design or choose emoji
@@ -192,7 +196,12 @@ function generateFavicon(size, text) {
 [16, 32, 180, 192, 512].forEach(size => generateFavicon(size, 'L'));
 ```
 
-**Note:** This requires installing the `canvas` npm package (`npm install canvas`)
+**Note:** This requires installing the `canvas` npm package (`npm install canvas`). The canvas package has platform-specific dependencies and may require additional system libraries:
+- **Linux:** `sudo apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev`
+- **macOS:** Install via Xcode Command Line Tools (usually automatic with npm install)
+- **Windows:** Requires Windows Build Tools (`npm install --global windows-build-tools`)
+
+For a simpler approach without native dependencies, consider using online generators instead.
 
 ### Method 4: Using Emoji (Quickest)
 **Process:**
@@ -227,7 +236,7 @@ lumi/
 ```
 
 ### Step 3: Update HTML
-Add the following lines to the `<head>` section of `index.html` (after line 6, before the stylesheet links):
+Add the following lines to the `<head>` section of `index.html`, after the viewport meta tag and before the `<title>` tag (around line 5-6):
 
 ```html
 <!-- Favicon -->
@@ -290,11 +299,13 @@ Add to `<head>` in index.html:
 
 | Format | Browsers | Notes |
 |--------|----------|-------|
-| .ico | All browsers | Classic format, best compatibility |
-| .png | Modern browsers | Recommended for clarity |
-| .svg | Chrome, Firefox, Safari 12+ | Best quality, scalable |
-| apple-touch-icon | iOS Safari | Home screen icon |
-| manifest.json icons | PWA-capable browsers | For installable web apps |
+| .ico | All browsers | Classic format, universal compatibility |
+| .png | All modern browsers | Recommended for clarity and color accuracy |
+| .svg | Chrome 80+, Firefox 41+, Safari 12+, Edge 79+ | Best quality, scalable, modern standard |
+| apple-touch-icon | iOS Safari, iPadOS | Home screen icon (required for iOS) |
+| manifest.json icons | Chrome, Edge, Samsung Internet | For Progressive Web Apps (PWA) |
+
+**Note:** Browser support is constantly evolving. For the most current compatibility information, check [caniuse.com](https://caniuse.com/?search=favicon). As of 2024, SVG favicons have excellent support across all major browsers.
 
 ## Recommended Approach
 
