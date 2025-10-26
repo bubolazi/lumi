@@ -265,13 +265,16 @@ class AppController {
             inputFilter = (e) => {
                 // Handle backspace for navigation only
                 if (e.key === 'Backspace') {
+                    console.log('[DEBUG] Input filter (Bulgarian): Backspace pressed, input =', this.view.getUserInput());
                     // Check if input is empty - if so, navigate back
                     if (this.view.getUserInput() === '') {
+                        console.log('[DEBUG] Input filter: Input empty, calling navigateBack()');
                         this.navigateBack();
                         e.preventDefault();
                         return;
                     }
                     // If input has content, still navigate back (don't allow text editing)
+                    console.log('[DEBUG] Input filter: Input not empty, calling navigateBack()');
                     this.navigateBack();
                     e.preventDefault();
                     return;
