@@ -428,32 +428,67 @@ class AppView {
         }
     }
     
+    // Unbind input event handlers to prevent conflicts
+    unbindInputEvents() {
+        if (this._submitHandler) {
+            this.elements.terminalInput.removeEventListener('keypress', this._submitHandler);
+            this._submitHandler = null;
+        }
+        if (this._deleteHandler) {
+            this.elements.terminalInput.removeEventListener('keydown', this._deleteHandler);
+            this._deleteHandler = null;
+        }
+        if (this._inputFilterHandler) {
+            this.elements.terminalInput.removeEventListener('keydown', this._inputFilterHandler);
+            this._inputFilterHandler = null;
+        }
+        if (this._focusHandler) {
+            this.elements.terminalInput.removeEventListener('focus', this._focusHandler);
+            this._focusHandler = null;
+        }
+        if (this._blurHandler) {
+            this.elements.terminalInput.removeEventListener('blur', this._blurHandler);
+            this._blurHandler = null;
+        }
+    }
+    
     // Bind input events
-    bindInputEvents(submitHandler, focusHandler, blurHandler, backspaceHandler = null, inputFilter = null) {
-        this.elements.terminalInput.addEventListener('keypress', (e) => {
+    bindInputEvents(submitHandler, focusHandler, blurHandler, deleteHandler = null, inputFilter = null) {
+        // Unbind any existing handlers first
+        this.unbindInputEvents();
+        
+        // Create and store handler for Enter key
+        this._submitHandler = (e) => {
             if (e.key === 'Enter') {
                 submitHandler();
             }
-        });
+        };
+        this.elements.terminalInput.addEventListener('keypress', this._submitHandler);
         
-        // Handle Backspace for Bulgarian language wrong answers
-        if (backspaceHandler) {
-            this.elements.terminalInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace') {
-                    backspaceHandler();
+        // Handle Delete for Bulgarian language wrong answers
+        if (deleteHandler) {
+            this._deleteHandler = (e) => {
+                if (e.key === 'Delete' || e.key === 'Decimal' || e.key === '.') {
+                    deleteHandler();
+                    e.preventDefault();
                 }
-            });
+            };
+            this.elements.terminalInput.addEventListener('keydown', this._deleteHandler);
         }
         
         // Apply input filter if provided
         if (inputFilter) {
-            this.elements.terminalInput.addEventListener('keydown', (e) => {
+            this._inputFilterHandler = (e) => {
                 inputFilter(e);
-            });
+            };
+            this.elements.terminalInput.addEventListener('keydown', this._inputFilterHandler);
         }
         
-        this.elements.terminalInput.addEventListener('focus', focusHandler);
-        this.elements.terminalInput.addEventListener('blur', blurHandler);
+        // Store focus and blur handlers
+        this._focusHandler = focusHandler;
+        this._blurHandler = blurHandler;
+        this.elements.terminalInput.addEventListener('focus', this._focusHandler);
+        this.elements.terminalInput.addEventListener('blur', this._blurHandler);
     }
     
     // Bind click event on game screen to keep input focused

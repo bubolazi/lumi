@@ -20,8 +20,19 @@ class MockController {
         this.currentSubject = subjectName;
         this.currentActivity = null;
         this.currentLevel = null;
-        this.navigationStack = ['subject'];
+        // Bug fix: start with empty stack when selecting subject
+        this.navigationStack = [];
         this.activityManager = this.subjectManager.getActivityManager(subjectName);
+    }
+    
+    initializeOperationSelection() {
+        // Bug fix: push 'subject' when showing operations screen
+        const topOfStack = this.navigationStack.length > 0 
+            ? this.navigationStack[this.navigationStack.length - 1] 
+            : null;
+        if (topOfStack !== 'subject') {
+            this.navigationStack.push('subject');
+        }
     }
     
     selectOperation(operationName) {
@@ -103,15 +114,25 @@ describe('Navigation - Math Subject', () => {
         controller = new MockController();
     });
 
-    test('Navigation stack after selecting Math subject', () => {
+    test('Navigation stack starts empty after selecting Math subject', () => {
         controller.selectSubject('math');
         
-        expect(controller.navigationStack).toEqual(['subject']);
+        // Bug fix: stack should be empty when on subject screen
+        expect(controller.navigationStack).toEqual([]);
         expect(controller.currentSubject).toBe('math');
+    });
+
+    test('Navigation stack after showing operations screen', () => {
+        controller.selectSubject('math');
+        controller.initializeOperationSelection();
+        
+        // Bug fix: 'subject' pushed when showing operations
+        expect(controller.navigationStack).toEqual(['subject']);
     });
 
     test('Navigation stack after selecting Addition operation (multi-level)', () => {
         controller.selectSubject('math');
+        controller.initializeOperationSelection();
         controller.selectOperation('addition');
         
         expect(controller.navigationStack).toEqual(['subject', 'activity', 'level_select']);
@@ -120,6 +141,7 @@ describe('Navigation - Math Subject', () => {
 
     test('Navigation stack after starting Level 1 Addition', () => {
         controller.selectSubject('math');
+        controller.initializeOperationSelection();
         controller.selectOperation('addition');
         controller.startLevel(1, 'addition');
         
@@ -129,6 +151,7 @@ describe('Navigation - Math Subject', () => {
 
     test('Navigate back from game goes to level selection', () => {
         controller.selectSubject('math');
+        controller.initializeOperationSelection();
         controller.selectOperation('addition');
         controller.startLevel(1, 'addition');
         
@@ -140,6 +163,7 @@ describe('Navigation - Math Subject', () => {
 
     test('Navigate back from level selection goes to activity selection', () => {
         controller.selectSubject('math');
+        controller.initializeOperationSelection();
         controller.selectOperation('addition');
         
         const previousState = controller.navigateBack();
@@ -150,6 +174,7 @@ describe('Navigation - Math Subject', () => {
 
     test('Navigate back from activity selection goes to subject selection', () => {
         controller.selectSubject('math');
+        controller.initializeOperationSelection();
         controller.selectOperation('addition');
         controller.navigateBack(); // Back to activity
         
@@ -157,6 +182,20 @@ describe('Navigation - Math Subject', () => {
         
         expect(previousState).toBe('subject');
         expect(controller.navigationStack).toEqual(['subject']);
+    });
+    
+    test('Bug fix: Can navigate back to subject list (empty stack)', () => {
+        controller.selectSubject('math');
+        controller.initializeOperationSelection();
+        controller.selectOperation('addition');
+        controller.navigateBack(); // Back to activity
+        controller.navigateBack(); // Back to subject
+        
+        // Navigate back from subject - should reach empty stack
+        const previousState = controller.navigateBack();
+        
+        expect(previousState).toBeNull();
+        expect(controller.navigationStack).toEqual([]);
     });
 });
 
@@ -169,6 +208,7 @@ describe('Navigation - Single-Level Activities', () => {
 
     test('Place Value (multi-level) shows level selection', () => {
         controller.selectSubject('math');
+        controller.initializeOperationSelection();
         controller.selectOperation('place_value');
         
         // Should show level selection (Place Value has 2 levels)
@@ -178,6 +218,7 @@ describe('Navigation - Single-Level Activities', () => {
 
     test('Navigate back from multi-level activity after selecting level', () => {
         controller.selectSubject('math');
+        controller.initializeOperationSelection();
         controller.selectOperation('place_value');
         controller.startLevel(1, 'place_value');
         
@@ -196,15 +237,17 @@ describe('Navigation - Bulgarian Subject', () => {
         controller = new MockController();
     });
 
-    test('Navigation stack after selecting Bulgarian subject', () => {
+    test('Navigation stack starts empty after selecting Bulgarian subject', () => {
         controller.selectSubject('bulgarian');
         
-        expect(controller.navigationStack).toEqual(['subject']);
+        // Bug fix: stack should be empty when on subject screen
+        expect(controller.navigationStack).toEqual([]);
         expect(controller.currentSubject).toBe('bulgarian');
     });
 
     test('Navigation stack after selecting Letters activity', () => {
         controller.selectSubject('bulgarian');
+        controller.initializeOperationSelection();
         controller.selectOperation('letters');
         
         expect(controller.navigationStack).toEqual(['subject', 'activity', 'level_select']);
@@ -213,6 +256,7 @@ describe('Navigation - Bulgarian Subject', () => {
 
     test('Navigate back from Bulgarian game goes to level selection', () => {
         controller.selectSubject('bulgarian');
+        controller.initializeOperationSelection();
         controller.selectOperation('letters');
         controller.startLevel(1, 'letters');
         
@@ -233,6 +277,7 @@ describe('Navigation - State Preservation After Back Navigation', () => {
     test('Can navigate to same subject/activity after going back', () => {
         // First navigation
         controller.selectSubject('math');
+        controller.initializeOperationSelection();
         controller.selectOperation('addition');
         controller.startLevel(1, 'addition');
         
@@ -242,7 +287,7 @@ describe('Navigation - State Preservation After Back Navigation', () => {
         controller.navigateBack(); // to subject
         
         // Navigate again to same activity
-        controller.selectSubject('math');
+        controller.initializeOperationSelection();
         controller.selectOperation('addition');
         controller.startLevel(2, 'addition');
         
@@ -257,6 +302,7 @@ describe('Navigation - State Preservation After Back Navigation', () => {
     test('Can navigate to different subject/activity after going back', () => {
         // First navigation - Math
         controller.selectSubject('math');
+        controller.initializeOperationSelection();
         controller.selectOperation('addition');
         controller.startLevel(1, 'addition');
         
@@ -264,9 +310,11 @@ describe('Navigation - State Preservation After Back Navigation', () => {
         controller.navigateBack(); // to level_select
         controller.navigateBack(); // to activity
         controller.navigateBack(); // to subject
+        controller.navigateBack(); // to empty stack
         
         // Navigate to different subject - Bulgarian
         controller.selectSubject('bulgarian');
+        controller.initializeOperationSelection();
         controller.selectOperation('letters');
         controller.startLevel(1, 'letters');
         
@@ -282,6 +330,7 @@ describe('Navigation - State Preservation After Back Navigation', () => {
     test('Model generates correct results after back navigation', () => {
         // Navigate to Math Addition
         controller.selectSubject('math');
+        controller.initializeOperationSelection();
         controller.selectOperation('addition');
         controller.startLevel(1, 'addition');
         
@@ -308,9 +357,12 @@ describe('Navigation - Backspace Bug Fix', () => {
         controller = new MockController();
     });
 
-    test('Backspace navigates step by step, not directly to first screen', () => {
+    test('Bug fix: Backspace navigates step by step, allowing return to subject list', () => {
         // Navigate through all screens
         controller.selectSubject('math');
+        expect(controller.navigationStack).toEqual([]);
+        
+        controller.initializeOperationSelection();
         expect(controller.navigationStack).toEqual(['subject']);
         
         controller.selectOperation('addition');
@@ -329,20 +381,23 @@ describe('Navigation - Backspace Bug Fix', () => {
         expect(previousState).toBe('activity');
         expect(controller.navigationStack).toEqual(['subject', 'activity']);
         
-        // Press backspace from activity - should go to subject (NOT to empty/first screen)
+        // Press backspace from activity - should go to subject
         previousState = controller.navigateBack();
         expect(previousState).toBe('subject');
         expect(controller.navigationStack).toEqual(['subject']);
         
-        // Press backspace from subject - should stay at subject or reset
+        // Press backspace from subject - should reach subject list (empty stack)
         previousState = controller.navigateBack();
-        expect(previousState).toBeNull(); // No more history
+        expect(previousState).toBeNull();
         expect(controller.navigationStack).toEqual([]);
     });
 
-    test('Backspace preserves navigation state in Bulgarian activities', () => {
+    test('Bug fix: Backspace preserves navigation state in Bulgarian activities', () => {
         // Navigate through Bulgarian activity
         controller.selectSubject('bulgarian');
+        expect(controller.navigationStack).toEqual([]);
+        
+        controller.initializeOperationSelection();
         expect(controller.navigationStack).toEqual(['subject']);
         
         controller.selectOperation('letters');
@@ -360,11 +415,16 @@ describe('Navigation - Backspace Bug Fix', () => {
         
         controller.navigateBack(); // to subject
         expect(controller.navigationStack).toEqual(['subject']);
+        
+        // Navigate back to subject list
+        controller.navigateBack();
+        expect(controller.navigationStack).toEqual([]);
     });
 
-    test('Navigation stack remains consistent after multiple back-and-forth navigations', () => {
+    test('Bug fix: Navigation stack remains consistent after multiple back-and-forth navigations', () => {
         // First journey
         controller.selectSubject('math');
+        controller.initializeOperationSelection();
         controller.selectOperation('addition');
         controller.startLevel(1, 'addition');
         expect(controller.navigationStack).toEqual(['subject', 'activity', 'level_select', 'game']);
@@ -386,5 +446,9 @@ describe('Navigation - Backspace Bug Fix', () => {
         expect(controller.navigationStack).toEqual(['subject', 'activity']);
         controller.navigateBack(); // to subject
         expect(controller.navigationStack).toEqual(['subject']);
+        
+        // Can reach subject list
+        controller.navigateBack();
+        expect(controller.navigationStack).toEqual([]);
     });
 });

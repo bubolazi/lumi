@@ -11,7 +11,38 @@ class AppController {
         this.currentLevel = null; // Track current level
         this.navigationStack = []; // Stack for tracking navigation history
         
+        // Bind global navigation handler
+        this.bindGlobalNavigation();
+        
         this.initializeSubjectSelection();
+    }
+    
+    // Bind global keyboard handler for navigation
+    bindGlobalNavigation() {
+        this.globalNavigationHandler = (e) => {
+            // Only handle Backspace for navigation on selection screens
+            if (e.key === 'Backspace') {
+                // Check which screen is active
+                const activeScreen = document.querySelector('.screen.active');
+                if (!activeScreen) return;
+                
+                const screenId = activeScreen.id;
+                
+                // Only navigate back from selection screens (not game screen)
+                // Game screen handles its own navigation through input filter
+                if (screenId === 'level-select' || screenId === 'operation-select' || screenId === 'subject-select') {
+                    // Prevent browser's default back navigation
+                    e.preventDefault();
+                    
+                    // Check if we can navigate back
+                    if (this.navigationStack.length > 0) {
+                        this.navigateBack();
+                    }
+                }
+            }
+        };
+        
+        document.addEventListener('keydown', this.globalNavigationHandler);
     }
     
     // Helper method to push state to navigation stack only if not already on top
@@ -57,7 +88,7 @@ class AppController {
         this.currentSubject = subjectName;
         this.currentActivity = null;
         this.currentLevel = null;
-        this.navigationStack = ['subject'];
+        this.navigationStack = [];
         
         // Pass current subject to view
         this.view.currentSubject = subjectName;
@@ -78,6 +109,9 @@ class AppController {
     }
     
     initializeOperationSelection() {
+        // Push 'subject' to navigation stack when showing operations
+        this.pushToStackIfNotPresent('subject');
+        
         // Show operation selection screen
         this.view.showScreen('operation-select');
         
@@ -185,13 +219,16 @@ class AppController {
         this.model.resetStats();
         this.view.showScreen('game-screen');
         
-        // Update breadcrumb with level
+        // Update breadcrumb with level description (not "LEVEL X")
         const subjectKey = this.subjectManager.getSubjectKey(this.currentSubject);
         const activityKey = this.activityManager.getOperationKey(this.currentActivity);
+        const levels = this.model.getLocalizedLevels();
+        const levelDescription = levels[level] ? levels[level].description : `${this.localization.t('LEVEL')} ${level}`;
+        
         this.view.updateBreadcrumb([
             this.localization.t(subjectKey),
             this.localization.t(activityKey),
-            `${this.localization.t('LEVEL')} ${level}`
+            levelDescription
         ]);
         
         // Update game instructions based on subject
@@ -210,37 +247,35 @@ class AppController {
     
     bindGameEvents() {
         // Bind input events
-        const backspaceHandler = (this.currentSubject === 'bulgarian') 
-            ? () => this.handleBackspaceKey() 
+        // For Bulgarian: Delete or Decimal (numpad period) marks wrong answer
+        const deleteHandler = (this.currentSubject === 'bulgarian') 
+            ? () => this.handleDeleteKey() 
             : null;
-        
-        // Track backspace timing for double-backspace detection (Bulgarian only)
-        let lastBackspaceTime = 0;
-        const doubleBackspaceThreshold = 500; // milliseconds
         
         // Create input filter based on subject
         let inputFilter = null;
         if (this.currentSubject === 'bulgarian') {
             // Bulgarian: block all character input, allow only navigation/control keys
             inputFilter = (e) => {
-                // Handle backspace specially for navigation
+                // Handle backspace for navigation only
                 if (e.key === 'Backspace') {
-                    const now = Date.now();
-                    const timeSinceLastBackspace = now - lastBackspaceTime;
-                    lastBackspaceTime = now;
-                    
-                    // If double backspace (within threshold), navigate back
-                    if (timeSinceLastBackspace < doubleBackspaceThreshold) {
-                        this.navigateBack();
-                        e.preventDefault();
-                        return;
-                    }
-                    // First backspace - handled by backspaceHandler for wrong answer
+                    // Prevent default browser behavior
+                    e.preventDefault();
+                    // Stop event from bubbling to global handler
+                    e.stopPropagation();
+                    // Navigate back (input content doesn't matter for Bulgarian - always navigate)
+                    this.navigateBack();
                     return;
                 }
                 
-                // Allow: Tab, Enter, Escape, Arrow keys, Delete
-                const allowedKeys = ['Tab', 'Enter', 'Escape', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Delete'];
+                // Handle Delete or Decimal (numpad period) for marking wrong answer
+                if (e.key === 'Delete' || e.key === 'Decimal' || e.key === '.') {
+                    // Handled by deleteHandler
+                    return;
+                }
+                
+                // Allow: Tab, Enter, Escape, Arrow keys
+                const allowedKeys = ['Tab', 'Enter', 'Escape', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
                 if (allowedKeys.includes(e.key)) {
                     return; // Allow these keys
                 }
@@ -261,8 +296,9 @@ class AppController {
                 if (e.key === 'Backspace') {
                     // Check if input is empty - if so, navigate back
                     if (this.view.getUserInput() === '') {
-                        this.navigateBack();
                         e.preventDefault();
+                        e.stopPropagation(); // Stop event from bubbling to global handler
+                        this.navigateBack();
                         return;
                     }
                     // Otherwise, allow normal backspace behavior
@@ -287,7 +323,7 @@ class AppController {
             () => this.handleEnterKey(),        // Submit/dismiss handler
             () => this.view.hideCursor(),       // Focus handler
             () => this.view.showCursor(),       // Blur handler
-            backspaceHandler,                   // Backspace handler (Bulgarian only)
+            deleteHandler,                      // Delete handler (Bulgarian only)
             inputFilter                         // Input filter
         );
         
@@ -336,8 +372,8 @@ class AppController {
         }
     }
     
-    // Handle Backspace key press - submit wrong answer for Bulgarian subject
-    handleBackspaceKey() {
+    // Handle Delete key press - submit wrong answer for Bulgarian subject
+    handleDeleteKey() {
         // If a message is visible, dismiss it first
         if (this.view.isMessageVisible()) {
             this.view.hideMessage();
@@ -347,8 +383,7 @@ class AppController {
             return;
         }
         
-        // For Bulgarian subject, Backspace means wrong answer
-        // Set a special marker to indicate this was a Backspace submission
+        // For Bulgarian subject, Delete means wrong answer
         this.checkAnswerAsWrong();
     }
     
@@ -434,7 +469,7 @@ class AppController {
                     this.view.clearAndFocusInput();
                 }, 1500);
             } else {
-                // Final step completed - award points and generate new problem
+                // Final step completed - award points and show message
                 this.model.updateScore();
                 
                 const badgeMessage = this.model.checkBadge();
@@ -445,6 +480,9 @@ class AppController {
                 }
                 
                 this.view.updateGameStatus(this.model.getGameState());
+                
+                // Mark that we've completed all steps so next Enter generates new problem
+                problem.currentStep = 5;
             }
         } else {
             // Incorrect answer
@@ -480,8 +518,8 @@ class AppController {
             // Go back to subject selection - don't modify stack
             this.showSubjectSelection();
         } else {
-            // No more history - go back to subject selection and reset
-            this.initializeSubjectSelection();
+            // No more history - show subject selection without resetting
+            this.showSubjectSelection();
         }
         
         return previousState;

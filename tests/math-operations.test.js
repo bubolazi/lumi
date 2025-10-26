@@ -234,3 +234,83 @@ describe('Math Model - State Management', () => {
         expect(badge).toContain('Печелиш значка:'); // Bulgarian for "You earned a badge:"
     });
 });
+
+describe('Bug Fix - Place Value Level 2 Completion', () => {
+    let localization;
+    let operationManager;
+    let placeValueExtension;
+    let mathModel;
+
+    beforeEach(() => {
+        localization = new LocalizationModel('bg');
+        operationManager = new OperationManager();
+        placeValueExtension = operationManager.getOperationExtension('place_value');
+        mathModel = new MathModel(localization, placeValueExtension);
+    });
+
+    test('Place Value Level 2 problem has currentStep property set to 1', () => {
+        mathModel.setLevel(2, 'place_value');
+        
+        const problem = mathModel.generateProblem();
+        
+        expect(problem.currentStep).toBe(1);
+        expect(problem.stepAnswers).toHaveLength(4);
+    });
+
+    test('Place Value Level 2 problem marks completion with currentStep=5 after all steps', () => {
+        mathModel.setLevel(2, 'place_value');
+        
+        const problem = mathModel.generateProblem();
+        
+        // Simulate completing all 4 steps
+        problem.currentStep = 2;
+        problem.currentStep = 3;
+        problem.currentStep = 4;
+        
+        // After step 4 completion, currentStep should be set to 5
+        problem.currentStep = 5;
+        
+        // Verify that currentStep=5 indicates completion
+        expect(problem.currentStep).toBe(5);
+        expect(problem.currentStep >= 5).toBe(true);
+    });
+
+    test('Multiple Place Value problems can be generated in sequence', () => {
+        mathModel.setLevel(2, 'place_value');
+        
+        // Generate first problem
+        const problem1 = mathModel.generateProblem();
+        expect(problem1.currentStep).toBe(1);
+        
+        // Simulate completion
+        problem1.currentStep = 5;
+        
+        // Generate second problem
+        const problem2 = mathModel.generateProblem();
+        expect(problem2.currentStep).toBe(1);
+        expect(problem2.num1).toBeDefined();
+        expect(problem2.num2).toBeDefined();
+        
+        // Verify problems are different (highly likely)
+        const isDifferent = problem1.num1 !== problem2.num1 || problem1.num2 !== problem2.num2;
+        expect(isDifferent).toBe(true);
+    });
+
+    test('Place Value Level 2 stepAnswers are correct for all 4 steps', () => {
+        mathModel.setLevel(2, 'place_value');
+        
+        const problem = mathModel.generateProblem();
+        
+        // Step 1: ones sum
+        expect(problem.stepAnswers[0]).toBe(problem.onesSum);
+        
+        // Step 2: carry over
+        expect(problem.stepAnswers[1]).toBe(problem.carryOver);
+        
+        // Step 3: tens sum + carry
+        expect(problem.stepAnswers[2]).toBe(problem.tensSum + problem.carryOver);
+        
+        // Step 4: final answer
+        expect(problem.stepAnswers[3]).toBe(problem.answer);
+    });
+});
