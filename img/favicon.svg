@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <!-- Black background -->
+    <rect width="100" height="100" fill="#000000"/>
+    
+    <!-- Circuit-style L letter with dots at connection points -->
+    <!-- Vertical line of L -->
+    <line x1="25" y1="20" x2="25" y2="80" stroke="#00ff41" stroke-width="4" stroke-linecap="round"/>
+    
+    <!-- Horizontal line of L -->
+    <line x1="25" y1="80" x2="75" y2="80" stroke="#00ff41" stroke-width="4" stroke-linecap="round"/>
+    
+    <!-- Circuit dots (connection points) -->
+    <!-- Top dot -->
+    <circle cx="25" cy="20" r="5" fill="#00ff41"/>
+    
+    <!-- Corner dot (angle) -->
+    <circle cx="25" cy="80" r="5" fill="#00ff41"/>
+    
+    <!-- End dot (right end) -->
+    <circle cx="75" cy="80" r="5" fill="#00ff41"/>
+</svg>
