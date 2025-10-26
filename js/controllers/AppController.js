@@ -219,13 +219,16 @@ class AppController {
         this.model.resetStats();
         this.view.showScreen('game-screen');
         
-        // Update breadcrumb with level
+        // Update breadcrumb with level description (not "LEVEL X")
         const subjectKey = this.subjectManager.getSubjectKey(this.currentSubject);
         const activityKey = this.activityManager.getOperationKey(this.currentActivity);
+        const levels = this.model.getLocalizedLevels();
+        const levelDescription = levels[level] ? levels[level].description : `${this.localization.t('LEVEL')} ${level}`;
+        
         this.view.updateBreadcrumb([
             this.localization.t(subjectKey),
             this.localization.t(activityKey),
-            `${this.localization.t('LEVEL')} ${level}`
+            levelDescription
         ]);
         
         // Update game instructions based on subject
@@ -526,6 +529,10 @@ class AppController {
     
     // Show level selection without modifying navigation stack
     showLevelSelection() {
+        // Ensure 'level_select' is on the stack when showing level selection
+        // This is important when navigating back from game screen
+        this.pushToStackIfNotPresent('level_select');
+        
         // Render level list for the selected operation
         this.view.renderLevelList(this.model.getLocalizedLevels());
         
