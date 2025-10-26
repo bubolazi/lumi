@@ -213,37 +213,38 @@ class AppController {
     
     bindGameEvents() {
         // Bind input events
-        const backspaceHandler = (this.currentSubject === 'bulgarian') 
-            ? () => this.handleBackspaceKey() 
+        // For Bulgarian: Delete or Decimal (numpad period) marks wrong answer
+        const deleteHandler = (this.currentSubject === 'bulgarian') 
+            ? () => this.handleDeleteKey() 
             : null;
-        
-        // Track backspace timing for double-backspace detection (Bulgarian only)
-        let lastBackspaceTime = 0;
-        const doubleBackspaceThreshold = 500; // milliseconds
         
         // Create input filter based on subject
         let inputFilter = null;
         if (this.currentSubject === 'bulgarian') {
             // Bulgarian: block all character input, allow only navigation/control keys
             inputFilter = (e) => {
-                // Handle backspace specially for navigation
+                // Handle backspace for navigation only
                 if (e.key === 'Backspace') {
-                    const now = Date.now();
-                    const timeSinceLastBackspace = now - lastBackspaceTime;
-                    lastBackspaceTime = now;
-                    
-                    // If double backspace (within threshold), navigate back
-                    if (timeSinceLastBackspace < doubleBackspaceThreshold) {
+                    // Check if input is empty - if so, navigate back
+                    if (this.view.getUserInput() === '') {
                         this.navigateBack();
                         e.preventDefault();
                         return;
                     }
-                    // First backspace - handled by backspaceHandler for wrong answer
+                    // If input has content, still navigate back (don't allow text editing)
+                    this.navigateBack();
+                    e.preventDefault();
                     return;
                 }
                 
-                // Allow: Tab, Enter, Escape, Arrow keys, Delete
-                const allowedKeys = ['Tab', 'Enter', 'Escape', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Delete'];
+                // Handle Delete or Decimal (numpad period) for marking wrong answer
+                if (e.key === 'Delete' || e.key === 'Decimal' || e.key === '.') {
+                    // Handled by deleteHandler
+                    return;
+                }
+                
+                // Allow: Tab, Enter, Escape, Arrow keys
+                const allowedKeys = ['Tab', 'Enter', 'Escape', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
                 if (allowedKeys.includes(e.key)) {
                     return; // Allow these keys
                 }
@@ -290,7 +291,7 @@ class AppController {
             () => this.handleEnterKey(),        // Submit/dismiss handler
             () => this.view.hideCursor(),       // Focus handler
             () => this.view.showCursor(),       // Blur handler
-            backspaceHandler,                   // Backspace handler (Bulgarian only)
+            deleteHandler,                      // Delete handler (Bulgarian only)
             inputFilter                         // Input filter
         );
         
@@ -339,8 +340,8 @@ class AppController {
         }
     }
     
-    // Handle Backspace key press - submit wrong answer for Bulgarian subject
-    handleBackspaceKey() {
+    // Handle Delete key press - submit wrong answer for Bulgarian subject
+    handleDeleteKey() {
         // If a message is visible, dismiss it first
         if (this.view.isMessageVisible()) {
             this.view.hideMessage();
@@ -350,8 +351,7 @@ class AppController {
             return;
         }
         
-        // For Bulgarian subject, Backspace means wrong answer
-        // Set a special marker to indicate this was a Backspace submission
+        // For Bulgarian subject, Delete means wrong answer
         this.checkAnswerAsWrong();
     }
     
@@ -486,8 +486,8 @@ class AppController {
             // Go back to subject selection - don't modify stack
             this.showSubjectSelection();
         } else {
-            // No more history - go back to subject selection and reset
-            this.initializeSubjectSelection();
+            // No more history - show subject selection without resetting
+            this.showSubjectSelection();
         }
         
         return previousState;

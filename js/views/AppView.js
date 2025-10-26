@@ -434,9 +434,9 @@ class AppView {
             this.elements.terminalInput.removeEventListener('keypress', this._submitHandler);
             this._submitHandler = null;
         }
-        if (this._backspaceHandler) {
-            this.elements.terminalInput.removeEventListener('keydown', this._backspaceHandler);
-            this._backspaceHandler = null;
+        if (this._deleteHandler) {
+            this.elements.terminalInput.removeEventListener('keydown', this._deleteHandler);
+            this._deleteHandler = null;
         }
         if (this._inputFilterHandler) {
             this.elements.terminalInput.removeEventListener('keydown', this._inputFilterHandler);
@@ -453,7 +453,7 @@ class AppView {
     }
     
     // Bind input events
-    bindInputEvents(submitHandler, focusHandler, blurHandler, backspaceHandler = null, inputFilter = null) {
+    bindInputEvents(submitHandler, focusHandler, blurHandler, deleteHandler = null, inputFilter = null) {
         // Unbind any existing handlers first
         this.unbindInputEvents();
         
@@ -465,14 +465,15 @@ class AppView {
         };
         this.elements.terminalInput.addEventListener('keypress', this._submitHandler);
         
-        // Handle Backspace for Bulgarian language wrong answers
-        if (backspaceHandler) {
-            this._backspaceHandler = (e) => {
-                if (e.key === 'Backspace') {
-                    backspaceHandler();
+        // Handle Delete for Bulgarian language wrong answers
+        if (deleteHandler) {
+            this._deleteHandler = (e) => {
+                if (e.key === 'Delete' || e.key === 'Decimal' || e.key === '.') {
+                    deleteHandler();
+                    e.preventDefault();
                 }
             };
-            this.elements.terminalInput.addEventListener('keydown', this._backspaceHandler);
+            this.elements.terminalInput.addEventListener('keydown', this._deleteHandler);
         }
         
         // Apply input filter if provided
