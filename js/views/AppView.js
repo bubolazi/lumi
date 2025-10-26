@@ -291,8 +291,27 @@ class AppView {
     
     // Hide feedback message
     hideMessage() {
-        this.elements.terminalMessage.classList.remove('show');
+        this.elements.terminalMessage.classList.remove('show', 'visual-badge');
         this.messageVisible = false;
+        if (this.messageTimeout) {
+            clearTimeout(this.messageTimeout);
+            this.messageTimeout = null;
+        }
+    }
+    
+    // Show visual badge
+    showVisualBadge(badge) {
+        this.elements.terminalMessage.innerHTML = `
+            <div class="badge-content">
+                <div class="badge-icon">${badge.icon}</div>
+                <div class="badge-name">${badge.name}</div>
+                <div class="badge-description">${badge.description}</div>
+            </div>
+        `;
+        this.elements.terminalMessage.classList.add('show', 'visual-badge');
+        this.messageVisible = true;
+        
+        // Clear any existing timeout
         if (this.messageTimeout) {
             clearTimeout(this.messageTimeout);
             this.messageTimeout = null;

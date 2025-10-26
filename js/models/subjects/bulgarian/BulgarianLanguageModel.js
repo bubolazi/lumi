@@ -54,13 +54,35 @@ class BulgarianLanguageModel {
         return messages[Math.floor(Math.random() * messages.length)];
     }
     
-    // Check if user earned a badge (every 5 correct answers)
+    // Check if user earned a badge
     checkBadge() {
+        const total = this.problemsSolved;
+        const visualBadges = this.localization.getVisualBadges();
+        
+        // Check for visual badge milestones
+        if (visualBadges.novice && total === visualBadges.novice.threshold) {
+            return { type: 'visual', badge: visualBadges.novice };
+        }
+        if (visualBadges.learner && total === visualBadges.learner.threshold) {
+            return { type: 'visual', badge: visualBadges.learner };
+        }
+        if (visualBadges.achiever && total === visualBadges.achiever.threshold) {
+            return { type: 'visual', badge: visualBadges.achiever };
+        }
+        if (visualBadges.expert && total === visualBadges.expert.threshold) {
+            return { type: 'visual', badge: visualBadges.expert };
+        }
+        if (visualBadges.master && total === visualBadges.master.threshold) {
+            return { type: 'visual', badge: visualBadges.master };
+        }
+        
+        // Otherwise check for text badge (every 5)
         if (this.correctAnswersStreak > 0 && this.correctAnswersStreak % 5 === 0) {
             // Reset streak after awarding badge
             this.correctAnswersStreak = 0;
-            return this.generateBadgeMessage();
+            return { type: 'text', message: this.generateBadgeMessage() };
         }
+        
         return null;
     }
     

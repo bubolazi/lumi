@@ -224,6 +224,46 @@ main {
     visibility: visible;
 }
 
+/* Visual Badge Styling */
+.terminal-message.visual-badge {
+    padding: 30px 50px;
+    border: 3px solid var(--terminal-green);
+    box-shadow: 0 0 20px var(--terminal-green);
+}
+
+.badge-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.badge-icon {
+    font-size: 4rem;
+    animation: badgePulse 1s ease-in-out;
+}
+
+.badge-name {
+    font-size: 2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.badge-description {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+@keyframes badgePulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+
 /* Instructions */
 .instructions {
     position: fixed;

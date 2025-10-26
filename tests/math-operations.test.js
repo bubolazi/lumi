@@ -227,11 +227,12 @@ describe('Math Model - State Management', () => {
             expect(mathModel.checkBadge()).toBeNull();
         }
         
-        // 5th correct answer should award badge
+        // 5th correct answer should award a visual badge now (at milestone)
         mathModel.updateScore();
         const badge = mathModel.checkBadge();
         expect(badge).not.toBeNull();
-        expect(badge).toContain('Печелиш значка:'); // Bulgarian for "You earned a badge:"
+        expect(badge.type).toBe('visual');
+        expect(badge.badge.icon).toBe('🌱');
     });
 });
 
