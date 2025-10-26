@@ -529,10 +529,6 @@ class AppController {
     
     // Show level selection without modifying navigation stack
     showLevelSelection() {
-        // Ensure 'level_select' is on the stack when showing level selection
-        // This is important when navigating back from game screen
-        this.pushToStackIfNotPresent('level_select');
-        
         // Render level list for the selected operation
         this.view.renderLevelList(this.model.getLocalizedLevels());
         
