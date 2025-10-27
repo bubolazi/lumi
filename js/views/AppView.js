@@ -149,7 +149,7 @@ class AppView {
         if (step >= 2) {
             const status = step > 2 ? 'completed' : '';
             const answer = step > 2 ? ` = ${problem.carryOver}` : ' = ?';
-            const tooltip = ' <span class="tooltip-icon">ℹ</span>';
+            const tooltip = ' <span class="tooltip-icon"><svg viewBox="0 0 16 16" class="tooltip-svg"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="2"/><text x="8" y="12" text-anchor="middle" fill="currentColor" font-family="monospace" font-size="11" font-weight="bold">i</text></svg></span>';
             historyHTML += `<div class="history-step ${status}"><span class="step-number">2️⃣</span><span class="step-content">Пренос${answer}${tooltip}</span></div>`;
         }
         
@@ -178,7 +178,7 @@ class AppView {
             currentStepText = `${problem.ones1} + ${problem.ones2} = ?`;
         } else if (step === 2) {
             hasInfoIcon = true;
-            const infoIcon = ` <span class="tooltip-icon">${this.localization.t('TOOLTIP_ICON')}</span>`;
+            const infoIcon = ' <span class="tooltip-icon"><svg viewBox="0 0 16 16" class="tooltip-svg"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="2"/><text x="8" y="12" text-anchor="middle" fill="currentColor" font-family="monospace" font-size="11" font-weight="bold">i</text></svg></span>';
             currentStepText = `Пренос = ?${infoIcon}`;
         } else if (step === 3) {
             const carryText = problem.carryOver > 0 ? ` + ${problem.carryOver}` : '';
