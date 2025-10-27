@@ -102,6 +102,12 @@ header h1 {
     color: var(--amber-dim);
 }
 
+/* Tooltip icon colors */
+.tooltip-icon {
+    border-color: var(--amber-main);
+    color: var(--amber-main);
+}
+
 /* Responsive cursor adjustment */
 @media (max-width: 600px) {
     .cursor {

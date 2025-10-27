@@ -122,6 +122,12 @@ header h1 {
     color: var(--dim-green);
 }
 
+/* Tooltip icon colors */
+.tooltip-icon {
+    border-color: var(--terminal-green);
+    color: var(--terminal-green);
+}
+
 /* Responsive cursor adjustment */
 @media (max-width: 600px) {
     .cursor {

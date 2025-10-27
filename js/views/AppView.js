@@ -149,7 +149,7 @@ class AppView {
         if (step >= 2) {
             const status = step > 2 ? 'completed' : '';
             const answer = step > 2 ? ` = ${problem.carryOver}` : ' = ?';
-            const tooltip = problem.carryOver > 0 ? ' ℹ' : '';
+            const tooltip = problem.carryOver > 0 ? ' <span class="tooltip-icon">ℹ</span>' : '';
             historyHTML += `<div class="history-step ${status}"><span class="step-number">2️⃣</span><span class="step-content">Пренос${answer}${tooltip}</span></div>`;
         }
         
@@ -178,7 +178,7 @@ class AppView {
             currentStepText = `${problem.ones1} + ${problem.ones2} = ?`;
         } else if (step === 2) {
             hasInfoIcon = problem.carryOver > 0;
-            const infoIcon = hasInfoIcon ? ` ${this.localization.t('TOOLTIP_ICON')}` : '';
+            const infoIcon = hasInfoIcon ? ` <span class="tooltip-icon">${this.localization.t('TOOLTIP_ICON')}</span>` : '';
             currentStepText = `Пренос = ?${infoIcon}`;
         } else if (step === 3) {
             const carryText = problem.carryOver > 0 ? ` + ${problem.carryOver}` : '';
@@ -190,7 +190,7 @@ class AppView {
         // Update problem's hasInfoIcon flag
         problem.hasInfoIcon = hasInfoIcon;
         
-        this.elements.problemDisplayCompact.textContent = currentStepText;
+        this.elements.problemDisplayCompact.innerHTML = currentStepText;
         
         // Update help text if info icon is present
         if (hasInfoIcon) {
