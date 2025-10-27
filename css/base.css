@@ -145,6 +145,11 @@ main {
     vertical-align: middle;
 }
 
+/* Thicker border for tooltip icon in problem display */
+.problem-display.compact .tooltip-icon {
+    border-width: 3px;
+}
+
 .current-step-display {
     flex: 1;
     text-align: center;
