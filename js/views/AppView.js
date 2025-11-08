@@ -618,24 +618,28 @@ class AppView {
         const startIdx = (currentPage - 1) * 5;
         const endIdx = Math.min(startIdx + 5, badgeCount);
         
-        let message = `${this.localization.t('BADGES_TITLE')}\n`;
-        message += `${this.localization.t('BADGES_COUNT')} ${badgeCount}\n\n`;
+        let html = `<div class="badges-header">${this.localization.t('BADGES_TITLE')}</div>`;
+        html += `<div class="badges-count">${this.localization.t('BADGES_COUNT')} ${badgeCount}</div>`;
         
         if (badges.length === 0) {
-            message += this.localization.t('NO_BADGES');
+            html += `<div class="badges-list">${this.localization.t('NO_BADGES')}</div>`;
         } else {
+            html += `<div class="badges-list">`;
             const pageBadges = badges.slice(startIdx, endIdx);
             pageBadges.forEach((badgeName, index) => {
-                message += `${startIdx + index + 1}. ${badgeName}\n`;
+                html += `<div class="badge-item">${startIdx + index + 1}. ${badgeName}</div>`;
             });
+            html += `</div>`;
             
             if (currentPage < totalPages) {
-                message += `\n${this.localization.t('BADGES_PRESS_STAR')}`;
+                html += `<div class="badges-instructions">${this.localization.t('BADGES_PRESS_STAR')}</div>`;
             } else {
-                message += `\n${this.localization.t('BADGES_CLOSE')}`;
+                html += `<div class="badges-instructions">${this.localization.t('BADGES_CLOSE')}</div>`;
             }
         }
         
-        this.showMessage(message, false);
+        this.elements.terminalMessage.innerHTML = html;
+        this.elements.terminalMessage.classList.add('show');
+        this.messageVisible = true;
     }
 }
