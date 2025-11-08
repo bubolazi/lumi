@@ -149,7 +149,7 @@ class AppView {
         if (step >= 2) {
             const status = step > 2 ? 'completed' : '';
             const answer = step > 2 ? ` = ${problem.carryOver}` : ' = ?';
-            const tooltip = ' <span class="tooltip-icon">ℹ</span>';
+            const tooltip = ' <span class="tooltip-icon"><i>i</i></span>';
             historyHTML += `<div class="history-step ${status}"><span class="step-number">2️⃣</span><span class="step-content">Пренос${answer}${tooltip}</span></div>`;
         }
         
