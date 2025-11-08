@@ -1,8 +1,9 @@
 // Controller: Coordinates between Model and View
 class AppController {
-    constructor(localization, subjectManager) {
+    constructor(localization, subjectManager, userStorage) {
         this.localization = localization;
         this.subjectManager = subjectManager;
+        this.userStorage = userStorage;
         this.activityManager = null; // Will be set after subject selection
         this.view = new AppView(localization);
         this.model = null; // Will be initialized after operation/activity selection
@@ -10,9 +11,17 @@ class AppController {
         this.currentActivity = null; // Track current activity
         this.currentLevel = null; // Track current level
         this.navigationStack = []; // Stack for tracking navigation history
+        this.badgesPage = 0; // Track current badges page
+        this.badgesVisible = false; // Track if badges are visible
         
         // Bind global navigation handler
         this.bindGlobalNavigation();
+        
+        // Bind logout button
+        this.view.bindLogoutButton(() => this.handleLogout());
+        
+        // Update user display
+        this.updateUserDisplay();
         
         this.initializeSubjectSelection();
     }
@@ -20,6 +29,16 @@ class AppController {
     // Bind global keyboard handler for navigation
     bindGlobalNavigation() {
         this.globalNavigationHandler = (e) => {
+            // Handle star (*) key globally for badge display
+            if (e.key === '*') {
+                const currentUser = this.userStorage.getCurrentUser();
+                if (currentUser) {
+                    e.preventDefault();
+                    this.handleStarKey();
+                }
+                return;
+            }
+            
             // Only handle Backspace for navigation on selection screens
             if (e.key === 'Backspace') {
                 // Check which screen is active
@@ -85,6 +104,21 @@ class AppController {
     }
     
     selectSubject(subjectName) {
+        const currentUser = this.userStorage.getCurrentUser();
+        
+        if (!currentUser) {
+            this.view.promptUserLogin((username) => {
+                if (this.userStorage.setCurrentUser(username)) {
+                    this.updateUserDisplay();
+                    this.proceedWithSubjectSelection(subjectName);
+                }
+            });
+        } else {
+            this.proceedWithSubjectSelection(subjectName);
+        }
+    }
+    
+    proceedWithSubjectSelection(subjectName) {
         this.currentSubject = subjectName;
         this.currentActivity = null;
         this.currentLevel = null;
@@ -430,9 +464,10 @@ class AppController {
             this.model.updateScore();
             
             // Check if user earned a badge
-            const badgeMessage = this.model.checkBadge();
-            if (badgeMessage) {
-                this.view.showMessage(badgeMessage, false);
+            const badgeData = this.model.checkBadge();
+            if (badgeData) {
+                this.saveBadge(badgeData.badgeName);
+                this.view.showMessage(badgeData.fullMessage, false);
             } else {
                 this.view.showMessage(this.model.getRandomRewardMessage(), false);
             }
@@ -472,9 +507,10 @@ class AppController {
                 // Final step completed - award points and show message
                 this.model.updateScore();
                 
-                const badgeMessage = this.model.checkBadge();
-                if (badgeMessage) {
-                    this.view.showMessage(badgeMessage, false);
+                const badgeData = this.model.checkBadge();
+                if (badgeData) {
+                    this.saveBadge(badgeData.badgeName);
+                    this.view.showMessage(badgeData.fullMessage, false);
                 } else {
                     this.view.showMessage(this.model.getRandomRewardMessage(), false);
                 }
@@ -606,5 +642,49 @@ class AppController {
         
         // Update breadcrumb (empty at subject level)
         this.view.updateBreadcrumb([]);
+    }
+    
+    updateUserDisplay() {
+        const currentUser = this.userStorage.getCurrentUser();
+        this.view.updateUserDisplay(currentUser);
+    }
+    
+    handleLogout() {
+        this.userStorage.logout();
+        this.updateUserDisplay();
+        this.initializeSubjectSelection();
+    }
+    
+    handleStarKey() {
+        const currentUser = this.userStorage.getCurrentUser();
+        if (!currentUser) {
+            return;
+        }
+        
+        const badges = this.userStorage.getBadges(currentUser);
+        const badgeCount = badges.length;
+        const totalPages = Math.ceil(badgeCount / 5) || 1;
+        
+        if (!this.badgesVisible) {
+            this.badgesPage = 1;
+            this.badgesVisible = true;
+            this.view.showBadgesMessage(badges, this.badgesPage, totalPages, badgeCount);
+        } else {
+            this.badgesPage++;
+            if (this.badgesPage > totalPages) {
+                this.badgesVisible = false;
+                this.badgesPage = 0;
+                this.view.hideMessage();
+            } else {
+                this.view.showBadgesMessage(badges, this.badgesPage, totalPages, badgeCount);
+            }
+        }
+    }
+    
+    saveBadge(badgeMessage) {
+        const currentUser = this.userStorage.getCurrentUser();
+        if (currentUser) {
+            this.userStorage.addBadge(currentUser, badgeMessage);
+        }
     }
 }
