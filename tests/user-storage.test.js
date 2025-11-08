@@ -90,13 +90,13 @@ describe('User Storage - UserStorageModel', () => {
         });
         
         test('should add badge to current user', () => {
-            const badgeMessage = 'Страхотна работа! Печелиш значка: Смело Мече';
-            const result = userStorage.addBadge('Димитър', badgeMessage);
+            const badgeName = 'Смело Мече';
+            const result = userStorage.addBadge('Димитър', badgeName);
             
             expect(result).toBe(true);
             const badges = userStorage.getBadges('Димитър');
             expect(badges.length).toBe(1);
-            expect(badges[0].message).toBe(badgeMessage);
+            expect(badges[0]).toBe(badgeName);
         });
         
         test('should add multiple badges', () => {
@@ -108,12 +108,12 @@ describe('User Storage - UserStorageModel', () => {
             expect(badges.length).toBe(3);
         });
         
-        test('should include timestamp with each badge', () => {
-            userStorage.addBadge('Димитър', 'Значка с време');
+        test('should store badges as simple strings', () => {
+            userStorage.addBadge('Димитър', 'Звездна Панда');
             
             const badges = userStorage.getBadges('Димитър');
-            expect(badges[0].timestamp).toBeDefined();
-            expect(typeof badges[0].timestamp).toBe('string');
+            expect(typeof badges[0]).toBe('string');
+            expect(badges[0]).toBe('Звездна Панда');
         });
         
         test('should get badge count', () => {
@@ -144,8 +144,8 @@ describe('User Storage - UserStorageModel', () => {
             
             expect(dimitarBadges.length).toBe(1);
             expect(annaBadges.length).toBe(1);
-            expect(dimitarBadges[0].message).toBe('Значка Димитър');
-            expect(annaBadges[0].message).toBe('Значка Анна');
+            expect(dimitarBadges[0]).toBe('Значка Димитър');
+            expect(annaBadges[0]).toBe('Значка Анна');
         });
         
         test('should create user if adding badge to non-existent user', () => {

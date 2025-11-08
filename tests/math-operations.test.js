@@ -229,9 +229,11 @@ describe('Math Model - State Management', () => {
         
         // 5th correct answer should award badge
         mathModel.updateScore();
-        const badge = mathModel.checkBadge();
-        expect(badge).not.toBeNull();
-        expect(badge).toContain('Печелиш значка:'); // Bulgarian for "You earned a badge:"
+        const badgeData = mathModel.checkBadge();
+        expect(badgeData).not.toBeNull();
+        expect(badgeData.fullMessage).toContain('Печелиш значка:'); // Bulgarian for "You earned a badge:"
+        expect(badgeData.badgeName).toBeDefined();
+        expect(typeof badgeData.badgeName).toBe('string');
     });
 });
 

@@ -67,23 +67,18 @@ class UserStorageModel {
         return users[username] || null;
     }
     
-    addBadge(username, badgeMessage) {
+    addBadge(username, badgeName) {
         let users = this.getAllUsers();
         if (!users[username]) {
             this.createUser(username);
             users = this.getAllUsers();
         }
         
-        const badge = {
-            message: badgeMessage,
-            timestamp: new Date().toISOString()
-        };
-        
         if (!users[username].badges) {
             users[username].badges = [];
         }
         
-        users[username].badges.push(badge);
+        users[username].badges.push(badgeName);
         return this.saveAllUsers(users);
     }
     

@@ -136,9 +136,49 @@ header h1 {
     background-color: var(--dark-green);
 }
 
+/* Login modal colors */
+.login-modal {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.login-content {
+    background-color: var(--bg-black);
+    border-color: var(--terminal-green);
+}
+
+.login-prompt {
+    color: var(--terminal-green);
+}
+
+#login-input {
+    color: var(--terminal-green);
+}
+
+.login-cursor {
+    background-color: var(--terminal-green);
+}
+
+.login-instructions {
+    color: var(--dim-green);
+}
+
 /* Responsive cursor adjustment */
 @media (max-width: 600px) {
     .cursor {
         height: 1.5rem;
+    }
+    
+    .login-cursor {
+        height: 1.5rem;
+    }
+    
+    .login-content {
+        min-width: 300px;
+        padding: 30px 20px;
+    }
+    
+    #login-input {
+        width: 200px;
+        font-size: 1.5rem;
     }
 }

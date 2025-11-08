@@ -22,7 +22,9 @@ class AppView {
             levelList: document.querySelector('.level-list'),
             userInfo: document.getElementById('user-info'),
             userDisplay: document.getElementById('user-display'),
-            logoutButton: document.getElementById('logout-button')
+            logoutButton: document.getElementById('logout-button'),
+            loginModal: document.getElementById('login-modal'),
+            loginInput: document.getElementById('login-input')
         };
         
         // Track message state
@@ -587,10 +589,29 @@ class AppView {
     }
     
     promptUserLogin(callback) {
-        const username = prompt(this.localization.t('USER_PROMPT'));
-        if (username && username.trim() !== '') {
-            callback(username.trim());
-        }
+        this.elements.loginModal.style.display = 'flex';
+        this.elements.loginInput.value = '';
+        this.elements.loginInput.focus();
+        
+        const handleSubmit = (e) => {
+            if (e.key === 'Enter') {
+                const username = this.elements.loginInput.value.trim();
+                if (username !== '') {
+                    cleanup();
+                    callback(username);
+                }
+            } else if (e.key === 'Escape') {
+                cleanup();
+            }
+        };
+        
+        const cleanup = () => {
+            this.elements.loginModal.style.display = 'none';
+            this.elements.loginInput.removeEventListener('keydown', handleSubmit);
+            this.elements.loginInput.value = '';
+        };
+        
+        this.elements.loginInput.addEventListener('keydown', handleSubmit);
     }
     
     showBadgesMessage(badges, currentPage, totalPages, badgeCount) {
@@ -604,8 +625,8 @@ class AppView {
             message += this.localization.t('NO_BADGES');
         } else {
             const pageBadges = badges.slice(startIdx, endIdx);
-            pageBadges.forEach((badge, index) => {
-                message += `${startIdx + index + 1}. ${badge.message}\n`;
+            pageBadges.forEach((badgeName, index) => {
+                message += `${startIdx + index + 1}. ${badgeName}\n`;
             });
             
             if (currentPage < totalPages) {

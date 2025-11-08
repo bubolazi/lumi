@@ -29,6 +29,16 @@ class AppController {
     // Bind global keyboard handler for navigation
     bindGlobalNavigation() {
         this.globalNavigationHandler = (e) => {
+            // Handle star (*) key globally for badge display
+            if (e.key === '*') {
+                const currentUser = this.userStorage.getCurrentUser();
+                if (currentUser) {
+                    e.preventDefault();
+                    this.handleStarKey();
+                }
+                return;
+            }
+            
             // Only handle Backspace for navigation on selection screens
             if (e.key === 'Backspace') {
                 // Check which screen is active
@@ -281,13 +291,6 @@ class AppController {
         if (this.currentSubject === 'bulgarian') {
             // Bulgarian: block all character input, allow only navigation/control keys
             inputFilter = (e) => {
-                // Handle star (*) key for badges
-                if (e.key === '*') {
-                    this.handleStarKey();
-                    e.preventDefault();
-                    return;
-                }
-                
                 // Handle backspace for navigation only
                 if (e.key === 'Backspace') {
                     // Prevent default browser behavior
@@ -316,13 +319,6 @@ class AppController {
         } else if (this.currentSubject === 'math') {
             // Math: allow only numeric input (0-9) and backspace navigation
             inputFilter = (e) => {
-                // Handle star (*) key for badges
-                if (e.key === '*') {
-                    this.handleStarKey();
-                    e.preventDefault();
-                    return;
-                }
-                
                 // Handle + key for tooltips
                 if (e.key === '+' || e.key === '=') { // = is + on many keyboards without shift
                     this.handlePlusKey();
@@ -468,10 +464,10 @@ class AppController {
             this.model.updateScore();
             
             // Check if user earned a badge
-            const badgeMessage = this.model.checkBadge();
-            if (badgeMessage) {
-                this.saveBadge(badgeMessage);
-                this.view.showMessage(badgeMessage, false);
+            const badgeData = this.model.checkBadge();
+            if (badgeData) {
+                this.saveBadge(badgeData.badgeName);
+                this.view.showMessage(badgeData.fullMessage, false);
             } else {
                 this.view.showMessage(this.model.getRandomRewardMessage(), false);
             }
@@ -511,10 +507,10 @@ class AppController {
                 // Final step completed - award points and show message
                 this.model.updateScore();
                 
-                const badgeMessage = this.model.checkBadge();
-                if (badgeMessage) {
-                    this.saveBadge(badgeMessage);
-                    this.view.showMessage(badgeMessage, false);
+                const badgeData = this.model.checkBadge();
+                if (badgeData) {
+                    this.saveBadge(badgeData.badgeName);
+                    this.view.showMessage(badgeData.fullMessage, false);
                 } else {
                     this.view.showMessage(this.model.getRandomRewardMessage(), false);
                 }
