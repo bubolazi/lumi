@@ -19,7 +19,10 @@ class AppView {
             terminalMessage: document.getElementById('terminal-message'),
             subjectList: document.querySelector('.subject-list'),
             operationList: document.querySelector('.operation-list'),
-            levelList: document.querySelector('.level-list')
+            levelList: document.querySelector('.level-list'),
+            userInfo: document.getElementById('user-info'),
+            userDisplay: document.getElementById('user-display'),
+            logoutButton: document.getElementById('logout-button')
         };
         
         // Track message state
@@ -567,5 +570,51 @@ class AppView {
             this.elements.levelList.appendChild(listItem);
             index++;
         });
+    }
+    
+    updateUserDisplay(username) {
+        if (!username) {
+            this.elements.userInfo.style.display = 'none';
+            return;
+        }
+        
+        this.elements.userDisplay.textContent = `${this.localization.t('USER_LOGGED_IN')} ${username}`;
+        this.elements.userInfo.style.display = 'flex';
+    }
+    
+    bindLogoutButton(handler) {
+        this.elements.logoutButton.addEventListener('click', handler);
+    }
+    
+    promptUserLogin(callback) {
+        const username = prompt(this.localization.t('USER_PROMPT'));
+        if (username && username.trim() !== '') {
+            callback(username.trim());
+        }
+    }
+    
+    showBadgesMessage(badges, currentPage, totalPages, badgeCount) {
+        const startIdx = (currentPage - 1) * 5;
+        const endIdx = Math.min(startIdx + 5, badgeCount);
+        
+        let message = `${this.localization.t('BADGES_TITLE')}\n`;
+        message += `${this.localization.t('BADGES_COUNT')} ${badgeCount}\n\n`;
+        
+        if (badges.length === 0) {
+            message += this.localization.t('NO_BADGES');
+        } else {
+            const pageBadges = badges.slice(startIdx, endIdx);
+            pageBadges.forEach((badge, index) => {
+                message += `${startIdx + index + 1}. ${badge.message}\n`;
+            });
+            
+            if (currentPage < totalPages) {
+                message += `\n${this.localization.t('BADGES_PRESS_STAR')}`;
+            } else {
+                message += `\n${this.localization.t('BADGES_CLOSE')}`;
+            }
+        }
+        
+        this.showMessage(message, false);
     }
 }

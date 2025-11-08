@@ -122,6 +122,20 @@ header h1 {
     color: var(--dim-green);
 }
 
+/* User info colors */
+.user-info {
+    color: var(--terminal-green);
+}
+
+.logout-button {
+    color: var(--terminal-green);
+    border-color: var(--terminal-green);
+}
+
+.logout-button:hover {
+    background-color: var(--dark-green);
+}
+
 /* Responsive cursor adjustment */
 @media (max-width: 600px) {
     .cursor {

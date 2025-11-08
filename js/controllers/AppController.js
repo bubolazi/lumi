@@ -1,8 +1,9 @@
 // Controller: Coordinates between Model and View
 class AppController {
-    constructor(localization, subjectManager) {
+    constructor(localization, subjectManager, userStorage) {
         this.localization = localization;
         this.subjectManager = subjectManager;
+        this.userStorage = userStorage;
         this.activityManager = null; // Will be set after subject selection
         this.view = new AppView(localization);
         this.model = null; // Will be initialized after operation/activity selection
@@ -10,9 +11,17 @@ class AppController {
         this.currentActivity = null; // Track current activity
         this.currentLevel = null; // Track current level
         this.navigationStack = []; // Stack for tracking navigation history
+        this.badgesPage = 0; // Track current badges page
+        this.badgesVisible = false; // Track if badges are visible
         
         // Bind global navigation handler
         this.bindGlobalNavigation();
+        
+        // Bind logout button
+        this.view.bindLogoutButton(() => this.handleLogout());
+        
+        // Update user display
+        this.updateUserDisplay();
         
         this.initializeSubjectSelection();
     }
@@ -85,6 +94,21 @@ class AppController {
     }
     
     selectSubject(subjectName) {
+        const currentUser = this.userStorage.getCurrentUser();
+        
+        if (!currentUser) {
+            this.view.promptUserLogin((username) => {
+                if (this.userStorage.setCurrentUser(username)) {
+                    this.updateUserDisplay();
+                    this.proceedWithSubjectSelection(subjectName);
+                }
+            });
+        } else {
+            this.proceedWithSubjectSelection(subjectName);
+        }
+    }
+    
+    proceedWithSubjectSelection(subjectName) {
         this.currentSubject = subjectName;
         this.currentActivity = null;
         this.currentLevel = null;
@@ -257,6 +281,13 @@ class AppController {
         if (this.currentSubject === 'bulgarian') {
             // Bulgarian: block all character input, allow only navigation/control keys
             inputFilter = (e) => {
+                // Handle star (*) key for badges
+                if (e.key === '*') {
+                    this.handleStarKey();
+                    e.preventDefault();
+                    return;
+                }
+                
                 // Handle backspace for navigation only
                 if (e.key === 'Backspace') {
                     // Prevent default browser behavior
@@ -285,6 +316,13 @@ class AppController {
         } else if (this.currentSubject === 'math') {
             // Math: allow only numeric input (0-9) and backspace navigation
             inputFilter = (e) => {
+                // Handle star (*) key for badges
+                if (e.key === '*') {
+                    this.handleStarKey();
+                    e.preventDefault();
+                    return;
+                }
+                
                 // Handle + key for tooltips
                 if (e.key === '+' || e.key === '=') { // = is + on many keyboards without shift
                     this.handlePlusKey();
@@ -432,6 +470,7 @@ class AppController {
             // Check if user earned a badge
             const badgeMessage = this.model.checkBadge();
             if (badgeMessage) {
+                this.saveBadge(badgeMessage);
                 this.view.showMessage(badgeMessage, false);
             } else {
                 this.view.showMessage(this.model.getRandomRewardMessage(), false);
@@ -474,6 +513,7 @@ class AppController {
                 
                 const badgeMessage = this.model.checkBadge();
                 if (badgeMessage) {
+                    this.saveBadge(badgeMessage);
                     this.view.showMessage(badgeMessage, false);
                 } else {
                     this.view.showMessage(this.model.getRandomRewardMessage(), false);
@@ -606,5 +646,49 @@ class AppController {
         
         // Update breadcrumb (empty at subject level)
         this.view.updateBreadcrumb([]);
+    }
+    
+    updateUserDisplay() {
+        const currentUser = this.userStorage.getCurrentUser();
+        this.view.updateUserDisplay(currentUser);
+    }
+    
+    handleLogout() {
+        this.userStorage.logout();
+        this.updateUserDisplay();
+        this.initializeSubjectSelection();
+    }
+    
+    handleStarKey() {
+        const currentUser = this.userStorage.getCurrentUser();
+        if (!currentUser) {
+            return;
+        }
+        
+        const badges = this.userStorage.getBadges(currentUser);
+        const badgeCount = badges.length;
+        const totalPages = Math.ceil(badgeCount / 5) || 1;
+        
+        if (!this.badgesVisible) {
+            this.badgesPage = 1;
+            this.badgesVisible = true;
+            this.view.showBadgesMessage(badges, this.badgesPage, totalPages, badgeCount);
+        } else {
+            this.badgesPage++;
+            if (this.badgesPage > totalPages) {
+                this.badgesVisible = false;
+                this.badgesPage = 0;
+                this.view.hideMessage();
+            } else {
+                this.view.showBadgesMessage(badges, this.badgesPage, totalPages, badgeCount);
+            }
+        }
+    }
+    
+    saveBadge(badgeMessage) {
+        const currentUser = this.userStorage.getCurrentUser();
+        if (currentUser) {
+            this.userStorage.addBadge(currentUser, badgeMessage);
+        }
     }
 }

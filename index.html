@@ -23,6 +23,10 @@
             <div class="level-info">
                 <span id="breadcrumb-nav"></span>
             </div>
+            <div class="user-info" id="user-info" style="display: none;">
+                <span id="user-display"></span>
+                <button id="logout-button" class="logout-button">ИЗХОД</button>
+            </div>
         </header>
 
         <main>
@@ -98,6 +102,7 @@
     <!-- MVC Architecture with Localization and Subject/Activity Management -->
     <!-- Core Models -->
     <script src="js/models/core/LocalizationModel.js"></script>
+    <script src="js/models/core/UserStorageModel.js"></script>
     <script src="js/models/core/SubjectManager.js"></script>
     
     <!-- Math Subject -->
