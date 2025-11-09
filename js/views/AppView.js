@@ -364,6 +364,7 @@ class AppView {
                 const index = parseInt(e.key);
                 const items = this.elements.subjectList.querySelectorAll('.subject-item');
                 if (index > 0 && index <= items.length) {
+                    e.preventDefault();
                     const selectedItem = items[index - 1];
                     const subject = selectedItem.dataset.subject;
                     handler(subject);
@@ -384,6 +385,7 @@ class AppView {
                 const index = parseInt(e.key);
                 const items = this.elements.operationList.querySelectorAll('.operation-item');
                 if (index > 0 && index <= items.length) {
+                    e.preventDefault();
                     const selectedItem = items[index - 1];
                     const operation = selectedItem.dataset.operation;
                     handler(operation);
@@ -404,6 +406,7 @@ class AppView {
                 const index = parseInt(e.key);
                 const items = this.elements.levelList.querySelectorAll('.level-item');
                 if (index > 0 && index <= items.length) {
+                    e.preventDefault();
                     const selectedItem = items[index - 1];
                     const level = parseInt(selectedItem.dataset.level);
                     const operation = selectedItem.dataset.operation;
@@ -592,9 +595,18 @@ class AppView {
         this.elements.loginModal.style.display = 'flex';
         this.elements.loginInput.value = '';
         
+        const savedHandlers = {
+            subject: this._subjectKeyHandler,
+            operation: this._operationKeyHandler,
+            level: this._levelKeyHandler
+        };
+        
         this.unbindKeyboardSelections();
         
-        this.elements.loginInput.focus();
+        setTimeout(() => {
+            this.elements.loginInput.value = '';
+            this.elements.loginInput.focus();
+        }, 0);
         
         const stopPropagation = (e) => {
             e.stopPropagation();
@@ -604,19 +616,34 @@ class AppView {
             if (e.key === 'Enter') {
                 const username = this.elements.loginInput.value.trim();
                 if (username !== '') {
-                    cleanup();
+                    cleanup(true);
                     callback(username);
                 }
             } else if (e.key === 'Escape') {
-                cleanup();
+                cleanup(false);
             }
         };
         
-        const cleanup = () => {
+        const cleanup = (loginSuccessful) => {
             this.elements.loginModal.style.display = 'none';
             this.elements.loginInput.removeEventListener('keydown', handleSubmit);
             this.elements.loginInput.removeEventListener('keydown', stopPropagation);
             this.elements.loginInput.value = '';
+            
+            if (!loginSuccessful) {
+                if (savedHandlers.subject) {
+                    this._subjectKeyHandler = savedHandlers.subject;
+                    document.addEventListener('keydown', this._subjectKeyHandler);
+                }
+                if (savedHandlers.operation) {
+                    this._operationKeyHandler = savedHandlers.operation;
+                    document.addEventListener('keydown', this._operationKeyHandler);
+                }
+                if (savedHandlers.level) {
+                    this._levelKeyHandler = savedHandlers.level;
+                    document.addEventListener('keydown', this._levelKeyHandler);
+                }
+            }
         };
         
         this.elements.loginInput.addEventListener('keydown', stopPropagation);
