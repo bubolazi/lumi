@@ -238,6 +238,8 @@ describe('Bulgarian Language Model - Answer Validation', () => {
         model.updateScore();
         const badge = model.checkBadge();
         expect(badge).not.toBeNull();
-        expect(badge).toContain('Печелиш значка:'); // Bulgarian for "You earned a badge:"
+        expect(badge).toHaveProperty('fullMessage');
+        expect(badge).toHaveProperty('badgeName');
+        expect(badge.fullMessage).toContain('Печелиш значка:'); // Bulgarian for "You earned a badge:"
     });
 });
