@@ -58,6 +58,12 @@ class LocalizationModel {
                 'STEP_TENS': 'Десетици',
                 'STEP_COMBINE': 'Резултат',
                 
+                // Step descriptions for Place Value Level 2
+                'STEP_DESC_ONES': 'Изчисляване на единици',
+                'STEP_DESC_CARRY': 'Определяне на пренос',
+                'STEP_DESC_TENS': 'Изчисляване на десетици',
+                'STEP_DESC_COMBINE': 'Комбиниране на резултата',
+                
                 // Tooltips for Place Value
                 'TOOLTIP_CARRY': 'Преносът е цифрата от десетиците когато сборът на единиците е 10 или повече. Например: 7 + 8 = 15, преносът е 1.',
                 'TOOLTIP_ICON': '<i>i</i>',

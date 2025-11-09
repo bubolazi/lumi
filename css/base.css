@@ -153,6 +153,16 @@ main {
     display: inline-block;
 }
 
+/* Main task display - prominent styling */
+.main-task {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    padding: 12px 0;
+    border-bottom: 2px solid;
+    opacity: 1;
+}
+
 /* Tooltip icon with circle */
 .tooltip-icon {
     display: inline-flex;
@@ -190,6 +200,20 @@ main {
     margin-bottom: 20px;
     letter-spacing: 4px;
     line-height: 1.4;
+}
+
+/* Place Value Recognition - Number and Question styling */
+.place-value-number {
+    font-size: 4rem;
+    font-weight: bold;
+    margin-bottom: 30px;
+    letter-spacing: 12px;
+}
+
+.place-value-question {
+    font-size: 2rem;
+    opacity: 0.85;
+    letter-spacing: 2px;
 }
 
 .input-line {
@@ -446,6 +470,22 @@ main {
     .problem-display.compact {
         font-size: 1.5rem;
         letter-spacing: 2px;
+    }
+    
+    .main-task {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+    }
+    
+    .place-value-number {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        letter-spacing: 8px;
+    }
+    
+    .place-value-question {
+        font-size: 1.3rem;
+        letter-spacing: 1px;
     }
     
     #terminal-input {
