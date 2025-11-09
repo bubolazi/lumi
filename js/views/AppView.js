@@ -591,7 +591,14 @@ class AppView {
     promptUserLogin(callback) {
         this.elements.loginModal.style.display = 'flex';
         this.elements.loginInput.value = '';
+        
+        this.unbindKeyboardSelections();
+        
         this.elements.loginInput.focus();
+        
+        const stopPropagation = (e) => {
+            e.stopPropagation();
+        };
         
         const handleSubmit = (e) => {
             if (e.key === 'Enter') {
@@ -608,9 +615,11 @@ class AppView {
         const cleanup = () => {
             this.elements.loginModal.style.display = 'none';
             this.elements.loginInput.removeEventListener('keydown', handleSubmit);
+            this.elements.loginInput.removeEventListener('keydown', stopPropagation);
             this.elements.loginInput.value = '';
         };
         
+        this.elements.loginInput.addEventListener('keydown', stopPropagation);
         this.elements.loginInput.addEventListener('keydown', handleSubmit);
     }
     

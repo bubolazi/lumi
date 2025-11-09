@@ -19,6 +19,12 @@ const files = [
     'js/models/core/SubjectManager.js'
 ];
 
+// View and Controller files that depend on DOM (loaded separately)
+const domDependentFiles = [
+    'js/views/AppView.js',
+    'js/controllers/AppController.js'
+];
+
 // Load each file and make classes available globally
 // We need to capture class declarations and assign them to global
 files.forEach(file => {
@@ -42,3 +48,25 @@ files.forEach(file => {
         eval(code);
     }
 });
+
+// Function to load DOM-dependent files (call this from tests that need them)
+globalThis.loadDOMDependentClasses = () => {
+    domDependentFiles.forEach(file => {
+        const filePath = path.join(__dirname, '..', file);
+        const code = fs.readFileSync(filePath, 'utf8');
+        
+        // Extract class names from the code
+        const classMatches = code.match(/class\s+(\w+)/g);
+        if (classMatches) {
+            classMatches.forEach(match => {
+                const className = match.replace('class ', '');
+                // Wrap the code to assign the class to global
+                const wrappedCode = `
+                    ${code}
+                    globalThis.${className} = ${className};
+                `;
+                eval(wrappedCode);
+            });
+        }
+    });
+};

@@ -29,6 +29,13 @@ class AppController {
     // Bind global keyboard handler for navigation
     bindGlobalNavigation() {
         this.globalNavigationHandler = (e) => {
+            const loginModal = document.getElementById('login-modal');
+            const isLoginVisible = loginModal && loginModal.style.display !== 'none';
+            
+            if (isLoginVisible) {
+                return;
+            }
+            
             // Handle star (*) key globally for badge display
             if (e.key === '*') {
                 const currentUser = this.userStorage.getCurrentUser();
