@@ -352,6 +352,67 @@ main {
     letter-spacing: 1px;
 }
 
+/* Feedback modal structure */
+.feedback-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+}
+
+.feedback-modal.show {
+    display: flex;
+}
+
+.feedback-content {
+    padding: 40px;
+    border: 2px solid;
+    min-width: 400px;
+    max-width: 600px;
+    text-align: center;
+}
+
+.feedback-header {
+    font-size: 1.5rem;
+    font-family: monospace;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.feedback-body {
+    font-size: 2.5rem;
+    font-family: monospace;
+    margin-bottom: 30px;
+    line-height: 1.4;
+}
+
+.feedback-emoji {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 20px;
+}
+
+.feedback-badge {
+    font-size: 1.8rem;
+    margin-top: 10px;
+}
+
+.feedback-footer {
+    font-size: 0.85rem;
+    font-family: monospace;
+    opacity: 0.7;
+    letter-spacing: 1px;
+    line-height: 1.5;
+}
+
 /* Instructions structure */
 .instructions {
     position: fixed;

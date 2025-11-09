@@ -374,6 +374,24 @@ class AppController {
     
     // Handle Enter key press - dismiss message or check answer
     handleEnterKey() {
+        // If feedback modal is visible, dismiss it first
+        if (this.view.isFeedbackModalVisible()) {
+            this.view.hideFeedbackModal();
+            this.view.clearAndFocusInput();
+            
+            // Check if we're in the middle of a multi-step Place Value problem
+            const problem = this.model.currentProblem;
+            if (problem && problem.operation === 'place_value_calculation' && problem.currentStep && problem.currentStep < 5) {
+                // Don't generate new problem - we're still in multi-step mode
+                // Just clear the message and wait for next input
+                return;
+            }
+            
+            // Generate next problem after dismissing
+            this.generateNewProblem();
+            return;
+        }
+        
         // If a message is visible, dismiss it first
         if (this.view.isMessageVisible()) {
             this.view.hideMessage();
@@ -415,6 +433,15 @@ class AppController {
     
     // Handle Delete key press - submit wrong answer for Bulgarian subject
     handleDeleteKey() {
+        // If feedback modal is visible, dismiss it first
+        if (this.view.isFeedbackModalVisible()) {
+            this.view.hideFeedbackModal();
+            this.view.clearAndFocusInput();
+            // Generate next problem after dismissing
+            this.generateNewProblem();
+            return;
+        }
+        
         // If a message is visible, dismiss it first
         if (this.view.isMessageVisible()) {
             this.view.hideMessage();
@@ -473,10 +500,18 @@ class AppController {
             // Check if user earned a badge
             const badgeData = this.model.checkBadge();
             if (badgeData) {
-                this.saveBadge(badgeData.badgeName);
-                this.view.showMessage(badgeData.fullMessage, false);
+                const badgeEmoji = this.saveBadge(badgeData.badgeName);
+                this.view.showFeedbackModal({
+                    isCorrect: true,
+                    badgeName: badgeData.badgeName,
+                    badgeEmoji: badgeEmoji,
+                    footer: this.localization.t('BADGE_MESSAGE')
+                });
             } else {
-                this.view.showMessage(this.model.getRandomRewardMessage(), false);
+                this.view.showFeedbackModal({
+                    isCorrect: true,
+                    footer: this.model.getRandomRewardMessage()
+                });
             }
             
             this.view.updateGameStatus(this.model.getGameState());
@@ -484,10 +519,16 @@ class AppController {
             // Incorrect answer
             if (this.currentSubject === 'bulgarian') {
                 // For Bulgarian, there's no "correct answer" to show
-                this.view.showMessage(this.model.localization.t('INCORRECT_ANSWER_BULGARIAN'), false);
+                this.view.showFeedbackModal({
+                    isCorrect: false,
+                    footer: this.localization.t('INCORRECT_ANSWER_BULGARIAN')
+                });
             } else {
                 const correctAnswer = this.model.currentProblem.answer;
-                this.view.showMessage(`${this.model.localization.t('INCORRECT_ANSWER')} ${correctAnswer}`, false);
+                this.view.showFeedbackModal({
+                    isCorrect: false,
+                    footer: `${this.localization.t('INCORRECT_ANSWER')} ${correctAnswer}`
+                });
             }
         }
     }
@@ -516,10 +557,18 @@ class AppController {
                 
                 const badgeData = this.model.checkBadge();
                 if (badgeData) {
-                    this.saveBadge(badgeData.badgeName);
-                    this.view.showMessage(badgeData.fullMessage, false);
+                    const badgeEmoji = this.saveBadge(badgeData.badgeName);
+                    this.view.showFeedbackModal({
+                        isCorrect: true,
+                        badgeName: badgeData.badgeName,
+                        badgeEmoji: badgeEmoji,
+                        footer: this.localization.t('BADGE_MESSAGE')
+                    });
                 } else {
-                    this.view.showMessage(this.model.getRandomRewardMessage(), false);
+                    this.view.showFeedbackModal({
+                        isCorrect: true,
+                        footer: this.model.getRandomRewardMessage()
+                    });
                 }
                 
                 this.view.updateGameStatus(this.model.getGameState());
@@ -529,14 +578,20 @@ class AppController {
             }
         } else {
             // Incorrect answer
-            this.view.showMessage(`${this.model.localization.t('INCORRECT_ANSWER')} ${expectedAnswer}`, false);
+            this.view.showFeedbackModal({
+                isCorrect: false,
+                footer: `${this.model.localization.t('INCORRECT_ANSWER')} ${expectedAnswer}`
+            });
         }
     }
     
     // Check answer as wrong (for Backspace submissions in Bulgarian)
     checkAnswerAsWrong() {
         // For Bulgarian subject, show incorrect answer message
-        this.view.showMessage(this.model.localization.t('INCORRECT_ANSWER_BULGARIAN'), false);
+        this.view.showFeedbackModal({
+            isCorrect: false,
+            footer: this.localization.t('INCORRECT_ANSWER_BULGARIAN')
+        });
     }
     
     // Navigate back to the previous screen
@@ -691,7 +746,11 @@ class AppController {
     saveBadge(badgeMessage) {
         const currentUser = this.userStorage.getCurrentUser();
         if (currentUser) {
-            this.userStorage.addBadge(currentUser, badgeMessage);
+            const animalName = this.localization.extractAnimalFromBadge(badgeMessage);
+            const badgeEmoji = this.localization.getBadgeEmoji(animalName);
+            this.userStorage.addBadge(currentUser, badgeMessage, badgeEmoji);
+            return badgeEmoji;
         }
+        return '⭐';
     }
 }
