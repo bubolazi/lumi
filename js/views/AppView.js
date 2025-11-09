@@ -692,12 +692,15 @@ class AppView {
             isCorrect = true,
             badgeName = '',
             badgeEmoji = '',
-            footer = ''
+            footer = '',
+            header = ''
         } = options;
         
-        this.elements.feedbackHeader.textContent = isCorrect 
-            ? this.localization.t('FEEDBACK_CORRECT')
-            : this.localization.t('FEEDBACK_INCORRECT');
+        this.elements.feedbackHeader.textContent = header 
+            ? header
+            : (isCorrect 
+                ? this.localization.t('FEEDBACK_CORRECT')
+                : this.localization.t('FEEDBACK_INCORRECT'));
         
         if (badgeName && badgeEmoji) {
             this.elements.feedbackEmoji.textContent = badgeEmoji;

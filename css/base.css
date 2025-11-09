@@ -348,7 +348,8 @@ main {
 .login-instructions {
     font-size: 0.8rem;
     font-family: monospace;
-    opacity: 0.7;
+    font-weight: 600;
+    opacity: 0.85;
     letter-spacing: 1px;
 }
 
@@ -408,7 +409,8 @@ main {
 .feedback-footer {
     font-size: 0.85rem;
     font-family: monospace;
-    opacity: 0.7;
+    font-weight: 600;
+    opacity: 0.85;
     letter-spacing: 1px;
     line-height: 1.5;
 }
@@ -420,8 +422,9 @@ main {
     left: 20px;
     right: 20px;
     font-size: 0.8rem;
+    font-weight: 600;
     text-align: center;
-    opacity: 0.7;
+    opacity: 0.85;
 }
 
 /* Responsive structure */

@@ -17,7 +17,7 @@ class LocalizationModel {
                 'SELECT_SUBJECT': 'ИЗБЕРЕТЕ ПРЕДМЕТ:',
                 'MATH_SUBJECT': 'МАТЕМАТИКА',
                 'BULGARIAN_SUBJECT': 'БЪЛГАРСКИ ЕЗИК',
-                'SUBJECT_INSTRUCTIONS': 'КЛИКНЕТЕ НА ПРЕДМЕТ ЗА ЗАПОЧВАНЕ • ОБНОВЕТЕ СТРАНИЦАТА ЗА ВРЪЩАНЕ ТУК',
+                'SUBJECT_INSTRUCTIONS': 'КЛИКНЕТЕ НА ПРЕДМЕТ ЗА ЗАПОЧВАНЕ • BACKSPACE = НАЗАД',
                 
                 // Operations
                 'ADDITION': 'СЪБИРАНЕ',
@@ -33,7 +33,7 @@ class LocalizationModel {
                 
                 // Operation/Activity selection
                 'SELECT_OPERATION': 'ИЗБЕРЕТЕ ДЕЙНОСТ:',
-                'OPERATION_INSTRUCTIONS': 'КЛИКНЕТЕ НА ДЕЙНОСТ ЗА ЗАПОЧВАНЕ • ОБНОВЕТЕ СТРАНИЦАТА ЗА ВРЪЩАНЕ ТУК',
+                'OPERATION_INSTRUCTIONS': 'КЛИКНЕТЕ НА ДЕЙНОСТ ЗА ЗАПОЧВАНЕ • BACKSPACE = НАЗАД',
                 
                 // Level selection screen
                 'SELECT_DIFFICULTY_LEVEL': 'ИЗБЕРЕТЕ НИВО НА ТРУДНОСТ:',
@@ -75,7 +75,7 @@ class LocalizationModel {
                 'THREE_SYLLABLE_WORDS': 'ТРИСРИЧНИ ДУМИ',
                 'ALL_WORDS': 'ВСИЧКИ ДУМИ',
                 
-                'LEVEL_INSTRUCTIONS': 'КЛИКНЕТЕ НА НИВО ЗА ЗАПОЧВАНЕ • ОБНОВЕТЕ СТРАНИЦАТА ЗА ВРЪЩАНЕ ТУК',
+                'LEVEL_INSTRUCTIONS': 'КЛИКНЕТЕ НА НИВО ЗА ЗАПОЧВАНЕ • BACKSPACE = НАЗАД',
                 
                 // Game screen
                 'INPUT_PROMPT': '>',
@@ -279,7 +279,7 @@ class LocalizationModel {
                 ],
                 
                 // Badge message template
-                'BADGE_MESSAGE': 'Страхотна работа! Печелиш значка:',
+                'BADGE_MESSAGE': 'Печелиш значка',
                 
                 // Badge animal emoji mappings
                 'BADGE_ANIMAL_EMOJIS': {

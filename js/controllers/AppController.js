@@ -505,7 +505,8 @@ class AppController {
                     isCorrect: true,
                     badgeName: badgeData.badgeName,
                     badgeEmoji: badgeEmoji,
-                    footer: this.localization.t('BADGE_MESSAGE')
+                    header: `${this.localization.t('FEEDBACK_CORRECT')} ${this.localization.t('BADGE_MESSAGE')}`,
+                    footer: this.model.getRandomRewardMessage()
                 });
             } else {
                 this.view.showFeedbackModal({
@@ -562,7 +563,8 @@ class AppController {
                         isCorrect: true,
                         badgeName: badgeData.badgeName,
                         badgeEmoji: badgeEmoji,
-                        footer: this.localization.t('BADGE_MESSAGE')
+                        header: `${this.localization.t('FEEDBACK_CORRECT')} ${this.localization.t('BADGE_MESSAGE')}`,
+                        footer: this.model.getRandomRewardMessage()
                     });
                 } else {
                     this.view.showFeedbackModal({
