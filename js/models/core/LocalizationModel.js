@@ -60,7 +60,7 @@ class LocalizationModel {
                 
                 // Tooltips for Place Value
                 'TOOLTIP_CARRY': 'Преносът е цифрата от десетиците когато сборът на единиците е 10 или повече. Например: 7 + 8 = 15, преносът е 1.',
-                'TOOLTIP_ICON': 'ℹ',
+                'TOOLTIP_ICON': '<i>i</i>',
                 'TOOLTIP_HELP': 'Натиснете + за обяснение',
                 'TOOLTIP_CLOSE': 'Натиснете + за затваряне',
                 

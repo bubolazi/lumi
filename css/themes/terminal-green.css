@@ -122,6 +122,12 @@ header h1 {
     color: var(--dim-green);
 }
 
+/* Tooltip icon colors */
+.tooltip-icon {
+    border-color: var(--terminal-green);
+    color: var(--terminal-green);
+}
+
 /* User info colors */
 .user-info {
     color: var(--terminal-green);
