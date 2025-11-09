@@ -112,7 +112,7 @@ class AppView {
             const questionText = problem.questionType === 'ones' 
                 ? this.localization.t('WHICH_DIGIT_ONES')
                 : this.localization.t('WHICH_DIGIT_TENS');
-            this.elements.problemDisplay.textContent = `${problem.display}\n${questionText}`;
+            this.elements.problemDisplay.innerHTML = `<div class="place-value-number">${problem.display}</div><div class="place-value-question">${questionText}</div>`;
         } else if (problem.operation === 'place_value_calculation') {
             // Place Value Level 2 - Step-by-step calculation with history
             this.displayPlaceValueStep(problem);
@@ -144,38 +144,47 @@ class AppView {
         
         const step = problem.currentStep || 1;
         
-        // Build calculation history
+        // Build calculation history with descriptive steps
         let historyHTML = '';
-        historyHTML += `<div class="history-step completed"><span class="step-number">📝</span><span class="step-content">${problem.num1} + ${problem.num2} = ?</span></div>`;
         
-        // Step 1: Add the ones
+        // Main task - always visible and prominent
+        historyHTML += `<div class="main-task">${problem.num1} + ${problem.num2} = ?</div>`;
+        
+        // Step 1: Calculate ones
         if (step >= 1) {
             const status = step > 1 ? 'completed' : '';
-            const answer = step > 1 ? ` = ${problem.onesSum}` : ' = ?';
-            historyHTML += `<div class="history-step ${status}"><span class="step-number">1️⃣</span><span class="step-content">${problem.ones1} + ${problem.ones2}${answer}</span></div>`;
+            const stepDesc = this.localization.t('STEP_DESC_ONES');
+            const operation = `${problem.ones1} + ${problem.ones2}`;
+            const answer = step > 1 ? ` = ${problem.onesSum}` : '';
+            historyHTML += `<div class="history-step ${status}"><span class="step-number">1️⃣</span><span class="step-content">${stepDesc}: ${operation}${answer}</span></div>`;
         }
         
-        // Step 2: Identify carry
+        // Step 2: Determine carry
         if (step >= 2) {
             const status = step > 2 ? 'completed' : '';
-            const answer = step > 2 ? ` = ${problem.carryOver}` : ' = ?';
+            const stepDesc = this.localization.t('STEP_DESC_CARRY');
+            const answer = step > 2 ? `: ${problem.carryOver}` : '';
             const tooltip = ' <span class="tooltip-icon"><i>i</i></span>';
-            historyHTML += `<div class="history-step ${status}"><span class="step-number">2️⃣</span><span class="step-content">Пренос${answer}${tooltip}</span></div>`;
+            historyHTML += `<div class="history-step ${status}"><span class="step-number">2️⃣</span><span class="step-content">${stepDesc}${answer}${tooltip}</span></div>`;
         }
         
-        // Step 3: Add the tens
+        // Step 3: Calculate tens
         if (step >= 3) {
             const status = step > 3 ? 'completed' : '';
-            const answer = step > 3 ? ` = ${problem.tensFinal}` : ' = ?';
+            const stepDesc = this.localization.t('STEP_DESC_TENS');
             const carryText = problem.carryOver > 0 ? ` + ${problem.carryOver}` : '';
-            historyHTML += `<div class="history-step ${status}"><span class="step-number">3️⃣</span><span class="step-content">${problem.tens1} + ${problem.tens2}${carryText}${answer}</span></div>`;
+            const operation = `${problem.tens1} + ${problem.tens2}${carryText}`;
+            const answer = step > 3 ? ` = ${problem.tensFinal}` : '';
+            historyHTML += `<div class="history-step ${status}"><span class="step-number">3️⃣</span><span class="step-content">${stepDesc}: ${operation}${answer}</span></div>`;
         }
         
-        // Step 4: Combine
+        // Step 4: Combine result
         if (step >= 4) {
             const status = step > 4 ? 'completed' : '';
-            const answer = step > 4 ? ` = ${problem.answer}` : ' = ?';
-            historyHTML += `<div class="history-step ${status}"><span class="step-number">4️⃣</span><span class="step-content">${problem.tensFinal}0 + ${problem.onesFinal}${answer}</span></div>`;
+            const stepDesc = this.localization.t('STEP_DESC_COMBINE');
+            const operation = `${problem.tensFinal}0 + ${problem.onesFinal}`;
+            const answer = step > 4 ? ` = ${problem.answer}` : '';
+            historyHTML += `<div class="history-step ${status}"><span class="step-number">4️⃣</span><span class="step-content">${stepDesc}: ${operation}${answer}</span></div>`;
         }
         
         this.elements.calculationHistory.innerHTML = historyHTML;
