@@ -281,6 +281,18 @@ class LocalizationModel {
                 // Badge message template
                 'BADGE_MESSAGE': 'Страхотна работа! Печелиш значка:',
                 
+                // User login/logout
+                'USER_PROMPT': 'Въведи твоето име:',
+                'USER_LOGGED_IN': 'Потребител:',
+                'LOGOUT': 'ИЗХОД',
+                'BADGES_TITLE': 'ЗНАЧКИ',
+                'BADGES_COUNT': 'Брой значки:',
+                'BADGES_HELP': '* = ПОКАЖИ ЗНАЧКИ',
+                'NO_BADGES': 'Все още нямаш значки. Спечели 5 точни отговора за първата си значка!',
+                'BADGES_PAGE': 'Значки {current} - {end} от {total}',
+                'BADGES_PRESS_STAR': 'Натисни * за следващи значки',
+                'BADGES_CLOSE': 'Натисни * за затваряне',
+                
                 // Error messages
                 'ERROR_INVALID_INPUT': 'ГРЕШКА: НЕВАЛИДЕН ВХОД',
                 'INCORRECT_ANSWER': 'НЕПРАВИЛНО. ОТГОВОР:',

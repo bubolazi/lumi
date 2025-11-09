@@ -79,7 +79,11 @@ class MathModel {
         const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
         const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
         
-        return `${badgeTemplate} ${randomAdjective} ${randomAnimal}`;
+        const badgeName = `${randomAdjective} ${randomAnimal}`;
+        return {
+            fullMessage: `${badgeTemplate} ${badgeName}`,
+            badgeName: badgeName
+        };
     }
     
     // Get localized level descriptions

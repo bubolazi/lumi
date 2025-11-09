@@ -23,6 +23,10 @@
             <div class="level-info">
                 <span id="breadcrumb-nav"></span>
             </div>
+            <div class="user-info" id="user-info" style="display: none;">
+                <span id="user-display"></span>
+                <button id="logout-button" class="logout-button">ИЗХОД</button>
+            </div>
         </header>
 
         <main>
@@ -93,11 +97,24 @@
         </main>
 
         <div id="terminal-message" class="terminal-message"></div>
+        
+        <div id="login-modal" class="login-modal" style="display: none;">
+            <div class="login-content">
+                <div class="login-prompt">ВЪВЕДИ ТВОЕТО ИМЕ:</div>
+                <div class="login-input-line">
+                    <span class="input-prompt">></span>
+                    <input type="text" id="login-input" autocomplete="off" maxlength="30">
+                    <span class="login-cursor"></span>
+                </div>
+                <div class="login-instructions">НАТИСНИ ENTER ЗА ВХОД • ESC ЗА ОТКАЗ</div>
+            </div>
+        </div>
     </div>
 
     <!-- MVC Architecture with Localization and Subject/Activity Management -->
     <!-- Core Models -->
     <script src="js/models/core/LocalizationModel.js"></script>
+    <script src="js/models/core/UserStorageModel.js"></script>
     <script src="js/models/core/SubjectManager.js"></script>
     
     <!-- Math Subject -->

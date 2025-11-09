@@ -19,7 +19,12 @@ class AppView {
             terminalMessage: document.getElementById('terminal-message'),
             subjectList: document.querySelector('.subject-list'),
             operationList: document.querySelector('.operation-list'),
-            levelList: document.querySelector('.level-list')
+            levelList: document.querySelector('.level-list'),
+            userInfo: document.getElementById('user-info'),
+            userDisplay: document.getElementById('user-display'),
+            logoutButton: document.getElementById('logout-button'),
+            loginModal: document.getElementById('login-modal'),
+            loginInput: document.getElementById('login-input')
         };
         
         // Track message state
@@ -567,5 +572,74 @@ class AppView {
             this.elements.levelList.appendChild(listItem);
             index++;
         });
+    }
+    
+    updateUserDisplay(username) {
+        if (!username) {
+            this.elements.userInfo.style.display = 'none';
+            return;
+        }
+        
+        this.elements.userDisplay.textContent = `${this.localization.t('USER_LOGGED_IN')} ${username}`;
+        this.elements.userInfo.style.display = 'flex';
+    }
+    
+    bindLogoutButton(handler) {
+        this.elements.logoutButton.addEventListener('click', handler);
+    }
+    
+    promptUserLogin(callback) {
+        this.elements.loginModal.style.display = 'flex';
+        this.elements.loginInput.value = '';
+        this.elements.loginInput.focus();
+        
+        const handleSubmit = (e) => {
+            if (e.key === 'Enter') {
+                const username = this.elements.loginInput.value.trim();
+                if (username !== '') {
+                    cleanup();
+                    callback(username);
+                }
+            } else if (e.key === 'Escape') {
+                cleanup();
+            }
+        };
+        
+        const cleanup = () => {
+            this.elements.loginModal.style.display = 'none';
+            this.elements.loginInput.removeEventListener('keydown', handleSubmit);
+            this.elements.loginInput.value = '';
+        };
+        
+        this.elements.loginInput.addEventListener('keydown', handleSubmit);
+    }
+    
+    showBadgesMessage(badges, currentPage, totalPages, badgeCount) {
+        const startIdx = (currentPage - 1) * 5;
+        const endIdx = Math.min(startIdx + 5, badgeCount);
+        
+        let html = `<div class="badges-header">${this.localization.t('BADGES_TITLE')}</div>`;
+        html += `<div class="badges-count">${this.localization.t('BADGES_COUNT')} ${badgeCount}</div>`;
+        
+        if (badges.length === 0) {
+            html += `<div class="badges-list">${this.localization.t('NO_BADGES')}</div>`;
+        } else {
+            html += `<div class="badges-list">`;
+            const pageBadges = badges.slice(startIdx, endIdx);
+            pageBadges.forEach((badgeName, index) => {
+                html += `<div class="badge-item">${startIdx + index + 1}. ${badgeName}</div>`;
+            });
+            html += `</div>`;
+            
+            if (currentPage < totalPages) {
+                html += `<div class="badges-instructions">${this.localization.t('BADGES_PRESS_STAR')}</div>`;
+            } else {
+                html += `<div class="badges-instructions">${this.localization.t('BADGES_CLOSE')}</div>`;
+            }
+        }
+        
+        this.elements.terminalMessage.innerHTML = html;
+        this.elements.terminalMessage.classList.add('show');
+        this.messageVisible = true;
     }
 }
