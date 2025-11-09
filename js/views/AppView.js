@@ -24,7 +24,12 @@ class AppView {
             userDisplay: document.getElementById('user-display'),
             logoutButton: document.getElementById('logout-button'),
             loginModal: document.getElementById('login-modal'),
-            loginInput: document.getElementById('login-input')
+            loginInput: document.getElementById('login-input'),
+            feedbackModal: document.getElementById('feedback-modal'),
+            feedbackHeader: document.getElementById('feedback-header'),
+            feedbackEmoji: document.getElementById('feedback-emoji'),
+            feedbackBadge: document.getElementById('feedback-badge'),
+            feedbackFooter: document.getElementById('feedback-footer')
         };
         
         // Track message state
@@ -662,8 +667,11 @@ class AppView {
         } else {
             html += `<div class="badges-list">`;
             const pageBadges = badges.slice(startIdx, endIdx);
-            pageBadges.forEach((badgeName, index) => {
-                html += `<div class="badge-item">${startIdx + index + 1}. ${badgeName}</div>`;
+            pageBadges.forEach((badge, index) => {
+                const badgeName = typeof badge === 'string' ? badge : badge.name;
+                const badgeEmoji = typeof badge === 'string' ? '' : (badge.emoji || '');
+                const displayText = badgeEmoji ? `${badgeEmoji} ${badgeName}` : badgeName;
+                html += `<div class="badge-item">${startIdx + index + 1}. ${displayText}</div>`;
             });
             html += `</div>`;
             
@@ -677,5 +685,45 @@ class AppView {
         this.elements.terminalMessage.innerHTML = html;
         this.elements.terminalMessage.classList.add('show');
         this.messageVisible = true;
+    }
+    
+    showFeedbackModal(options) {
+        const {
+            isCorrect = true,
+            badgeName = '',
+            badgeEmoji = '',
+            footer = ''
+        } = options;
+        
+        this.elements.feedbackHeader.textContent = isCorrect 
+            ? this.localization.t('FEEDBACK_CORRECT')
+            : this.localization.t('FEEDBACK_INCORRECT');
+        
+        if (badgeName && badgeEmoji) {
+            this.elements.feedbackEmoji.textContent = badgeEmoji;
+            this.elements.feedbackBadge.textContent = badgeName;
+        } else if (!isCorrect) {
+            this.elements.feedbackEmoji.textContent = this.localization.t('FEEDBACK_WRONG_EMOJI');
+            this.elements.feedbackBadge.textContent = '';
+        } else {
+            const rewardEmojis = ['✨', '🌟', '⭐', '💫', '🎉', '🎊', '👏', '🏆'];
+            const randomEmoji = rewardEmojis[Math.floor(Math.random() * rewardEmojis.length)];
+            this.elements.feedbackEmoji.textContent = randomEmoji;
+            this.elements.feedbackBadge.textContent = '';
+        }
+        
+        this.elements.feedbackFooter.textContent = footer;
+        
+        this.elements.feedbackModal.classList.add('show');
+        this.messageVisible = true;
+    }
+    
+    hideFeedbackModal() {
+        this.elements.feedbackModal.classList.remove('show');
+        this.messageVisible = false;
+    }
+    
+    isFeedbackModalVisible() {
+        return this.elements.feedbackModal.classList.contains('show');
     }
 }

@@ -91,12 +91,14 @@ describe('User Storage - UserStorageModel', () => {
         
         test('should add badge to current user', () => {
             const badgeName = 'Смело Мече';
-            const result = userStorage.addBadge('Димитър', badgeName);
+            const badgeEmoji = '🐻';
+            const result = userStorage.addBadge('Димитър', badgeName, badgeEmoji);
             
             expect(result).toBe(true);
             const badges = userStorage.getBadges('Димитър');
             expect(badges.length).toBe(1);
-            expect(badges[0]).toBe(badgeName);
+            expect(badges[0].name).toBe(badgeName);
+            expect(badges[0].emoji).toBe(badgeEmoji);
         });
         
         test('should add multiple badges', () => {
@@ -108,12 +110,13 @@ describe('User Storage - UserStorageModel', () => {
             expect(badges.length).toBe(3);
         });
         
-        test('should store badges as simple strings', () => {
-            userStorage.addBadge('Димитър', 'Звездна Панда');
+        test('should store badges as objects with name and emoji', () => {
+            userStorage.addBadge('Димитър', 'Звездна Панда', '🐼');
             
             const badges = userStorage.getBadges('Димитър');
-            expect(typeof badges[0]).toBe('string');
-            expect(badges[0]).toBe('Звездна Панда');
+            expect(typeof badges[0]).toBe('object');
+            expect(badges[0].name).toBe('Звездна Панда');
+            expect(badges[0].emoji).toBe('🐼');
         });
         
         test('should get badge count', () => {
@@ -133,19 +136,21 @@ describe('User Storage - UserStorageModel', () => {
         });
         
         test('should separate badges by user', () => {
-            userStorage.addBadge('Димитър', 'Значка Димитър');
+            userStorage.addBadge('Димитър', 'Значка Димитър', '🏆');
             
             userStorage.logout();
             userStorage.setCurrentUser('Анна');
-            userStorage.addBadge('Анна', 'Значка Анна');
+            userStorage.addBadge('Анна', 'Значка Анна', '⭐');
             
             const dimitarBadges = userStorage.getBadges('Димитър');
             const annaBadges = userStorage.getBadges('Анна');
             
             expect(dimitarBadges.length).toBe(1);
             expect(annaBadges.length).toBe(1);
-            expect(dimitarBadges[0]).toBe('Значка Димитър');
-            expect(annaBadges[0]).toBe('Значка Анна');
+            expect(dimitarBadges[0].name).toBe('Значка Димитър');
+            expect(dimitarBadges[0].emoji).toBe('🏆');
+            expect(annaBadges[0].name).toBe('Значка Анна');
+            expect(annaBadges[0].emoji).toBe('⭐');
         });
         
         test('should create user if adding badge to non-existent user', () => {

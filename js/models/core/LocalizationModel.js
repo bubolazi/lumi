@@ -281,6 +281,43 @@ class LocalizationModel {
                 // Badge message template
                 'BADGE_MESSAGE': 'Страхотна работа! Печелиш значка:',
                 
+                // Badge animal emoji mappings
+                'BADGE_ANIMAL_EMOJIS': {
+                    'Мече': '🐻',
+                    'Зайче': '🐰',
+                    'Котенце': '🐱',
+                    'Кученце': '🐶',
+                    'Лисиче': '🦊',
+                    'Тигърче': '🐯',
+                    'Слонче': '🐘',
+                    'Жирафче': '🦒',
+                    'Пиленце': '🐥',
+                    'Патенце': '🦆',
+                    'Морско Конче': '🐴',
+                    'Бухалче': '🦉',
+                    'Папагалче': '🦜',
+                    'Катеричка': '🐿️',
+                    'Коала': '🐨',
+                    'Панда': '🐼',
+                    'Овчица': '🐑',
+                    'Пеперудка': '🦋',
+                    'Калинка': '🐞',
+                    'Рибка': '🐠',
+                    'Костенурка': '🐢',
+                    'Мравка': '🐜',
+                    'Пчеличка': '🐝',
+                    'Пеликан': '🦩',
+                    'Делфин': '🐬',
+                    'Пингвин': '🐧',
+                    'Хамстер': '🐹',
+                    'Октопод': '🐙'
+                },
+                
+                // Feedback modal headers
+                'FEEDBACK_CORRECT': 'ПРАВИЛНО!',
+                'FEEDBACK_INCORRECT': 'НЕПРАВИЛНО',
+                'FEEDBACK_WRONG_EMOJI': '❌',
+                
                 // User login/logout
                 'USER_PROMPT': 'Въведи твоето име:',
                 'USER_LOGGED_IN': 'Потребител:',
@@ -500,5 +537,20 @@ class LocalizationModel {
     // Get available languages
     getAvailableLanguages() {
         return Object.keys(this.translations);
+    }
+    
+    // Get emoji for a badge animal name
+    getBadgeEmoji(animalName) {
+        const emojiMap = this.t('BADGE_ANIMAL_EMOJIS');
+        if (emojiMap && typeof emojiMap === 'object') {
+            return emojiMap[animalName] || '⭐';
+        }
+        return '⭐';
+    }
+    
+    // Extract animal name from full badge name (e.g., "Слънчево Мече" -> "Мече")
+    extractAnimalFromBadge(badgeName) {
+        const words = badgeName.trim().split(' ');
+        return words[words.length - 1];
     }
 }

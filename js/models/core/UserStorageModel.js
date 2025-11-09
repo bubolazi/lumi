@@ -67,7 +67,7 @@ class UserStorageModel {
         return users[username] || null;
     }
     
-    addBadge(username, badgeName) {
+    addBadge(username, badgeName, badgeEmoji = '') {
         let users = this.getAllUsers();
         if (!users[username]) {
             this.createUser(username);
@@ -78,13 +78,28 @@ class UserStorageModel {
             users[username].badges = [];
         }
         
-        users[username].badges.push(badgeName);
+        const badgeData = {
+            name: badgeName,
+            emoji: badgeEmoji,
+            earnedAt: new Date().toISOString()
+        };
+        
+        users[username].badges.push(badgeData);
         return this.saveAllUsers(users);
     }
     
     getBadges(username) {
         const userData = this.getUserData(username);
-        return userData ? userData.badges || [] : [];
+        if (!userData || !userData.badges) {
+            return [];
+        }
+        
+        return userData.badges.map(badge => {
+            if (typeof badge === 'string') {
+                return { name: badge, emoji: '', earnedAt: '' };
+            }
+            return badge;
+        });
     }
     
     getBadgeCount(username) {

@@ -168,6 +168,32 @@ header h1 {
     color: var(--dim-green);
 }
 
+/* Feedback modal colors */
+.feedback-modal {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.feedback-content {
+    background-color: var(--bg-black);
+    border-color: var(--terminal-green);
+}
+
+.feedback-header {
+    color: var(--terminal-green);
+}
+
+.feedback-body {
+    color: var(--terminal-green);
+}
+
+.feedback-badge {
+    color: var(--terminal-green);
+}
+
+.feedback-footer {
+    color: var(--dim-green);
+}
+
 /* Responsive cursor adjustment */
 @media (max-width: 600px) {
     .cursor {
@@ -186,5 +212,18 @@ header h1 {
     #login-input {
         width: 200px;
         font-size: 1.5rem;
+    }
+    
+    .feedback-content {
+        min-width: 300px;
+        padding: 30px 20px;
+    }
+    
+    .feedback-emoji {
+        font-size: 3rem;
+    }
+    
+    .feedback-badge {
+        font-size: 1.4rem;
     }
 }
