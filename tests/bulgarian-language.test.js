@@ -242,4 +242,50 @@ describe('Bulgarian Language Model - Answer Validation', () => {
         expect(badge).toHaveProperty('badgeName');
         expect(badge.fullMessage).toContain('Печелиш значка:'); // Bulgarian for "You earned a badge:"
     });
+
+    test('badge structure matches controller expectations', () => {
+        model.setLevel(1, 'letters');
+        
+        // Generate 5 correct answers to earn a badge
+        for (let i = 0; i < 5; i++) {
+            model.updateScore();
+        }
+        
+        const badge = model.checkBadge();
+        
+        // Verify badge has the structure the controller expects
+        expect(badge).not.toBeNull();
+        expect(typeof badge).toBe('object');
+        expect(badge).toHaveProperty('badgeName');
+        expect(badge).toHaveProperty('fullMessage');
+        
+        // Verify badgeName is a string with an adjective and animal
+        expect(typeof badge.badgeName).toBe('string');
+        expect(badge.badgeName.split(' ').length).toBe(2); // Should be "Adjective Animal"
+        
+        // Verify fullMessage contains the badge template and badgeName
+        expect(badge.fullMessage).toContain('Печелиш значка:');
+        expect(badge.fullMessage).toContain(badge.badgeName);
+    });
+
+    test('badge resets streak after awarding', () => {
+        model.setLevel(1, 'letters');
+        
+        // Earn first badge
+        for (let i = 0; i < 5; i++) {
+            model.updateScore();
+        }
+        expect(model.checkBadge()).not.toBeNull();
+        expect(model.correctAnswersStreak).toBe(0); // Streak should reset
+        
+        // Verify no badge on next answer
+        model.updateScore();
+        expect(model.checkBadge()).toBeNull();
+        
+        // Earn second badge
+        for (let i = 0; i < 4; i++) {
+            model.updateScore();
+        }
+        expect(model.checkBadge()).not.toBeNull();
+    });
 });
