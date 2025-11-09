@@ -279,7 +279,7 @@ class LocalizationModel {
                 ],
                 
                 // Badge message template
-                'BADGE_MESSAGE': 'Страхотна работа! Печелиш значка:',
+                'BADGE_MESSAGE': 'Страхотна работа! Печелиш значка',
                 
                 // Badge animal emoji mappings
                 'BADGE_ANIMAL_EMOJIS': {
