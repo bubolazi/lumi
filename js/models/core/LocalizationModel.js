@@ -4,37 +4,37 @@ class LocalizationModel {
         this.currentLanguage = language;
         this.translations = this.getTranslations();
     }
-    
+
     // Get all translations for different languages
     getTranslations() {
         return {
             'bg': {
                 // Page title and header
-                'MATH_TERMINAL': 'УЧЕБЕН ТЕРМИНАЛ v1.0',
+                'MATH_TERMINAL': 'УЧЕБЕН ТЕРМИНАЛ v0.1',
                 'LEVEL': 'НИВО',
-                
+
                 // Subjects
                 'SELECT_SUBJECT': 'ИЗБЕРЕТЕ ПРЕДМЕТ:',
                 'MATH_SUBJECT': 'МАТЕМАТИКА',
                 'BULGARIAN_SUBJECT': 'БЪЛГАРСКИ ЕЗИК',
-                'SUBJECT_INSTRUCTIONS': 'КЛИКНЕТЕ НА ПРЕДМЕТ ЗА ЗАПОЧВАНЕ • BACKSPACE = НАЗАД',
-                
+                'SUBJECT_INSTRUCTIONS': 'ИЗБЕРЕТЕ НОМЕР НА ПРЕДМЕТ • BACKSPACE = НАЗАД',
+
                 // Operations
                 'ADDITION': 'СЪБИРАНЕ',
                 'PLACE_VALUE': 'ЕДИНИЦИ И ДЕСЕТИЦИ',
                 'SUBTRACTION': 'ИЗВАЖДАНЕ',
                 'MULTIPLICATION': 'УМНОЖЕНИЕ',
                 'DIVISION': 'ДЕЛЕНИЕ',
-                
+
                 // Bulgarian Language Activities
                 'LETTERS': 'БУКВИ',
                 'SYLLABLES': 'СРИЧКИ',
                 'WORDS': 'ДУМИ',
-                
+
                 // Operation/Activity selection
                 'SELECT_OPERATION': 'ИЗБЕРЕТЕ ДЕЙНОСТ:',
-                'OPERATION_INSTRUCTIONS': 'КЛИКНЕТЕ НА ДЕЙНОСТ ЗА ЗАПОЧВАНЕ • BACKSPACE = НАЗАД',
-                
+                'OPERATION_INSTRUCTIONS': 'ИЗБЕРЕТЕ НОМЕР НА ДЕЙНОСТ • BACKSPACE = НАЗАД',
+
                 // Level selection screen
                 'SELECT_DIFFICULTY_LEVEL': 'ИЗБЕРЕТЕ НИВО НА ТРУДНОСТ:',
                 // Math level descriptions
@@ -43,7 +43,7 @@ class LocalizationModel {
                 'UP_TO_20': 'ДО 20',
                 'UP_TO_50': 'ДО 50',
                 'UP_TO_100': 'ДО 100',
-                
+
                 // Place Value level descriptions
                 'PLACE_VALUE_RECOGNITION': 'РАЗПОЗНАВАНЕ НА ЕДИНИЦИ И ДЕСЕТИЦИ',
                 'PLACE_VALUE_CALCULATION': 'СТЪПКА ПО СТЪПКА СМЯТАНЕ',
@@ -57,19 +57,19 @@ class LocalizationModel {
                 'STEP_CARRY': 'Пренос',
                 'STEP_TENS': 'Десетици',
                 'STEP_COMBINE': 'Резултат',
-                
+
                 // Step descriptions for Place Value Level 2
                 'STEP_DESC_ONES': 'Изчисляване на единици',
                 'STEP_DESC_CARRY': 'Определяне на пренос',
                 'STEP_DESC_TENS': 'Изчисляване на десетици',
                 'STEP_DESC_COMBINE': 'Комбиниране на резултата',
-                
+
                 // Tooltips for Place Value
                 'TOOLTIP_CARRY': 'Преносът е цифрата от десетиците когато сборът на единиците е 10 или повече. Например: 7 + 8 = 15, преносът е 1.',
                 'TOOLTIP_ICON': '<i>i</i>',
                 'TOOLTIP_HELP': 'Натиснете + за обяснение',
                 'TOOLTIP_CLOSE': 'Натиснете + за затваряне',
-                
+
                 // Bulgarian Language level descriptions
                 'VOWELS': 'ГЛАСНИ БУКВИ',
                 'CONSONANTS': 'СЪГЛАСНИ БУКВИ',
@@ -80,16 +80,16 @@ class LocalizationModel {
                 'TWO_SYLLABLE_WORDS': 'ДВУСРИЧНИ ДУМИ',
                 'THREE_SYLLABLE_WORDS': 'ТРИСРИЧНИ ДУМИ',
                 'ALL_WORDS': 'ВСИЧКИ ДУМИ',
-                
-                'LEVEL_INSTRUCTIONS': 'КЛИКНЕТЕ НА НИВО ЗА ЗАПОЧВАНЕ • BACKSPACE = НАЗАД',
-                
+
+                'LEVEL_INSTRUCTIONS': 'ИЗБЕРЕТЕ НОМЕР НА НИВО • BACKSPACE = НАЗАД',
+
                 // Game screen
                 'INPUT_PROMPT': '>',
                 'SCORE': 'ТОЧКИ',
                 'PROBLEMS': 'ЗАДАЧИ',
                 'GAME_INSTRUCTIONS': 'ENTER = ПРАВИЛНО • DEL = ГРЕШНО • BACKSPACE = НАЗАД',
                 'GAME_INSTRUCTIONS_MATH': 'НАТИСНЕТЕ ENTER ЗА ИЗПРАЩАНЕ НА ОТГОВОР • BACKSPACE = НАЗАД',
-                
+
                 // Reward messages
                 'REWARD_MESSAGES': [
                     'ПРАВИЛНО! БРАВО!',
@@ -103,7 +103,7 @@ class LocalizationModel {
                     'БЕЗУПРЕЧНО ИЗПЪЛНЕНИЕ!',
                     'ВПЕЧАТЛЯВАЩА ТОЧНОСТ!'
                 ],
-                
+
                 // Subtraction-specific reward messages
                 'SUBTRACTION_REWARD_MESSAGES': [
                     'ОТЛИЧНО ИЗВАЖДАНЕ!',
@@ -117,7 +117,7 @@ class LocalizationModel {
                     'ИЗКЛЮЧИТЕЛНО ИЗВАЖДАНЕ!',
                     'НЕВЕРОЯТНИ УМЕНИЯ ЗА ИЗВАЖДАНЕ!'
                 ],
-                
+
                 // Place Value reward messages
                 'PLACE_VALUE_REWARD_MESSAGES': [
                     'ОТЛИЧНО! ПОЗНАВАШ ЕДИНИЦИТЕ И ДЕСЕТИЦИТЕ!',
@@ -131,7 +131,7 @@ class LocalizationModel {
                     'ИЗКЛЮЧИТЕЛНО!',
                     'ЧУДЕСНО РАЗБИРАНЕ НА ЧИСЛАТА!'
                 ],
-                
+
                 // Bulgarian Language reward messages
                 'BULGARIAN_REWARD_MESSAGES': [
                     'БРАВО! ОТЛИЧНО ЧЕТЕНЕ!',
@@ -145,7 +145,7 @@ class LocalizationModel {
                     'ИЗКЛЮЧИТЕЛНО УМЕНИЕ!',
                     'ЧУДЕСНО ПРОЧЕТЕНО!'
                 ],
-                
+
                 // Badge system - Animals organized by gender
                 // Среден род (neuter) - ends in -о, -е
                 'BADGE_ANIMALS_NEUTER': [
@@ -163,7 +163,7 @@ class LocalizationModel {
                     'Бухалче',
                     'Папагалче'
                 ],
-                
+
                 // Женски род (feminine) - ends in -а, -я
                 'BADGE_ANIMALS_FEMININE': [
                     'Катеричка',
@@ -177,7 +177,7 @@ class LocalizationModel {
                     'Мравка',
                     'Пчеличка'
                 ],
-                
+
                 // Мъжки род (masculine) - ends in consonant
                 'BADGE_ANIMALS_MASCULINE': [
                     'Пеликан',
@@ -186,7 +186,7 @@ class LocalizationModel {
                     'Хамстер',
                     'Октопод'
                 ],
-                
+
                 // Badge system - Adjectives organized by gender
                 // Среден род (neuter) - ends in -о, -е
                 'BADGE_ADJECTIVES_NEUTER': [
@@ -219,7 +219,7 @@ class LocalizationModel {
                     'Прекрасно',
                     'Чудесно'
                 ],
-                
+
                 // Женски род (feminine) - ends in -а, -я
                 'BADGE_ADJECTIVES_FEMININE': [
                     'Слънчева',
@@ -251,7 +251,7 @@ class LocalizationModel {
                     'Прекрасна',
                     'Чудесна'
                 ],
-                
+
                 // Мъжки род (masculine) - ends in consonant
                 'BADGE_ADJECTIVES_MASCULINE': [
                     'Слънчев',
@@ -283,10 +283,10 @@ class LocalizationModel {
                     'Прекрасен',
                     'Чудесен'
                 ],
-                
+
                 // Badge message template
                 'BADGE_MESSAGE': 'Печелиш значка',
-                
+
                 // Badge animal emoji mappings
                 'BADGE_ANIMAL_EMOJIS': {
                     'Мече': '🐻',
@@ -318,12 +318,12 @@ class LocalizationModel {
                     'Хамстер': '🐹',
                     'Октопод': '🐙'
                 },
-                
+
                 // Feedback modal headers
                 'FEEDBACK_CORRECT': 'ПРАВИЛНО!',
                 'FEEDBACK_INCORRECT': 'НЕПРАВИЛНО',
                 'FEEDBACK_WRONG_EMOJI': '❌',
-                
+
                 // User login/logout
                 'USER_PROMPT': 'Въведи твоето име:',
                 'USER_LOGGED_IN': 'Потребител:',
@@ -335,13 +335,13 @@ class LocalizationModel {
                 'BADGES_PAGE': 'Значки {current} - {end} от {total}',
                 'BADGES_PRESS_STAR': 'Натисни * за следващи значки',
                 'BADGES_CLOSE': 'Натисни * за затваряне',
-                
+
                 // Error messages
                 'ERROR_INVALID_INPUT': 'ГРЕШКА: НЕВАЛИДЕН ВХОД',
                 'INCORRECT_ANSWER': 'НЕПРАВИЛНО. ОТГОВОР:',
                 'INCORRECT_ANSWER_BULGARIAN': 'ОПИТАЙ ПАК!'
             },
-            
+
             // Keep English as fallback
             'en': {
                 'MATH_TERMINAL': 'MATH TERMINAL v1.0',
@@ -501,31 +501,31 @@ class LocalizationModel {
             }
         };
     }
-    
+
     // Get translation for a key
     t(key) {
         const translations = this.translations[this.currentLanguage];
         if (translations && translations[key]) {
             return translations[key];
         }
-        
+
         // Fallback to English if key not found in current language
         const englishTranslations = this.translations['en'];
         if (englishTranslations && englishTranslations[key]) {
             return englishTranslations[key];
         }
-        
+
         // Return key itself if no translation found
         console.warn(`Translation not found for key: ${key}`);
         return key;
     }
-    
+
     // Get array translation (like reward messages)
     tArray(key) {
         const translation = this.t(key);
         return Array.isArray(translation) ? translation : [translation];
     }
-    
+
     // Change language
     setLanguage(language) {
         if (this.translations[language]) {
@@ -534,17 +534,17 @@ class LocalizationModel {
         }
         return false;
     }
-    
+
     // Get current language
     getCurrentLanguage() {
         return this.currentLanguage;
     }
-    
+
     // Get available languages
     getAvailableLanguages() {
         return Object.keys(this.translations);
     }
-    
+
     // Get emoji for a badge animal name
     getBadgeEmoji(animalName) {
         const emojiMap = this.t('BADGE_ANIMAL_EMOJIS');
@@ -553,7 +553,7 @@ class LocalizationModel {
         }
         return '⭐';
     }
-    
+
     // Extract animal name from full badge name (e.g., "Слънчево Мече" -> "Мече")
     extractAnimalFromBadge(badgeName) {
         const words = badgeName.trim().split(' ');
