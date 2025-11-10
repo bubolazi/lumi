@@ -2,35 +2,101 @@
 class SubtractionLevels {
     static getLevels() {
         return {
-            1: { min: 1, max: 9, descriptionKey: 'SINGLE_DIGITS' },
-            2: { min: 10, max: 19, descriptionKey: 'DOUBLE_DIGITS' }
+            1: { descriptionKey: 'SINGLE_DIGITS' },
+            2: { descriptionKey: 'PLACE_VALUE_RECOGNITION' },
+            3: { descriptionKey: 'UP_TO_20' },
+            4: { descriptionKey: 'PLACE_VALUE_CALCULATION' }
         };
     }
     
     static generateProblem(level) {
-        const levelConfig = this.getLevels()[level];
-        let num1, num2;
-        
-        // Generate subtraction problems ensuring positive results
         if (level === 1) {
-            // Single digits - ensure num1 >= num2
-            num1 = this.randomInt(2, 9);
-            num2 = this.randomInt(1, num1);
+            // Level 1: Single digits (0-9), result must be >= 0
+            const num1 = this.randomInt(0, 9);
+            const num2 = this.randomInt(0, num1);
+            
+            return {
+                num1: num1,
+                num2: num2,
+                operation: '-',
+                answer: num1 - num2
+            };
         } else if (level === 2) {
-            // Double digits
-            num1 = this.randomInt(10, 19);
-            num2 = this.randomInt(1, Math.min(9, num1));
-        } else {
-            // General case
-            num1 = this.randomInt(levelConfig.min + 5, levelConfig.max);
-            num2 = this.randomInt(levelConfig.min, Math.min(num1, levelConfig.max / 2));
+            // Level 2: Place Value Recognition
+            const num = this.randomInt(10, 99);
+            const questionType = Math.random() < 0.5 ? 'ones' : 'tens';
+            
+            return {
+                num1: num,
+                questionType: questionType,
+                operation: 'place_value_recognition',
+                answer: questionType === 'ones' ? num % 10 : Math.floor(num / 10),
+                display: num
+            };
+        } else if (level === 3) {
+            // Level 3: Operations up to 20, result must be >= 0
+            const num1 = this.randomInt(0, 20);
+            const num2 = this.randomInt(0, num1);
+            
+            return {
+                num1: num1,
+                num2: num2,
+                operation: '-',
+                answer: num1 - num2
+            };
+        } else if (level === 4) {
+            // Level 4: Place Value Calculation (step-by-step subtraction)
+            let num1, num2;
+            
+            // Generate two 2-digit numbers where num1 >= num2 for positive result
+            num1 = this.randomInt(20, 99);
+            num2 = this.randomInt(10, num1);
+            
+            const ones1 = num1 % 10;
+            const tens1 = Math.floor(num1 / 10);
+            const ones2 = num2 % 10;
+            const tens2 = Math.floor(num2 / 10);
+            
+            // Handle borrowing for subtraction
+            let onesFinal, tensFinal, borrow;
+            
+            if (ones1 >= ones2) {
+                // No borrowing needed
+                onesFinal = ones1 - ones2;
+                borrow = 0;
+                tensFinal = tens1 - tens2;
+            } else {
+                // Borrowing needed
+                onesFinal = (ones1 + 10) - ones2;
+                borrow = 1;
+                tensFinal = tens1 - tens2 - borrow;
+            }
+            
+            const finalAnswer = tensFinal * 10 + onesFinal;
+            
+            return {
+                num1: num1,
+                num2: num2,
+                ones1: ones1,
+                tens1: tens1,
+                ones2: ones2,
+                tens2: tens2,
+                onesFinal: onesFinal,
+                borrow: borrow,
+                tensFinal: tensFinal,
+                operation: 'place_value_calculation',
+                answer: finalAnswer,
+                currentStep: 1,
+                stepAnswers: [onesFinal, borrow, tensFinal, finalAnswer],
+                hasInfoIcon: false
+            };
         }
         
         return {
-            num1: num1,
-            num2: num2,
+            num1: 0,
+            num2: 0,
             operation: '-',
-            answer: num1 - num2
+            answer: 0
         };
     }
     

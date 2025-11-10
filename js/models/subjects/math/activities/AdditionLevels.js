@@ -2,44 +2,97 @@
 class AdditionLevels {
     static getLevels() {
         return {
-            1: { min: 1, max: 9, descriptionKey: 'SINGLE_DIGITS' },
-            2: { min: 10, max: 19, descriptionKey: 'DOUBLE_DIGITS' }
+            1: { descriptionKey: 'SINGLE_DIGITS' },
+            2: { descriptionKey: 'PLACE_VALUE_RECOGNITION' },
+            3: { descriptionKey: 'UP_TO_20' },
+            4: { descriptionKey: 'PLACE_VALUE_CALCULATION' }
         };
     }
     
     static generateProblem(level) {
-        const levelConfig = this.getLevels()[level];
-        let num1, num2;
-        
-        // Generate addition problems based on level
         if (level === 1) {
-            // Single digits only
-            num1 = this.randomInt(1, 9);
-            num2 = this.randomInt(1, 9);
-        } else if (level === 2) {
-            // One number is double digit (10-19), other is single digit
-            num1 = this.randomInt(10, 19);
-            num2 = this.randomInt(1, 9);
-        } else {
-            // General case: ensure result doesn't exceed level max
-            num1 = this.randomInt(levelConfig.min, Math.min(levelConfig.max, 50));
-            num2 = this.randomInt(levelConfig.min, Math.min(levelConfig.max - num1, 50));
+            // Level 1: Single digits (0-9), result must be <= 10
+            let num1, num2;
+            do {
+                num1 = this.randomInt(0, 9);
+                num2 = this.randomInt(0, 9);
+            } while (num1 + num2 > 10);
             
-            // Ensure result doesn't exceed level maximum
-            if (num1 + num2 > levelConfig.max) {
-                num2 = levelConfig.max - num1;
-                if (num2 < 1) {
-                    num1 = this.randomInt(1, levelConfig.max - 1);
-                    num2 = this.randomInt(1, levelConfig.max - num1);
-                }
-            }
+            return {
+                num1: num1,
+                num2: num2,
+                operation: '+',
+                answer: num1 + num2
+            };
+        } else if (level === 2) {
+            // Level 2: Place Value Recognition
+            const num = this.randomInt(10, 99);
+            const questionType = Math.random() < 0.5 ? 'ones' : 'tens';
+            
+            return {
+                num1: num,
+                questionType: questionType,
+                operation: 'place_value_recognition',
+                answer: questionType === 'ones' ? num % 10 : Math.floor(num / 10),
+                display: num
+            };
+        } else if (level === 3) {
+            // Level 3: Operations up to 20, result must be <= 20
+            let num1, num2;
+            do {
+                num1 = this.randomInt(0, 20);
+                num2 = this.randomInt(0, 20);
+            } while (num1 + num2 > 20);
+            
+            return {
+                num1: num1,
+                num2: num2,
+                operation: '+',
+                answer: num1 + num2
+            };
+        } else if (level === 4) {
+            // Level 4: Place Value Calculation (step-by-step)
+            const num1 = this.randomInt(10, 49);
+            const num2 = this.randomInt(10, 49);
+            
+            const ones1 = num1 % 10;
+            const tens1 = Math.floor(num1 / 10);
+            const ones2 = num2 % 10;
+            const tens2 = Math.floor(num2 / 10);
+            
+            const onesSum = ones1 + ones2;
+            const tensSum = tens1 + tens2;
+            
+            const onesFinal = onesSum % 10;
+            const carryOver = Math.floor(onesSum / 10);
+            const tensFinal = tensSum + carryOver;
+            const finalAnswer = tensFinal * 10 + onesFinal;
+            
+            return {
+                num1: num1,
+                num2: num2,
+                ones1: ones1,
+                tens1: tens1,
+                ones2: ones2,
+                tens2: tens2,
+                onesSum: onesSum,
+                onesFinal: onesFinal,
+                carryOver: carryOver,
+                tensSum: tensSum,
+                tensFinal: tensFinal,
+                operation: 'place_value_calculation',
+                answer: finalAnswer,
+                currentStep: 1,
+                stepAnswers: [onesSum, carryOver, tensSum + carryOver, finalAnswer],
+                hasInfoIcon: false
+            };
         }
         
         return {
-            num1: num1,
-            num2: num2,
+            num1: 0,
+            num2: 0,
             operation: '+',
-            answer: num1 + num2
+            answer: 0
         };
     }
     

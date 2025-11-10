@@ -7,11 +7,6 @@ class OperationManager {
                 extensionClass: AdditionLevels,
                 icon: '+'
             },
-            'place_value': {
-                key: 'PLACE_VALUE',
-                extensionClass: PlaceValueActivity,
-                icon: '⊕'
-            },
             'subtraction': {
                 key: 'SUBTRACTION', 
                 extensionClass: SubtractionLevels,

@@ -53,35 +53,32 @@ describe('Bug Fix - Input Handling Across Activities', () => {
         }
     });
 
-    test('Place Value Level 1 generates valid problems with numeric answers', () => {
-        const placeValueExtension = operationManager.getOperationExtension('place_value');
-        const mathModel = new MathModel(localization, placeValueExtension);
-        mathModel.setLevel(1, 'place_value');
+    test('Addition Level 2 (Place Value Recognition) generates valid problems with numeric answers', () => {
+        const additionExtension = operationManager.getOperationExtension('addition');
+        const mathModel = new MathModel(localization, additionExtension);
+        mathModel.setLevel(2, 'addition');
         
         for (let i = 0; i < 10; i++) {
             const problem = mathModel.generateProblem();
             
-            // Verify problem structure
             expect(problem).toHaveProperty('num1');
             expect(problem).toHaveProperty('answer');
             expect(problem.operation).toBe('place_value_recognition');
             
-            // Verify answer is a number (0-9 for ones or tens digit)
             expect(typeof problem.answer).toBe('number');
             expect(problem.answer).toBeGreaterThanOrEqual(0);
             expect(problem.answer).toBeLessThanOrEqual(9);
         }
     });
 
-    test('Place Value Level 2 generates valid multi-step problems', () => {
-        const placeValueExtension = operationManager.getOperationExtension('place_value');
-        const mathModel = new MathModel(localization, placeValueExtension);
-        mathModel.setLevel(2, 'place_value');
+    test('Addition Level 4 (Place Value Calculation) generates valid multi-step problems', () => {
+        const additionExtension = operationManager.getOperationExtension('addition');
+        const mathModel = new MathModel(localization, additionExtension);
+        mathModel.setLevel(4, 'addition');
         
         for (let i = 0; i < 10; i++) {
             const problem = mathModel.generateProblem();
             
-            // Verify problem structure
             expect(problem).toHaveProperty('num1');
             expect(problem).toHaveProperty('num2');
             expect(problem).toHaveProperty('answer');
@@ -89,13 +86,11 @@ describe('Bug Fix - Input Handling Across Activities', () => {
             expect(problem).toHaveProperty('stepAnswers');
             expect(problem).toHaveProperty('currentStep');
             
-            // Verify all step answers are numbers
             expect(problem.stepAnswers.length).toBe(4);
             problem.stepAnswers.forEach(stepAnswer => {
                 expect(typeof stepAnswer).toBe('number');
             });
             
-            // Verify current step starts at 1
             expect(problem.currentStep).toBe(1);
         }
     });
@@ -123,31 +118,29 @@ describe('Bug Fix - Input Handling Across Activities', () => {
         expect(additionProblem.operation).not.toBe(subtractionProblem.operation);
     });
 
-    test('Bug fix: Switching from Addition to Place Value maintains correct problem generation', () => {
-        // Start with Addition Level 2
+    test('Bug fix: Switching from Addition Level 1 to Level 2 maintains correct problem generation', () => {
+        // Start with Addition Level 1
         let extension = operationManager.getOperationExtension('addition');
         let mathModel = new MathModel(localization, extension);
+        mathModel.setLevel(1, 'addition');
+        
+        const level1Problem = mathModel.generateProblem();
+        expect(level1Problem.operation).toBe('+');
+        
+        // Switch to Addition Level 2 (place value recognition)
         mathModel.setLevel(2, 'addition');
         
-        const additionProblem = mathModel.generateProblem();
-        expect(additionProblem.operation).toBe('+');
-        
-        // Switch to Place Value Level 2 (simulate new activity)
-        extension = operationManager.getOperationExtension('place_value');
-        mathModel = new MathModel(localization, extension);
-        mathModel.setLevel(2, 'place_value');
-        
-        const placeValueProblem = mathModel.generateProblem();
-        expect(placeValueProblem.operation).toBe('place_value_calculation');
-        expect(placeValueProblem).toHaveProperty('stepAnswers');
-        expect(placeValueProblem.stepAnswers.length).toBe(4);
+        const level2Problem = mathModel.generateProblem();
+        expect(level2Problem.operation).toBe('place_value_recognition');
+        expect(level2Problem).toHaveProperty('num1');
+        expect(level2Problem).toHaveProperty('answer');
         
         // Verify problems are different types
-        expect(additionProblem.operation).not.toBe(placeValueProblem.operation);
+        expect(level1Problem.operation).not.toBe(level2Problem.operation);
     });
 
     test('Bug fix: Multiple activity switches maintain correct answer validation', () => {
-        // Addition
+        // Addition Level 1
         let extension = operationManager.getOperationExtension('addition');
         let mathModel = new MathModel(localization, extension);
         mathModel.setLevel(1, 'addition');
@@ -155,7 +148,7 @@ describe('Bug Fix - Input Handling Across Activities', () => {
         expect(mathModel.checkAnswer(problem.answer.toString())).toBe(true);
         expect(mathModel.checkAnswer((problem.answer + 1).toString())).toBe(false);
         
-        // Switch to Subtraction
+        // Switch to Subtraction Level 1
         extension = operationManager.getOperationExtension('subtraction');
         mathModel = new MathModel(localization, extension);
         mathModel.setLevel(1, 'subtraction');
@@ -163,18 +156,18 @@ describe('Bug Fix - Input Handling Across Activities', () => {
         expect(mathModel.checkAnswer(problem.answer.toString())).toBe(true);
         expect(mathModel.checkAnswer((problem.answer + 1).toString())).toBe(false);
         
-        // Switch to Place Value
-        extension = operationManager.getOperationExtension('place_value');
+        // Switch to Addition Level 2 (place value recognition)
+        extension = operationManager.getOperationExtension('addition');
         mathModel = new MathModel(localization, extension);
-        mathModel.setLevel(1, 'place_value');
+        mathModel.setLevel(2, 'addition');
         problem = mathModel.generateProblem();
         expect(mathModel.checkAnswer(problem.answer.toString())).toBe(true);
         expect(mathModel.checkAnswer((problem.answer + 1).toString())).toBe(false);
         
-        // Switch back to Addition
-        extension = operationManager.getOperationExtension('addition');
+        // Switch to Subtraction Level 3
+        extension = operationManager.getOperationExtension('subtraction');
         mathModel = new MathModel(localization, extension);
-        mathModel.setLevel(2, 'addition');
+        mathModel.setLevel(3, 'subtraction');
         problem = mathModel.generateProblem();
         expect(mathModel.checkAnswer(problem.answer.toString())).toBe(true);
         expect(mathModel.checkAnswer((problem.answer + 1).toString())).toBe(false);
