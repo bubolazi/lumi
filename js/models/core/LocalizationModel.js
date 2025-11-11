@@ -58,14 +58,21 @@ class LocalizationModel {
                 'STEP_TENS': 'Десетици',
                 'STEP_COMBINE': 'Резултат',
 
-                // Step descriptions for Place Value Level 2
+                // Step descriptions for Place Value Level 2 - Addition
                 'STEP_DESC_ONES': 'Изчисляване на единици',
                 'STEP_DESC_CARRY': 'Определяне на пренос',
                 'STEP_DESC_TENS': 'Изчисляване на десетици',
                 'STEP_DESC_COMBINE': 'Комбиниране на резултата',
 
+                // Step descriptions for Place Value Level 2 - Subtraction
+                'STEP_DESC_ONES_SUB': 'Изчисляване на единици',
+                'STEP_DESC_BORROW': 'Определяне на заемане',
+                'STEP_DESC_TENS_SUB': 'Изчисляване на десетици',
+                'STEP_DESC_COMBINE_SUB': 'Комбиниране на резултата',
+
                 // Tooltips for Place Value
                 'TOOLTIP_CARRY': 'Преносът е цифрата от десетиците когато сборът на единиците е 10 или повече. Например: 7 + 8 = 15, преносът е 1.',
+                'TOOLTIP_BORROW': 'Заемането е когато трябва да вземем 1 десетица и да я превърнем в 10 единици. Например: 32 - 18, заемаме 1 десетица за единиците.',
                 'TOOLTIP_ICON': '<i>i</i>',
                 'TOOLTIP_HELP': 'Натиснете + за обяснение',
                 'TOOLTIP_CLOSE': 'Натиснете + за затваряне',

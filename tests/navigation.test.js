@@ -206,21 +206,21 @@ describe('Navigation - Single-Level Activities', () => {
         controller = new MockController();
     });
 
-    test('Place Value (multi-level) shows level selection', () => {
+    test('Addition (multi-level) shows level selection', () => {
         controller.selectSubject('math');
         controller.initializeOperationSelection();
-        controller.selectOperation('place_value');
+        controller.selectOperation('addition');
         
-        // Should show level selection (Place Value has 2 levels)
+        // Should show level selection (Addition has 4 levels)
         expect(controller.navigationStack).toEqual(['subject', 'activity', 'level_select']);
-        expect(controller.currentLevel).toBeNull(); // No level selected yet
+        expect(controller.currentLevel).toBeNull();
     });
 
     test('Navigate back from multi-level activity after selecting level', () => {
         controller.selectSubject('math');
         controller.initializeOperationSelection();
-        controller.selectOperation('place_value');
-        controller.startLevel(1, 'place_value');
+        controller.selectOperation('subtraction');
+        controller.startLevel(1, 'subtraction');
         
         const previousState = controller.navigateBack();
         
@@ -341,9 +341,9 @@ describe('Navigation - State Preservation After Back Navigation', () => {
         
         // Navigate back and forth
         controller.navigateBack(); // to level_select
-        controller.startLevel(2, 'addition');
+        controller.startLevel(3, 'addition');
         
-        // Generate another problem and verify
+        // Generate another problem and verify (Level 3 also uses basic addition)
         problem = controller.model.generateProblem();
         expectedAnswer = problem.num1 + problem.num2;
         expect(problem.answer).toBe(expectedAnswer);

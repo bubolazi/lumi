@@ -143,27 +143,43 @@ class AppView {
         this.showMultiStepDisplay();
         
         const step = problem.currentStep || 1;
+        const isAddition = problem.operationSign === '+';
+        const opSign = problem.operationSign || '+';
         
         // Build calculation history with descriptive steps
         let historyHTML = '';
         
         // Main task - always visible and prominent
-        historyHTML += `<div class="main-task">${problem.num1} + ${problem.num2} = ?</div>`;
+        historyHTML += `<div class="main-task">${problem.num1} ${opSign} ${problem.num2} = ?</div>`;
         
         // Step 1: Calculate ones
         if (step >= 1) {
             const status = step > 1 ? 'completed' : '';
-            const stepDesc = this.localization.t('STEP_DESC_ONES');
-            const operation = `${problem.ones1} + ${problem.ones2}`;
-            const answer = step > 1 ? ` = ${problem.onesSum}` : '';
+            const stepDesc = this.localization.t(isAddition ? 'STEP_DESC_ONES' : 'STEP_DESC_ONES_SUB');
+            const operation = `${problem.ones1} ${opSign} ${problem.ones2}`;
+            let answer = '';
+            if (step > 1) {
+                if (isAddition) {
+                    answer = ` = ${problem.onesSum}`;
+                } else {
+                    answer = ` = ${problem.onesFinal}`;
+                }
+            }
             historyHTML += `<div class="history-step ${status}"><span class="step-number">1️⃣</span><span class="step-content">${stepDesc}: ${operation}${answer}</span></div>`;
         }
         
-        // Step 2: Determine carry
+        // Step 2: Determine carry/borrow
         if (step >= 2) {
             const status = step > 2 ? 'completed' : '';
-            const stepDesc = this.localization.t('STEP_DESC_CARRY');
-            const answer = step > 2 ? `: ${problem.carryOver}` : '';
+            const stepDesc = this.localization.t(isAddition ? 'STEP_DESC_CARRY' : 'STEP_DESC_BORROW');
+            let answer = '';
+            if (step > 2) {
+                if (isAddition) {
+                    answer = `: ${problem.carryOver}`;
+                } else {
+                    answer = `: ${problem.borrow}`;
+                }
+            }
             const tooltip = ' <span class="tooltip-icon"><i>i</i></span>';
             historyHTML += `<div class="history-step ${status}"><span class="step-number">2️⃣</span><span class="step-content">${stepDesc}${answer}${tooltip}</span></div>`;
         }
@@ -171,17 +187,24 @@ class AppView {
         // Step 3: Calculate tens
         if (step >= 3) {
             const status = step > 3 ? 'completed' : '';
-            const stepDesc = this.localization.t('STEP_DESC_TENS');
-            const carryText = problem.carryOver > 0 ? ` + ${problem.carryOver}` : '';
-            const operation = `${problem.tens1} + ${problem.tens2}${carryText}`;
-            const answer = step > 3 ? ` = ${problem.tensFinal}` : '';
+            const stepDesc = this.localization.t(isAddition ? 'STEP_DESC_TENS' : 'STEP_DESC_TENS_SUB');
+            let operation, answer = '';
+            if (isAddition) {
+                const carryText = problem.carryOver > 0 ? ` + ${problem.carryOver}` : '';
+                operation = `${problem.tens1} + ${problem.tens2}${carryText}`;
+                answer = step > 3 ? ` = ${problem.tensFinal}` : '';
+            } else {
+                const borrowText = problem.borrow > 0 ? ` - ${problem.borrow}` : '';
+                operation = `${problem.tens1} - ${problem.tens2}${borrowText}`;
+                answer = step > 3 ? ` = ${problem.tensFinal}` : '';
+            }
             historyHTML += `<div class="history-step ${status}"><span class="step-number">3️⃣</span><span class="step-content">${stepDesc}: ${operation}${answer}</span></div>`;
         }
         
         // Step 4: Combine result
         if (step >= 4) {
             const status = step > 4 ? 'completed' : '';
-            const stepDesc = this.localization.t('STEP_DESC_COMBINE');
+            const stepDesc = this.localization.t(isAddition ? 'STEP_DESC_COMBINE' : 'STEP_DESC_COMBINE_SUB');
             const operation = `${problem.tensFinal}0 + ${problem.onesFinal}`;
             const answer = step > 4 ? ` = ${problem.answer}` : '';
             historyHTML += `<div class="history-step ${status}"><span class="step-number">4️⃣</span><span class="step-content">${stepDesc}: ${operation}${answer}</span></div>`;
@@ -194,14 +217,20 @@ class AppView {
         let hasInfoIcon = false;
         
         if (step === 1) {
-            currentStepText = `${problem.ones1} + ${problem.ones2} = ?`;
+            currentStepText = `${problem.ones1} ${opSign} ${problem.ones2} = ?`;
         } else if (step === 2) {
             hasInfoIcon = true;
             const infoIcon = ` <span class="tooltip-icon">${this.localization.t('TOOLTIP_ICON')}</span>`;
-            currentStepText = `Пренос = ?${infoIcon}`;
+            const label = isAddition ? 'Пренос' : 'Заемане';
+            currentStepText = `${label} = ?${infoIcon}`;
         } else if (step === 3) {
-            const carryText = problem.carryOver > 0 ? ` + ${problem.carryOver}` : '';
-            currentStepText = `${problem.tens1} + ${problem.tens2}${carryText} = ?`;
+            if (isAddition) {
+                const carryText = problem.carryOver > 0 ? ` + ${problem.carryOver}` : '';
+                currentStepText = `${problem.tens1} + ${problem.tens2}${carryText} = ?`;
+            } else {
+                const borrowText = problem.borrow > 0 ? ` - ${problem.borrow}` : '';
+                currentStepText = `${problem.tens1} - ${problem.tens2}${borrowText} = ?`;
+            }
         } else if (step === 4) {
             currentStepText = `${problem.tensFinal}0 + ${problem.onesFinal} = ?`;
         }
