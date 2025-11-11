@@ -151,6 +151,22 @@ lumi/
     └── *.test.js       # Test files
 ```
 
+## Database Integration
+
+The application currently uses localStorage for data persistence. For cross-device and cross-browser synchronization, we have prepared a comprehensive **Supabase integration guide**:
+
+- 📖 **[Full Integration Guide](docs/SUPABASE_INTEGRATION_GUIDE.md)** - Complete step-by-step implementation plan
+- 🚀 **[Quick Start Guide](docs/SUPABASE_QUICK_START.md)** - Get started in 30 minutes
+- 🗄️ **[Database Schema](docs/supabase-schema.sql)** - Ready-to-execute SQL script
+
+### Benefits of Supabase Integration
+
+- ✅ Cross-device synchronization
+- ✅ Cross-browser data persistence
+- ✅ Cloud backup and recovery
+- ✅ Future-ready for leaderboards and social features
+- ✅ Maintains backward compatibility with localStorage
+
 ## Future Enhancements
 
 The application is designed to easily support:
@@ -159,8 +175,10 @@ The application is designed to easily support:
 - Science and other subjects
 - Different UI themes
 - Sound effects
-- Progress tracking
+- Advanced progress tracking with analytics
 - Parent dashboard
+- Leaderboards and social features
+- Multi-user collaboration
 
 ## Browser Support
 
