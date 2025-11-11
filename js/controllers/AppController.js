@@ -420,13 +420,16 @@ class AppController {
         
         // Check if current problem has info icon (tooltips available)
         if (problem && problem.hasInfoIcon) {
+            // Determine which tooltip to show based on operation
+            const tooltipKey = problem.operationSign === '-' ? 'TOOLTIP_BORROW' : 'TOOLTIP_CARRY';
+            
             if (this.view.isTooltipVisible()) {
                 // Tooltip is visible, cycle to next or close
-                this.view.cycleTooltip(['TOOLTIP_CARRY']);
+                this.view.cycleTooltip([tooltipKey]);
             } else {
                 // No tooltip visible, initialize and show first one
-                this.view.initializeTooltips(['TOOLTIP_CARRY']);
-                this.view.cycleTooltip(['TOOLTIP_CARRY']);
+                this.view.initializeTooltips([tooltipKey]);
+                this.view.cycleTooltip([tooltipKey]);
             }
         }
     }

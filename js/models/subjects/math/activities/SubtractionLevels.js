@@ -85,6 +85,7 @@ class SubtractionLevels {
                 borrow: borrow,
                 tensFinal: tensFinal,
                 operation: 'place_value_calculation',
+                operationSign: '-',
                 answer: finalAnswer,
                 currentStep: 1,
                 stepAnswers: [onesFinal, borrow, tensFinal, finalAnswer],

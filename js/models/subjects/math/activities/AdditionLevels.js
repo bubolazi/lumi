@@ -81,6 +81,7 @@ class AdditionLevels {
                 tensSum: tensSum,
                 tensFinal: tensFinal,
                 operation: 'place_value_calculation',
+                operationSign: '+',
                 answer: finalAnswer,
                 currentStep: 1,
                 stepAnswers: [onesSum, carryOver, tensSum + carryOver, finalAnswer],
