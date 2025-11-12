@@ -2,13 +2,31 @@ class UserStorageModel {
     constructor() {
         this.USERS_KEY = 'lumi_users';
         this.CURRENT_USER_KEY = 'lumi_current_user';
+        
+        this.supabaseConfig = typeof SupabaseConfig !== 'undefined' 
+            ? new SupabaseConfig() 
+            : null;
+        
+        this.supabaseStorage = this.supabaseConfig && this.supabaseConfig.isEnabled()
+            ? new SupabaseStorageModel(this.supabaseConfig)
+            : null;
+        
+        if (this.supabaseStorage && this.supabaseStorage.isAvailable()) {
+            console.log('UserStorageModel: Using Supabase backend');
+        } else {
+            console.log('UserStorageModel: Using localStorage backend');
+        }
     }
     
     getCurrentUser() {
         return sessionStorage.getItem(this.CURRENT_USER_KEY);
     }
     
-    setCurrentUser(username) {
+    async setCurrentUser(username) {
+        if (this.supabaseStorage && this.supabaseStorage.isAvailable()) {
+            return await this.supabaseStorage.setCurrentUser(username);
+        }
+        
         if (!username || username.trim() === '') {
             return false;
         }
@@ -22,7 +40,11 @@ class UserStorageModel {
     }
     
     logout() {
-        sessionStorage.removeItem(this.CURRENT_USER_KEY);
+        if (this.supabaseStorage && this.supabaseStorage.isAvailable()) {
+            this.supabaseStorage.logout();
+        } else {
+            sessionStorage.removeItem(this.CURRENT_USER_KEY);
+        }
     }
     
     getAllUsers() {
@@ -67,7 +89,11 @@ class UserStorageModel {
         return users[username] || null;
     }
     
-    addBadge(username, badgeName, badgeEmoji = '') {
+    async addBadge(username, badgeName, badgeEmoji = '') {
+        if (this.supabaseStorage && this.supabaseStorage.isAvailable()) {
+            return await this.supabaseStorage.addBadge(username, badgeName, badgeEmoji);
+        }
+        
         let users = this.getAllUsers();
         if (!users[username]) {
             this.createUser(username);
@@ -88,7 +114,11 @@ class UserStorageModel {
         return this.saveAllUsers(users);
     }
     
-    getBadges(username) {
+    async getBadges(username) {
+        if (this.supabaseStorage && this.supabaseStorage.isAvailable()) {
+            return await this.supabaseStorage.getBadges(username);
+        }
+        
         const userData = this.getUserData(username);
         if (!userData || !userData.badges) {
             return [];
@@ -102,7 +132,12 @@ class UserStorageModel {
         });
     }
     
-    getBadgeCount(username) {
-        return this.getBadges(username).length;
+    async getBadgeCount(username) {
+        if (this.supabaseStorage && this.supabaseStorage.isAvailable()) {
+            return await this.supabaseStorage.getBadgeCount(username);
+        }
+        
+        const badges = await this.getBadges(username);
+        return badges.length;
     }
 }
