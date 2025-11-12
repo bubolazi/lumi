@@ -252,6 +252,45 @@ Fallback to localStorage (if offline/error)
 
 ## Security Considerations
 
+### API Key Security - Clarified
+
+**Common Misconception**: "The Supabase anon key needs to be hidden"
+
+**Reality**: The Supabase `anon` (public) key is **designed to be exposed** in client-side code:
+
+- ✅ **Safe to commit to repository** - The anon key is public by design
+- ✅ **Safe to expose in browser** - Users seeing it in DevTools is expected
+- 🔒 **Protected by Row Level Security** - RLS policies control data access, not the API key
+- 🔒 **Rate limited by Supabase** - Prevents abuse even when public
+
+**What Actually Protects Your Data**:
+- Row Level Security (RLS) policies at the database level
+- Supabase Auth for user identification
+- Rate limiting and abuse prevention
+
+**Never Expose**: The `service_role` key - that one bypasses RLS and should only be used server-side!
+
+**Conclusion**: No need for environment variables or build tools to hide the anon key. Focus on proper RLS policies instead.
+
+### User Authentication
+
+**Initial Implementation** (Phase 1):
+- Simple username-based authentication
+- No password required (for backward compatibility)
+- Suitable for initial rollout
+
+**Recommended for Production** (Phase 2):
+- Supabase Auth with email/password
+- Secure password hashing with bcrypt
+- No plaintext passwords in database
+- Built-in features: email verification, password reset, MFA
+
+**Migration Path**:
+1. Start with simple usernames (Phase 1)
+2. Add option for users to add email/password
+3. Eventually require authentication for new users
+4. Keep username for display purposes
+
 ### Data Protection
 - Row Level Security (RLS) enabled on all tables
 - Policies allow read access (for leaderboards)

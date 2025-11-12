@@ -261,16 +261,47 @@ This is the only runtime dependency we'll add. The Supabase JavaScript client is
 - Provides automatic connection pooling and retry logic
 - Handles authentication and real-time subscriptions
 
-#### Step 1.2: Create Configuration File
+#### Step 1.2: Understanding Supabase API Key Security
 
-Create `js/config/supabase-config.js`:
+**Important Security Note**: Unlike traditional API keys, Supabase's `anon` (public) key is **designed to be exposed** in client-side code:
+
+- ✅ **Safe to commit to repository**: The anon key is public by design
+- ✅ **Safe in browser**: Users can see it in DevTools - this is expected
+- 🔒 **Protected by Row Level Security (RLS)**: Database access is controlled by RLS policies, not the API key
+- 🔒 **Rate limited by Supabase**: Prevents abuse even if key is public
+
+**How Supabase Security Works**:
+
+1. **Anon Key**: Public key for client-side code (what users use)
+   - Provides unauthenticated access
+   - RLS policies control what data can be accessed
+   - Rate limited to prevent abuse
+
+2. **Service Role Key**: Secret key for server-side operations (never expose!)
+   - Bypasses RLS policies
+   - Should only be used in server environments
+   - Never commit to repository or use in browser
+
+3. **Row Level Security (RLS)**: The actual security mechanism
+   - Controls who can read/write specific rows
+   - Works with Supabase Auth to identify users
+   - Enforced at database level, cannot be bypassed with anon key
+
+**For This Project**:
+- We will use the `anon` key in client-side JavaScript
+- This is safe because RLS policies protect the data
+- No need for environment variables or build tools for the anon key
+- The key can be committed directly in the code
+
+#### Step 1.3: Create Configuration File
+
+Create `js/config/supabase-config.js` and **commit it to the repository**:
 
 ```javascript
 class SupabaseConfig {
     constructor() {
-        // These values should be loaded from environment or a secure config
-        // For development, you can hardcode them, but for production,
-        // consider using environment variables or a build-time config
+        // Supabase public credentials - safe to commit
+        // These are protected by Row Level Security policies
         this.supabaseUrl = 'YOUR_SUPABASE_PROJECT_URL';
         this.supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
         
@@ -290,26 +321,33 @@ class SupabaseConfig {
 }
 ```
 
-#### Step 1.3: Update .gitignore
+**Note**: No need to add `supabase-config.js` to `.gitignore`. The anon key is meant to be public.
 
-Add environment configuration to `.gitignore`:
+#### Step 1.4: Create Template for Different Environments (Optional)
 
-```bash
-# Supabase configuration (if using .env)
-.env
-.env.local
-.env.production
-js/config/supabase-config.js
-```
-
-Create a template file `js/config/supabase-config.template.js` for other developers:
+If you want to support multiple environments (dev, staging, prod), create environment-specific configs:
 
 ```javascript
+// js/config/supabase-config.dev.js
 class SupabaseConfig {
     constructor() {
-        // Copy this file to supabase-config.js and fill in your values
-        this.supabaseUrl = 'https://YOUR-PROJECT.supabase.co';
-        this.supabaseAnonKey = 'YOUR_ANON_KEY_HERE';
+        this.supabaseUrl = 'https://your-dev-project.supabase.co';
+        this.supabaseAnonKey = 'your-dev-anon-key';
+        this.enabled = true;
+        this.fallbackToLocalStorage = true;
+        this.cacheTimeout = 5 * 60 * 1000;
+    }
+    
+    isEnabled() {
+        return this.enabled && this.supabaseUrl && this.supabaseAnonKey;
+    }
+}
+
+// js/config/supabase-config.prod.js
+class SupabaseConfig {
+    constructor() {
+        this.supabaseUrl = 'https://your-prod-project.supabase.co';
+        this.supabaseAnonKey = 'your-prod-anon-key';
         this.enabled = true;
         this.fallbackToLocalStorage = true;
         this.cacheTimeout = 5 * 60 * 1000;
@@ -320,6 +358,8 @@ class SupabaseConfig {
     }
 }
 ```
+
+Then reference the appropriate file in your HTML based on environment.
 
 ### Phase 2: Create Supabase Storage Model (Estimated: 3-4 hours)
 
@@ -1357,7 +1397,170 @@ Track learning patterns:
 
 ## Security Considerations
 
-### 1. Data Privacy
+### 1. API Key Security (Addressing Common Concerns)
+
+**Q: Is it safe to expose the Supabase anon key in client-side code?**
+
+**A: Yes!** The anon key is specifically designed to be public:
+
+#### Why the Anon Key is Safe to Expose
+
+1. **Row Level Security (RLS) is the Real Protection**:
+   - The anon key doesn't grant access to data
+   - RLS policies at the database level control what data can be accessed
+   - Even with the anon key, users can only access what RLS policies allow
+
+2. **Designed for Client-Side Use**:
+   - Supabase expects the anon key to be in client-side code
+   - It's visible in browser DevTools - this is intentional
+   - Similar to how Firebase API keys work
+
+3. **Rate Limiting and Abuse Prevention**:
+   - Supabase automatically rate limits requests
+   - Protects against denial of service
+   - Can configure custom rate limits in project settings
+
+4. **Different from Service Role Key**:
+   - **Anon key** (public): For client-side, restricted by RLS
+   - **Service role key** (secret): Bypasses RLS, never expose!
+
+#### What Actually Protects Your Data
+
+```sql
+-- This is what protects your data, not hiding the API key
+CREATE POLICY "Users can only read own badges"
+    ON badges FOR SELECT
+    USING (user_id = auth.uid());
+
+CREATE POLICY "Users can only create own badges"
+    ON badges FOR INSERT
+    WITH CHECK (user_id = auth.uid());
+```
+
+With these policies:
+- Users can only see their own badges (even with the anon key)
+- Users can only create badges for themselves
+- Enforced at database level, cannot be bypassed
+
+#### No Need for Environment Variables (for anon key)
+
+- ❌ Don't add `supabase-config.js` to `.gitignore`
+- ❌ Don't use build tools to hide the anon key
+- ✅ Commit the config file with anon key directly
+- ✅ Focus on proper RLS policies instead
+
+**Exception**: The `service_role` key should **never** be exposed and should only be used in server-side code if needed.
+
+### 2. User Authentication and Password Security
+
+**Current Plan**: The initial implementation uses simple username-based authentication for backward compatibility. However, for production use, you should upgrade to secure password-based authentication.
+
+#### Recommended: Supabase Auth with Secure Password Hashing
+
+Supabase provides built-in authentication that handles password security automatically:
+
+**How Supabase Auth Works**:
+1. **Password Hashing**: Uses bcrypt with salt (industry standard)
+2. **No Plaintext Storage**: Passwords are never stored in plain text
+3. **Secure by Default**: Implements best practices automatically
+4. **Additional Features**: Email verification, password reset, MFA
+
+**Implementation Example**:
+
+```javascript
+// Sign up - Supabase handles secure password hashing
+const { data, error } = await supabase.auth.signUp({
+    email: 'user@example.com',
+    password: 'user-chosen-password',  // Automatically hashed with bcrypt
+    options: {
+        data: {
+            username: 'Петър'  // Custom user metadata
+        }
+    }
+});
+
+// Sign in - Supabase securely verifies password
+const { data, error } = await supabase.auth.signInWithPassword({
+    email: 'user@example.com',
+    password: 'user-chosen-password'
+});
+```
+
+**Database Changes for Auth**:
+
+```sql
+-- Update users table to work with Supabase Auth
+ALTER TABLE users 
+    ALTER COLUMN id TYPE UUID,
+    ALTER COLUMN id SET DEFAULT gen_random_uuid(),
+    ADD COLUMN email TEXT UNIQUE,
+    ADD COLUMN auth_id UUID REFERENCES auth.users(id);
+
+-- Update RLS policies to use authentication
+CREATE POLICY "Authenticated users can read all profiles"
+    ON users FOR SELECT
+    TO authenticated  -- Only authenticated users
+    USING (true);
+
+CREATE POLICY "Users can update own profile"
+    ON users FOR UPDATE
+    TO authenticated
+    USING (auth_id = auth.uid());  -- Only their own profile
+
+CREATE POLICY "Authenticated users can create own badges"
+    ON badges FOR INSERT
+    TO authenticated
+    WITH CHECK (user_id IN (
+        SELECT id FROM users WHERE auth_id = auth.uid()
+    ));
+```
+
+#### Migration Path: Simple Username → Secure Auth
+
+**Phase 1** (Initial): Simple username (backward compatible)
+- Users enter username only
+- No password required
+- Data stored with username as identifier
+
+**Phase 2** (Recommended): Add email/password
+- Existing users prompted to add email and password
+- New users must provide email and password
+- Passwords securely hashed by Supabase Auth
+- Username preserved for display purposes
+
+**Migration Code**:
+
+```javascript
+async migrateUserToAuth(username) {
+    // Prompt user for email and password
+    const email = prompt('Enter email to secure your account:');
+    const password = prompt('Create a password:');
+    
+    // Create auth user
+    const { data: authData, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+            data: { username: username }
+        }
+    });
+    
+    if (error) {
+        console.error('Migration failed:', error);
+        return false;
+    }
+    
+    // Link existing user record to auth user
+    await supabase
+        .from('users')
+        .update({ auth_id: authData.user.id, email: email })
+        .eq('username', username);
+    
+    return true;
+}
+```
+
+### 3. Data Privacy
 
 - **User consent**: Inform users about data storage and usage
 - **Minimal data collection**: Only store necessary information
@@ -1388,23 +1591,21 @@ const { user, error } = await supabase.auth.signIn({
 });
 ```
 
-### 3. Row Level Security
+### 4. Additional Security Best Practices
 
-Ensure RLS policies are properly configured:
+- **Input Validation**: Validate all user input before sending to database
+- **SQL Injection Prevention**: Use parameterized queries (handled automatically by Supabase client)
+- **XSS Prevention**: Sanitize user-generated content before displaying
+- **Rate Limiting**: Configure in Supabase project settings to prevent abuse
+- **HTTPS Only**: Ensure your application is served over HTTPS in production
+- **Content Security Policy**: Implement CSP headers to prevent XSS attacks
 
-```sql
--- Example: Users can only update their own data
-CREATE POLICY "Users can update own data"
-  ON users FOR UPDATE
-  USING (id = auth.uid());
-```
+### 5. Monitoring and Logging
 
-### 4. API Security
-
-- **Rate limiting**: Prevent abuse of API endpoints
-- **Input validation**: Validate all user input
-- **SQL injection prevention**: Use parameterized queries (handled by Supabase)
-- **XSS prevention**: Sanitize user-generated content
+- **Enable Supabase Logs**: Monitor API usage and errors in dashboard
+- **Track Failed Authentication Attempts**: Implement login attempt tracking
+- **Alert on Suspicious Activity**: Set up notifications for unusual patterns
+- **Regular Security Audits**: Review RLS policies and access patterns
 
 ## Cost Estimation
 

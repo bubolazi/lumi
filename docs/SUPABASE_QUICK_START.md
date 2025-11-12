@@ -8,6 +8,19 @@ This is a condensed version of the full integration guide for developers who wan
 - Node.js and npm installed
 - Basic understanding of async/await in JavaScript
 
+## Important: API Key Security 🔒
+
+**The Supabase `anon` key is safe to expose in client-side code!**
+
+- ✅ Safe to commit to repository
+- ✅ Safe to see in browser DevTools
+- 🔒 Protected by Row Level Security (RLS) policies
+- 🔒 Rate limited by Supabase
+
+The anon key doesn't grant access to data - RLS policies do. Focus on configuring proper RLS policies instead of hiding the key.
+
+**Never expose the `service_role` key** - that one should only be used server-side!
+
 ## Quick Setup (30 minutes)
 
 ### 1. Create Supabase Project (5 minutes)
@@ -40,11 +53,12 @@ npm install @supabase/supabase-js --save
 
 ### 4. Configure Application (5 minutes)
 
-Create `js/config/supabase-config.js`:
+Create `js/config/supabase-config.js` and **commit it to your repository**:
 
 ```javascript
 class SupabaseConfig {
     constructor() {
+        // These credentials are safe to commit - they're protected by RLS
         this.supabaseUrl = 'https://your-project.supabase.co';  // ← Your Project URL
         this.supabaseAnonKey = 'your-anon-key-here';             // ← Your anon key
         this.enabled = true;
@@ -58,10 +72,7 @@ class SupabaseConfig {
 }
 ```
 
-**Important**: Add to `.gitignore`:
-```
-js/config/supabase-config.js
-```
+**Note**: The anon key is designed to be public. No need to add to `.gitignore`.
 
 ### 5. Test Connection (5 minutes)
 
@@ -102,6 +113,40 @@ testConnection();
 📋 Add Supabase client to HTML  
 📋 Create migration utility  
 📋 Update tests for Supabase
+
+## Authentication Strategy
+
+### Phase 1: Simple Username (Initial)
+For backward compatibility, start with simple username-based authentication (no password).
+
+### Phase 2: Secure Auth (Recommended for Production)
+Upgrade to Supabase Auth with email/password:
+
+```javascript
+// Sign up with secure password hashing
+const { data, error } = await supabase.auth.signUp({
+    email: 'user@example.com',
+    password: 'secure-password',
+    options: {
+        data: { username: 'Петър' }
+    }
+});
+
+// Sign in
+const { data, error } = await supabase.auth.signInWithPassword({
+    email: 'user@example.com',
+    password: 'secure-password'
+});
+```
+
+**Benefits**:
+- ✅ Passwords hashed with bcrypt (secure)
+- ✅ No plaintext passwords in database
+- ✅ Built-in password reset
+- ✅ Email verification
+- ✅ MFA support
+
+See full integration guide for detailed authentication implementation.
 
 ## Implementation Checklist
 
