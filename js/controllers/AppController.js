@@ -116,15 +116,17 @@ class AppController {
         if (!currentUser) {
             this.view.promptUserLogin(async (username, password) => {
                 const result = await this.userStorage.setCurrentUser(username, password);
-                if (result && result.success) {
-                    if (result.needsEmailConfirmation) {
-                        this.view.showMessage(result.message, true);
-                    } else {
-                        this.updateUserDisplay();
-                        this.proceedWithSubjectSelection(subjectName);
-                    }
+                if (result && result.needsEmailConfirmation) {
+                    // Show email confirmation message and don't proceed
+                    this.view.showMessage(result.message, true);
+                } else if (result && result.success) {
+                    this.updateUserDisplay();
+                    this.proceedWithSubjectSelection(subjectName);
                 } else if (result && result.error) {
                     this.view.showMessage('Грешка при влизане: ' + result.error, false);
+                } else if (!result || !result.success) {
+                    // Handle other failure cases
+                    this.view.showMessage('Неуспешно влизане. Моля, опитайте отново.', false);
                 }
             });
         } else {

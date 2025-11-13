@@ -92,6 +92,8 @@ class SupabaseStorageModel {
                         if (authResult.data && authResult.data.user) {
                             const user = authResult.data.user;
                             if (!user.email_confirmed_at && !user.confirmed_at) {
+                                // Sign out the user since email is not confirmed yet
+                                await this.client.auth.signOut();
                                 return { 
                                     success: false, 
                                     needsEmailConfirmation: true, 
