@@ -53,7 +53,19 @@ class SupabaseStorageModel {
         
         if (password && password.trim() !== '') {
             try {
-                const email = `${trimmedUsername.toLowerCase().replace(/\s+/g, '_')}@lumi.local`;
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const isEmail = emailRegex.test(trimmedUsername);
+                
+                let email;
+                if (isEmail) {
+                    email = trimmedUsername.toLowerCase();
+                } else {
+                    const sanitized = trimmedUsername.toLowerCase()
+                        .replace(/[^a-z0-9]/g, '_')
+                        .replace(/_{2,}/g, '_')
+                        .replace(/^_|_$/g, '');
+                    email = `${sanitized}@lumi.app`;
+                }
                 
                 let authResult = await this.client.auth.signInWithPassword({
                     email: email,
