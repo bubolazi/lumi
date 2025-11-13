@@ -44,12 +44,68 @@ class SupabaseStorageModel {
         return sessionStorage.getItem('lumi_current_user');
     }
     
-    async setCurrentUser(username) {
+    async setCurrentUser(username, password) {
         if (!username || username.trim() === '') {
             return false;
         }
         
         const trimmedUsername = username.trim();
+        
+        if (password && password.trim() !== '') {
+            try {
+                const email = `${trimmedUsername.toLowerCase().replace(/\s+/g, '_')}@lumi.local`;
+                
+                let authResult = await this.client.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (authResult.error) {
+                    if (authResult.error.message.includes('Invalid login credentials')) {
+                        authResult = await this.client.auth.signUp({
+                            email: email,
+                            password: password,
+                            options: {
+                                data: {
+                                    username: trimmedUsername
+                                }
+                            }
+                        });
+                        
+                        if (authResult.error) throw authResult.error;
+                    } else {
+                        throw authResult.error;
+                    }
+                }
+                
+                if (authResult.data && authResult.data.user) {
+                    const { data, error } = await this.client
+                        .rpc('get_or_create_user', { p_username: trimmedUsername });
+                    
+                    if (error) throw error;
+                    
+                    this.currentUserId = data;
+                    sessionStorage.setItem('lumi_current_user', trimmedUsername);
+                    sessionStorage.setItem('lumi_user_id', data);
+                    sessionStorage.setItem('lumi_auth_user', authResult.data.user.id);
+                    sessionStorage.removeItem('lumi_use_local_only');
+                    
+                    return true;
+                }
+                
+                return false;
+            } catch (error) {
+                console.error('Error with password authentication:', error);
+                
+                if (this.config.fallbackToLocalStorage) {
+                    sessionStorage.setItem('lumi_current_user', trimmedUsername);
+                    sessionStorage.setItem('lumi_use_local_only', 'true');
+                    return true;
+                }
+                
+                return false;
+            }
+        }
         
         try {
             const { data, error } = await this.client
@@ -60,6 +116,7 @@ class SupabaseStorageModel {
             this.currentUserId = data;
             sessionStorage.setItem('lumi_current_user', trimmedUsername);
             sessionStorage.setItem('lumi_user_id', data);
+            sessionStorage.removeItem('lumi_use_local_only');
             
             return true;
         } catch (error) {
@@ -67,6 +124,7 @@ class SupabaseStorageModel {
             
             if (this.config.fallbackToLocalStorage) {
                 sessionStorage.setItem('lumi_current_user', trimmedUsername);
+                sessionStorage.setItem('lumi_use_local_only', 'true');
                 return true;
             }
             
@@ -78,7 +136,17 @@ class SupabaseStorageModel {
         this.currentUserId = null;
         sessionStorage.removeItem('lumi_current_user');
         sessionStorage.removeItem('lumi_user_id');
+        sessionStorage.removeItem('lumi_auth_user');
+        sessionStorage.removeItem('lumi_use_local_only');
         this.clearCache();
+        
+        try {
+            if (this.client) {
+                await this.client.auth.signOut();
+            }
+        } catch (error) {
+            console.error('Error signing out:', error);
+        }
     }
     
     async addBadge(username, badgeName, badgeEmoji = '⭐') {

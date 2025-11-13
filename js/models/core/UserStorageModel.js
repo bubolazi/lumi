@@ -22,16 +22,18 @@ class UserStorageModel {
         return sessionStorage.getItem(this.CURRENT_USER_KEY);
     }
     
-    async setCurrentUser(username) {
-        if (this.supabaseStorage && this.supabaseStorage.isAvailable()) {
-            return await this.supabaseStorage.setCurrentUser(username);
-        }
-        
+    async setCurrentUser(username, password) {
         if (!username || username.trim() === '') {
             return false;
         }
         const trimmedUsername = username.trim();
+        
+        if (this.supabaseStorage && this.supabaseStorage.isAvailable() && password && password.trim() !== '') {
+            return await this.supabaseStorage.setCurrentUser(trimmedUsername, password);
+        }
+        
         sessionStorage.setItem(this.CURRENT_USER_KEY, trimmedUsername);
+        sessionStorage.setItem('lumi_use_local_only', 'true');
         
         if (!this.userExists(trimmedUsername)) {
             this.createUser(trimmedUsername);
@@ -44,6 +46,7 @@ class UserStorageModel {
             this.supabaseStorage.logout();
         } else {
             sessionStorage.removeItem(this.CURRENT_USER_KEY);
+            sessionStorage.removeItem('lumi_use_local_only');
         }
     }
     
@@ -90,7 +93,9 @@ class UserStorageModel {
     }
     
     async addBadge(username, badgeName, badgeEmoji = '') {
-        if (this.supabaseStorage && this.supabaseStorage.isAvailable()) {
+        const useLocalOnly = sessionStorage.getItem('lumi_use_local_only') === 'true';
+        
+        if (this.supabaseStorage && this.supabaseStorage.isAvailable() && !useLocalOnly) {
             return await this.supabaseStorage.addBadge(username, badgeName, badgeEmoji);
         }
         
@@ -115,7 +120,9 @@ class UserStorageModel {
     }
     
     async getBadges(username) {
-        if (this.supabaseStorage && this.supabaseStorage.isAvailable()) {
+        const useLocalOnly = sessionStorage.getItem('lumi_use_local_only') === 'true';
+        
+        if (this.supabaseStorage && this.supabaseStorage.isAvailable() && !useLocalOnly) {
             return await this.supabaseStorage.getBadges(username);
         }
         
@@ -133,7 +140,9 @@ class UserStorageModel {
     }
     
     async getBadgeCount(username) {
-        if (this.supabaseStorage && this.supabaseStorage.isAvailable()) {
+        const useLocalOnly = sessionStorage.getItem('lumi_use_local_only') === 'true';
+        
+        if (this.supabaseStorage && this.supabaseStorage.isAvailable() && !useLocalOnly) {
             return await this.supabaseStorage.getBadgeCount(username);
         }
         

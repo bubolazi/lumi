@@ -114,8 +114,8 @@ class AppController {
         const currentUser = this.userStorage.getCurrentUser();
         
         if (!currentUser) {
-            this.view.promptUserLogin(async (username) => {
-                if (await this.userStorage.setCurrentUser(username)) {
+            this.view.promptUserLogin(async (username, password) => {
+                if (await this.userStorage.setCurrentUser(username, password)) {
                     this.updateUserDisplay();
                     this.proceedWithSubjectSelection(subjectName);
                 }

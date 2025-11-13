@@ -25,6 +25,11 @@ class AppView {
             logoutButton: document.getElementById('logout-button'),
             loginModal: document.getElementById('login-modal'),
             loginInput: document.getElementById('login-input'),
+            loginPrompt: document.getElementById('login-prompt'),
+            passwordInput: document.getElementById('password-input'),
+            passwordInputLine: document.getElementById('password-input-line'),
+            loginInfo: document.getElementById('login-info'),
+            loginInstructions: document.getElementById('login-instructions'),
             feedbackModal: document.getElementById('feedback-modal'),
             feedbackHeader: document.getElementById('feedback-header'),
             feedbackEmoji: document.getElementById('feedback-emoji'),
@@ -637,6 +642,11 @@ class AppView {
     promptUserLogin(callback) {
         this.elements.loginModal.style.display = 'flex';
         this.elements.loginInput.value = '';
+        this.elements.passwordInput.value = '';
+        this.elements.passwordInputLine.style.display = 'none';
+        this.elements.loginInfo.style.display = 'none';
+        this.elements.loginPrompt.textContent = 'ВЪВЕДИ ТВОЕТО ИМЕ:';
+        this.elements.loginInstructions.textContent = 'НАТИСНИ ENTER ЗА ВХОД • ESC ЗА ОТКАЗ';
         
         const savedHandlers = {
             subject: this._subjectKeyHandler,
@@ -651,19 +661,57 @@ class AppView {
             this.elements.loginInput.focus();
         }, 0);
         
+        let username = '';
+        let isPasswordStep = false;
+        
         const stopPropagation = (e) => {
             e.stopPropagation();
         };
         
         const handleSubmit = (e) => {
             if (e.key === 'Enter') {
-                const username = this.elements.loginInput.value.trim();
-                if (username !== '') {
-                    cleanup(true);
-                    callback(username);
+                if (!isPasswordStep) {
+                    username = this.elements.loginInput.value.trim();
+                    if (username !== '') {
+                        isPasswordStep = true;
+                        this.elements.loginPrompt.textContent = 'ВЪВЕДИ ПАРОЛА (ИЛИ НАТИСНИ ENTER ЗА БЕЗ ПАРОЛА):';
+                        this.elements.passwordInputLine.style.display = 'flex';
+                        this.elements.loginInfo.style.display = 'block';
+                        this.elements.loginInstructions.textContent = 'ENTER = ПРОДЪЛЖИ • ESC = НАЗАД';
+                        
+                        this.elements.loginInput.removeEventListener('keydown', handleSubmit);
+                        this.elements.passwordInput.addEventListener('keydown', handlePasswordSubmit);
+                        this.elements.passwordInput.addEventListener('keydown', stopPropagation);
+                        
+                        setTimeout(() => {
+                            this.elements.passwordInput.focus();
+                        }, 0);
+                    }
                 }
             } else if (e.key === 'Escape') {
                 cleanup(false);
+            }
+        };
+        
+        const handlePasswordSubmit = (e) => {
+            if (e.key === 'Enter') {
+                const password = this.elements.passwordInput.value.trim();
+                cleanup(true);
+                callback(username, password);
+            } else if (e.key === 'Escape') {
+                isPasswordStep = false;
+                this.elements.passwordInputLine.style.display = 'none';
+                this.elements.loginInfo.style.display = 'none';
+                this.elements.loginPrompt.textContent = 'ВЪВЕДИ ТВОЕТО ИМЕ:';
+                this.elements.loginInstructions.textContent = 'НАТИСНИ ENTER ЗА ВХОД • ESC ЗА ОТКАЗ';
+                this.elements.passwordInput.value = '';
+                
+                this.elements.passwordInput.removeEventListener('keydown', handlePasswordSubmit);
+                this.elements.loginInput.addEventListener('keydown', handleSubmit);
+                
+                setTimeout(() => {
+                    this.elements.loginInput.focus();
+                }, 0);
             }
         };
         
@@ -671,7 +719,12 @@ class AppView {
             this.elements.loginModal.style.display = 'none';
             this.elements.loginInput.removeEventListener('keydown', handleSubmit);
             this.elements.loginInput.removeEventListener('keydown', stopPropagation);
+            this.elements.passwordInput.removeEventListener('keydown', handlePasswordSubmit);
+            this.elements.passwordInput.removeEventListener('keydown', stopPropagation);
             this.elements.loginInput.value = '';
+            this.elements.passwordInput.value = '';
+            this.elements.passwordInputLine.style.display = 'none';
+            this.elements.loginInfo.style.display = 'none';
             
             if (!loginSuccessful) {
                 if (savedHandlers.subject) {
