@@ -44,7 +44,7 @@ class SupabaseStorageModel {
         return sessionStorage.getItem('lumi_current_user');
     }
     
-    async setCurrentUser(username, password) {
+    async setCurrentUser(username, password, displayName) {
         if (!username || username.trim() === '') {
             return { success: false };
         }
@@ -71,7 +71,9 @@ class SupabaseStorageModel {
                             password: password,
                             options: {
                                 data: {
-                                    username: trimmedUsername
+                                    username: email,
+                                    email: email,
+                                    display_name: displayName || email.split('@')[0]
                                 },
                                 emailRedirectTo: window.location.origin
                             }
@@ -128,13 +130,16 @@ class SupabaseStorageModel {
                         };
                     }
                     
+                    // Get or create user in database
                     const { data, error } = await this.client
-                        .rpc('get_or_create_user', { p_username: trimmedUsername });
+                        .rpc('get_or_create_user', { p_username: email });
                     
                     if (error) throw error;
                     
                     this.currentUserId = data;
-                    sessionStorage.setItem('lumi_current_user', trimmedUsername);
+                    const userDisplayName = user.user_metadata?.display_name || email.split('@')[0];
+                    sessionStorage.setItem('lumi_current_user', email);
+                    sessionStorage.setItem('lumi_display_name', userDisplayName);
                     sessionStorage.setItem('lumi_user_id', data);
                     sessionStorage.setItem('lumi_auth_user', user.id);
                     sessionStorage.removeItem('lumi_use_local_only');
@@ -168,6 +173,7 @@ class SupabaseStorageModel {
     async logout() {
         this.currentUserId = null;
         sessionStorage.removeItem('lumi_current_user');
+        sessionStorage.removeItem('lumi_display_name');
         sessionStorage.removeItem('lumi_user_id');
         sessionStorage.removeItem('lumi_auth_user');
         sessionStorage.removeItem('lumi_use_local_only');

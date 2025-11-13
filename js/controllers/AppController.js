@@ -125,8 +125,8 @@ class AppController {
         const currentUser = this.userStorage.getCurrentUser();
         
         if (!currentUser) {
-            this.view.promptUserLogin(async (username, password) => {
-                const result = await this.userStorage.setCurrentUser(username, password);
+            this.view.promptUserLogin(async (username, password, displayName) => {
+                const result = await this.userStorage.setCurrentUser(username, password, displayName);
                 if (result && result.needsEmailConfirmation) {
                     // Show email confirmation modal (requires manual dismissal)
                     this.view.showFeedbackModal({

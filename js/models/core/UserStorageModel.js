@@ -22,7 +22,7 @@ class UserStorageModel {
         return sessionStorage.getItem(this.CURRENT_USER_KEY);
     }
     
-    async setCurrentUser(username, password) {
+    async setCurrentUser(username, password, displayName) {
         if (!username || username.trim() === '') {
             return { success: false };
         }
@@ -32,7 +32,7 @@ class UserStorageModel {
         const isEmail = emailRegex.test(trimmedUsername);
         
         if (this.supabaseStorage && this.supabaseStorage.isAvailable() && password && password.trim() !== '' && isEmail) {
-            return await this.supabaseStorage.setCurrentUser(trimmedUsername, password);
+            return await this.supabaseStorage.setCurrentUser(trimmedUsername, password, displayName);
         }
         
         sessionStorage.setItem(this.CURRENT_USER_KEY, trimmedUsername);

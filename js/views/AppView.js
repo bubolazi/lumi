@@ -631,7 +631,10 @@ class AppView {
             return;
         }
         
-        this.elements.userDisplay.textContent = `${this.localization.t('USER_LOGGED_IN')} ${username}`;
+        // If user is logged in with Supabase, show display name instead of email
+        const displayName = sessionStorage.getItem('lumi_display_name') || username;
+        
+        this.elements.userDisplay.textContent = `${this.localization.t('USER_LOGGED_IN')} ${displayName}`;
         this.elements.userInfo.style.display = 'flex';
     }
     
@@ -662,7 +665,9 @@ class AppView {
         }, 0);
         
         let username = '';
+        let password = '';
         let isPasswordStep = false;
+        let isDisplayNameStep = false;
         
         const stopPropagation = (e) => {
             e.stopPropagation();
@@ -708,9 +713,23 @@ class AppView {
         
         const handlePasswordSubmit = (e) => {
             if (e.key === 'Enter') {
-                const password = this.elements.passwordInput.value.trim();
-                cleanup(true);
-                callback(username, password);
+                password = this.elements.passwordInput.value.trim();
+                
+                // Transition to display name step
+                isPasswordStep = false;
+                isDisplayNameStep = true;
+                this.elements.loginPrompt.textContent = 'ВЪВЕДИ ТВОЕТО ИМЕ (за показване):';
+                this.elements.passwordInputLine.style.display = 'none';
+                this.elements.loginInfo.innerHTML = 'Това име ще се показва в приложението';
+                this.elements.loginInstructions.textContent = 'ENTER = ЗАВЪРШИ • ESC = НАЗАД';
+                
+                this.elements.passwordInput.removeEventListener('keydown', handlePasswordSubmit);
+                this.elements.loginInput.addEventListener('keydown', handleDisplayNameSubmit);
+                
+                this.elements.loginInput.value = '';
+                setTimeout(() => {
+                    this.elements.loginInput.focus();
+                }, 0);
             } else if (e.key === 'Escape') {
                 isPasswordStep = false;
                 this.elements.passwordInputLine.style.display = 'none';
@@ -728,10 +747,36 @@ class AppView {
             }
         };
         
+        const handleDisplayNameSubmit = (e) => {
+            if (e.key === 'Enter') {
+                const displayName = this.elements.loginInput.value.trim();
+                if (displayName !== '') {
+                    cleanup(true);
+                    callback(username, password, displayName);
+                }
+            } else if (e.key === 'Escape') {
+                isDisplayNameStep = false;
+                isPasswordStep = true;
+                this.elements.loginPrompt.textContent = 'ВЪВЕДИ ПАРОЛА:';
+                this.elements.passwordInputLine.style.display = 'flex';
+                this.elements.loginInfo.innerHTML = 'С ИМЕЙЛ И ПАРОЛА: СИНХРОНИЗАЦИЯ МЕЖДУ УСТРОЙСТВА<br>Ще получите имейл за потвърждение при първи вход';
+                this.elements.loginInstructions.textContent = 'ENTER = ПРОДЪЛЖИ • ESC = НАЗАД';
+                this.elements.loginInput.value = '';
+                
+                this.elements.loginInput.removeEventListener('keydown', handleDisplayNameSubmit);
+                this.elements.passwordInput.addEventListener('keydown', handlePasswordSubmit);
+                
+                setTimeout(() => {
+                    this.elements.passwordInput.focus();
+                }, 0);
+            }
+        };
+        
         const cleanup = (loginSuccessful) => {
             this.elements.loginModal.style.display = 'none';
             this.elements.loginInput.removeEventListener('keydown', handleSubmit);
             this.elements.loginInput.removeEventListener('keydown', stopPropagation);
+            this.elements.loginInput.removeEventListener('keydown', handleDisplayNameSubmit);
             this.elements.passwordInput.removeEventListener('keydown', handlePasswordSubmit);
             this.elements.passwordInput.removeEventListener('keydown', stopPropagation);
             this.elements.loginInput.value = '';
