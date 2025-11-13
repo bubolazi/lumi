@@ -117,8 +117,14 @@ class AppController {
             this.view.promptUserLogin(async (username, password) => {
                 const result = await this.userStorage.setCurrentUser(username, password);
                 if (result && result.needsEmailConfirmation) {
-                    // Show email confirmation message and don't proceed
-                    this.view.showMessage(result.message, true);
+                    // Show email confirmation modal (requires manual dismissal)
+                    this.view.showFeedbackModal({
+                        isCorrect: true,
+                        badgeName: '',
+                        badgeEmoji: '📧',
+                        header: 'ПОТВЪРЖДЕНИЕ НА ИМЕЙЛ',
+                        footer: result.message || 'Моля, потвърдете имейла си за да продължите. Проверете входящата си поща.'
+                    });
                 } else if (result && result.success) {
                     this.updateUserDisplay();
                     this.proceedWithSubjectSelection(subjectName);

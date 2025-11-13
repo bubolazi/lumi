@@ -806,8 +806,13 @@ class AppView {
                 ? this.localization.t('FEEDBACK_CORRECT')
                 : this.localization.t('FEEDBACK_INCORRECT'));
         
-        if (badgeName && badgeEmoji) {
+        // If custom emoji provided, use it; otherwise follow default logic
+        if (badgeEmoji) {
             this.elements.feedbackEmoji.textContent = badgeEmoji;
+            this.elements.feedbackBadge.textContent = badgeName;
+        } else if (badgeName) {
+            // Badge name without custom emoji - show empty emoji
+            this.elements.feedbackEmoji.textContent = '';
             this.elements.feedbackBadge.textContent = badgeName;
         } else if (!isCorrect) {
             this.elements.feedbackEmoji.textContent = this.localization.t('FEEDBACK_WRONG_EMOJI');
