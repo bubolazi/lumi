@@ -64,6 +64,8 @@ class SupabaseStorageModel {
                 
                 if (authResult.error) {
                     if (authResult.error.message.includes('Invalid login credentials')) {
+                        // User doesn't exist, try to create new account
+                        console.log('User not found, attempting to create new account...');
                         authResult = await this.client.auth.signUp({
                             email: email,
                             password: password,
@@ -75,7 +77,17 @@ class SupabaseStorageModel {
                             }
                         });
                         
-                        if (authResult.error) throw authResult.error;
+                        if (authResult.error) {
+                            // Sign up failed - provide specific error message
+                            const signUpError = authResult.error.message;
+                            if (signUpError.includes('already registered')) {
+                                throw new Error('Този имейл вече е регистриран. Моля, опитайте да влезете с паролата си.');
+                            } else if (signUpError.includes('Password')) {
+                                throw new Error('Паролата е твърде слаба. Моля, използвайте поне 6 символа.');
+                            } else {
+                                throw new Error(`Грешка при регистрация: ${signUpError}`);
+                            }
+                        }
                         
                         if (authResult.data && authResult.data.user) {
                             const user = authResult.data.user;
@@ -88,6 +100,14 @@ class SupabaseStorageModel {
                                 };
                             }
                         }
+                    } else if (authResult.error.message.includes('Email not confirmed')) {
+                        // Existing user but email not confirmed
+                        return {
+                            success: false,
+                            needsEmailConfirmation: true,
+                            email: email,
+                            message: 'Моля, потвърдете имейла си преди да влезете. Проверете входящата си поща.'
+                        };
                     } else {
                         throw authResult.error;
                     }
