@@ -16,7 +16,7 @@ describe('User Storage - UserStorageModel', () => {
         
         test('should set and get current user', async () => {
             const result = await userStorage.setCurrentUser('Петър');
-            expect(result).toBe(true);
+            expect(result.success).toBe(true);
             expect(userStorage.getCurrentUser()).toBe('Петър');
         });
         
@@ -27,13 +27,13 @@ describe('User Storage - UserStorageModel', () => {
         
         test('should reject empty username', async () => {
             const result = await userStorage.setCurrentUser('');
-            expect(result).toBe(false);
+            expect(result.success).toBe(false);
             expect(userStorage.getCurrentUser()).toBeNull();
         });
         
         test('should reject whitespace-only username', async () => {
             const result = await userStorage.setCurrentUser('   ');
-            expect(result).toBe(false);
+            expect(result.success).toBe(false);
             expect(userStorage.getCurrentUser()).toBeNull();
         });
         

@@ -645,7 +645,7 @@ class AppView {
         this.elements.passwordInput.value = '';
         this.elements.passwordInputLine.style.display = 'none';
         this.elements.loginInfo.style.display = 'none';
-        this.elements.loginPrompt.textContent = 'ВЪВЕДИ ТВОЕТО ИМЕ:';
+        this.elements.loginPrompt.textContent = 'ВЪВЕДИ ТВОЕТО ИМЕ ИЛИ ИМЕЙЛ:';
         this.elements.loginInstructions.textContent = 'НАТИСНИ ENTER ЗА ВХОД • ESC ЗА ОТКАЗ';
         
         const savedHandlers = {
@@ -668,24 +668,37 @@ class AppView {
             e.stopPropagation();
         };
         
+        const isValidEmail = (str) => {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(str);
+        };
+        
         const handleSubmit = (e) => {
             if (e.key === 'Enter') {
                 if (!isPasswordStep) {
                     username = this.elements.loginInput.value.trim();
                     if (username !== '') {
-                        isPasswordStep = true;
-                        this.elements.loginPrompt.textContent = 'ВЪВЕДИ ПАРОЛА (ИЛИ НАТИСНИ ENTER ЗА БЕЗ ПАРОЛА):';
-                        this.elements.passwordInputLine.style.display = 'flex';
-                        this.elements.loginInfo.style.display = 'block';
-                        this.elements.loginInstructions.textContent = 'ENTER = ПРОДЪЛЖИ • ESC = НАЗАД';
+                        const isEmail = isValidEmail(username);
                         
-                        this.elements.loginInput.removeEventListener('keydown', handleSubmit);
-                        this.elements.passwordInput.addEventListener('keydown', handlePasswordSubmit);
-                        this.elements.passwordInput.addEventListener('keydown', stopPropagation);
-                        
-                        setTimeout(() => {
-                            this.elements.passwordInput.focus();
-                        }, 0);
+                        if (isEmail) {
+                            isPasswordStep = true;
+                            this.elements.loginPrompt.textContent = 'ВЪВЕДИ ПАРОЛА:';
+                            this.elements.passwordInputLine.style.display = 'flex';
+                            this.elements.loginInfo.style.display = 'block';
+                            this.elements.loginInfo.innerHTML = 'С ИМЕЙЛ И ПАРОЛА: СИНХРОНИЗАЦИЯ МЕЖДУ УСТРОЙСТВА<br>Ще получите имейл за потвърждение при първи вход';
+                            this.elements.loginInstructions.textContent = 'ENTER = ПРОДЪЛЖИ • ESC = НАЗАД';
+                            
+                            this.elements.loginInput.removeEventListener('keydown', handleSubmit);
+                            this.elements.passwordInput.addEventListener('keydown', handlePasswordSubmit);
+                            this.elements.passwordInput.addEventListener('keydown', stopPropagation);
+                            
+                            setTimeout(() => {
+                                this.elements.passwordInput.focus();
+                            }, 0);
+                        } else {
+                            cleanup(true);
+                            callback(username, '');
+                        }
                     }
                 }
             } else if (e.key === 'Escape') {
@@ -702,7 +715,7 @@ class AppView {
                 isPasswordStep = false;
                 this.elements.passwordInputLine.style.display = 'none';
                 this.elements.loginInfo.style.display = 'none';
-                this.elements.loginPrompt.textContent = 'ВЪВЕДИ ТВОЕТО ИМЕ:';
+                this.elements.loginPrompt.textContent = 'ВЪВЕДИ ТВОЕТО ИМЕ ИЛИ ИМЕЙЛ:';
                 this.elements.loginInstructions.textContent = 'НАТИСНИ ENTER ЗА ВХОД • ESC ЗА ОТКАЗ';
                 this.elements.passwordInput.value = '';
                 

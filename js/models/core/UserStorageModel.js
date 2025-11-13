@@ -24,11 +24,14 @@ class UserStorageModel {
     
     async setCurrentUser(username, password) {
         if (!username || username.trim() === '') {
-            return false;
+            return { success: false };
         }
         const trimmedUsername = username.trim();
         
-        if (this.supabaseStorage && this.supabaseStorage.isAvailable() && password && password.trim() !== '') {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const isEmail = emailRegex.test(trimmedUsername);
+        
+        if (this.supabaseStorage && this.supabaseStorage.isAvailable() && password && password.trim() !== '' && isEmail) {
             return await this.supabaseStorage.setCurrentUser(trimmedUsername, password);
         }
         
@@ -38,7 +41,7 @@ class UserStorageModel {
         if (!this.userExists(trimmedUsername)) {
             this.createUser(trimmedUsername);
         }
-        return true;
+        return { success: true, usedLocalStorage: true };
     }
     
     logout() {

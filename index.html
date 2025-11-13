@@ -100,20 +100,18 @@
         
         <div id="login-modal" class="login-modal" style="display: none;">
             <div class="login-content">
-                <div class="login-prompt" id="login-prompt">ВЪВЕДИ ТВОЕТО ИМЕ:</div>
+                <div class="login-prompt" id="login-prompt">ВЪВЕДИ ТВОЕТО ИМЕ ИЛИ ИМЕЙЛ:</div>
                 <div class="login-input-line">
                     <span class="input-prompt">></span>
-                    <input type="text" id="login-input" autocomplete="off" maxlength="30">
+                    <input type="text" id="login-input" autocomplete="off" maxlength="50">
                     <span class="login-cursor"></span>
                 </div>
                 <div class="login-input-line" id="password-input-line" style="display: none;">
                     <span class="input-prompt">></span>
-                    <input type="password" id="password-input" autocomplete="off" maxlength="50">
+                    <input type="password" id="password-input" autocomplete="off" maxlength="50" style="font-family: monospace; background: transparent; border: none; outline: none; font-size: inherit; width: 300px; caret-color: transparent;">
                     <span class="login-cursor"></span>
                 </div>
                 <div class="login-info" id="login-info" style="display: none; font-size: 0.8em; margin-top: 10px; color: #88ff88;">
-                    БЕЗ ПАРОЛА: ДАННИТЕ СЕ ЗАПАЗВАТ САМО ЛОКАЛНО<br>
-                    С ПАРОЛА: СИНХРОНИЗАЦИЯ МЕЖДУ УСТРОЙСТВА
                 </div>
                 <div class="login-instructions" id="login-instructions">НАТИСНИ ENTER ЗА ВХОД • ESC ЗА ОТКАЗ</div>
             </div>

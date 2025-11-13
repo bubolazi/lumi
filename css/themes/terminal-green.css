@@ -156,7 +156,7 @@ header h1 {
     color: var(--terminal-green);
 }
 
-#login-input {
+#login-input, #password-input {
     color: var(--terminal-green);
 }
 
@@ -209,7 +209,7 @@ header h1 {
         padding: 30px 20px;
     }
     
-    #login-input {
+    #login-input, #password-input {
         width: 200px;
         font-size: 1.5rem;
     }

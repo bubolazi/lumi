@@ -115,9 +115,16 @@ class AppController {
         
         if (!currentUser) {
             this.view.promptUserLogin(async (username, password) => {
-                if (await this.userStorage.setCurrentUser(username, password)) {
-                    this.updateUserDisplay();
-                    this.proceedWithSubjectSelection(subjectName);
+                const result = await this.userStorage.setCurrentUser(username, password);
+                if (result && result.success) {
+                    if (result.needsEmailConfirmation) {
+                        this.view.showMessage(result.message, true);
+                    } else {
+                        this.updateUserDisplay();
+                        this.proceedWithSubjectSelection(subjectName);
+                    }
+                } else if (result && result.error) {
+                    this.view.showMessage('Грешка при влизане: ' + result.error, false);
                 }
             });
         } else {

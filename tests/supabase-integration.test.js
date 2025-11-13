@@ -29,6 +29,54 @@ class SupabaseMockClient {
         return Promise.resolve({ data: null, error: null });
     }
     
+    get auth() {
+        const self = this;
+        return {
+            signInWithPassword: async ({ email, password }) => {
+                const user = self.data.users.find(u => u.email === email);
+                if (user) {
+                    return { 
+                        data: { 
+                            user: { 
+                                id: user.id, 
+                                email: email,
+                                email_confirmed_at: new Date().toISOString(),
+                                confirmed_at: new Date().toISOString()
+                            } 
+                        }, 
+                        error: null 
+                    };
+                }
+                return { 
+                    data: null, 
+                    error: { message: 'Invalid login credentials' } 
+                };
+            },
+            signUp: async ({ email, password, options }) => {
+                const userId = 'user-' + Date.now();
+                self.data.users.push({
+                    id: userId,
+                    email: email,
+                    username: options?.data?.username || email
+                });
+                return { 
+                    data: { 
+                        user: { 
+                            id: userId, 
+                            email: email,
+                            email_confirmed_at: new Date().toISOString(),
+                            confirmed_at: new Date().toISOString()
+                        } 
+                    }, 
+                    error: null 
+                };
+            },
+            signOut: async () => {
+                return { error: null };
+            }
+        };
+    }
+    
     createQuery(table, operation, data) {
         const self = this;
         const query = {
@@ -191,24 +239,31 @@ describe('Supabase Integration', () => {
     });
     
     describe('User Management', () => {
-        test('should create user in Supabase', async () => {
+        test('should create user in Supabase with email and password', async () => {
+            const result = await supabaseStorage.setCurrentUser('test@example.com', 'password123');
+            
+            expect(result.success).toBe(true);
+            expect(mockClient.data.users.length).toBe(1);
+            expect(sessionStorage.getItem('lumi_current_user')).toBe('test@example.com');
+        });
+        
+        test('should use localStorage for non-email username', async () => {
             const result = await supabaseStorage.setCurrentUser('TestUser');
             
-            expect(result).toBe(true);
-            expect(mockClient.data.users.length).toBe(1);
-            expect(mockClient.data.users[0].username).toBe('TestUser');
-            expect(sessionStorage.getItem('lumi_current_user')).toBe('TestUser');
+            expect(result.success).toBe(true);
+            expect(result.usedLocalStorage).toBe(true);
+            expect(sessionStorage.getItem('lumi_use_local_only')).toBe('true');
         });
         
         test('should get current user from session storage', async () => {
-            await supabaseStorage.setCurrentUser('CurrentUser');
+            await supabaseStorage.setCurrentUser('test@example.com', 'password123');
             const currentUser = await supabaseStorage.getCurrentUser();
             
-            expect(currentUser).toBe('CurrentUser');
+            expect(currentUser).toBe('test@example.com');
         });
         
         test('should logout and clear session', async () => {
-            await supabaseStorage.setCurrentUser('LogoutUser');
+            await supabaseStorage.setCurrentUser('test@example.com', 'password123');
             await supabaseStorage.logout();
             
             expect(await supabaseStorage.getCurrentUser()).toBeNull();
@@ -218,23 +273,23 @@ describe('Supabase Integration', () => {
         
         test('should reject empty username', async () => {
             const result = await supabaseStorage.setCurrentUser('');
-            expect(result).toBe(false);
+            expect(result.success).toBe(false);
         });
         
         test('should trim username whitespace', async () => {
-            await supabaseStorage.setCurrentUser('  SpacedUser  ');
+            const result = await supabaseStorage.setCurrentUser('  test@example.com  ', 'password123');
             const currentUser = await supabaseStorage.getCurrentUser();
-            expect(currentUser).toBe('SpacedUser');
+            expect(currentUser).toBe('test@example.com');
         });
     });
     
     describe('Badge Management', () => {
         beforeEach(async () => {
-            await supabaseStorage.setCurrentUser('BadgeUser');
+            await supabaseStorage.setCurrentUser('badge@example.com', 'password123');
         });
         
         test('should add badge to Supabase', async () => {
-            const result = await supabaseStorage.addBadge('BadgeUser', 'Test Badge', '🏆');
+            const result = await supabaseStorage.addBadge('badge@example.com', 'Test Badge', '🏆');
             
             expect(result).toBe(true);
             expect(mockClient.data.badges.length).toBe(1);
@@ -243,10 +298,10 @@ describe('Supabase Integration', () => {
         });
         
         test('should retrieve badges from Supabase', async () => {
-            await supabaseStorage.addBadge('BadgeUser', 'Badge 1', '⭐');
-            await supabaseStorage.addBadge('BadgeUser', 'Badge 2', '🎯');
+            await supabaseStorage.addBadge('badge@example.com', 'Badge 1', '⭐');
+            await supabaseStorage.addBadge('badge@example.com', 'Badge 2', '🎯');
             
-            const badges = await supabaseStorage.getBadges('BadgeUser');
+            const badges = await supabaseStorage.getBadges('badge@example.com');
             
             expect(badges.length).toBe(2);
             expect(badges.some(b => b.name === 'Badge 1' && b.emoji === '⭐')).toBe(true);
@@ -254,21 +309,21 @@ describe('Supabase Integration', () => {
         });
         
         test('should get badge count', async () => {
-            await supabaseStorage.addBadge('BadgeUser', 'Badge 1', '🌟');
-            await supabaseStorage.addBadge('BadgeUser', 'Badge 2', '💫');
-            await supabaseStorage.addBadge('BadgeUser', 'Badge 3', '✨');
+            await supabaseStorage.addBadge('badge@example.com', 'Badge 1', '🌟');
+            await supabaseStorage.addBadge('badge@example.com', 'Badge 2', '💫');
+            await supabaseStorage.addBadge('badge@example.com', 'Badge 3', '✨');
             
-            const count = await supabaseStorage.getBadgeCount('BadgeUser');
+            const count = await supabaseStorage.getBadgeCount('badge@example.com');
             expect(count).toBe(3);
         });
         
         test('should return empty array for user with no badges', async () => {
-            const badges = await supabaseStorage.getBadges('BadgeUser');
+            const badges = await supabaseStorage.getBadges('badge@example.com');
             expect(badges).toEqual([]);
         });
         
         test('should use default emoji when not provided', async () => {
-            await supabaseStorage.addBadge('BadgeUser', 'Default Badge');
+            await supabaseStorage.addBadge('badge@example.com', 'Default Badge');
             
             expect(mockClient.data.badges[0].badge_emoji).toBe('⭐');
         });
@@ -276,29 +331,29 @@ describe('Supabase Integration', () => {
     
     describe('Caching', () => {
         beforeEach(async () => {
-            await supabaseStorage.setCurrentUser('CacheUser');
+            await supabaseStorage.setCurrentUser('cache@example.com', 'password123');
         });
         
         test('should cache user IDs', async () => {
-            const userId1 = await supabaseStorage.getUserId('CacheUser');
+            const userId1 = await supabaseStorage.getUserId('cache@example.com');
             
             mockClient.reset();
             
-            const userId2 = await supabaseStorage.getUserId('CacheUser');
+            const userId2 = await supabaseStorage.getUserId('cache@example.com');
             
             expect(userId1).toBe(userId2);
             expect(mockClient.callLog.length).toBe(0);
         });
         
         test('should cache badges', async () => {
-            await supabaseStorage.addBadge('CacheUser', 'Cached Badge', '📦');
-            const badges1 = await supabaseStorage.getBadges('CacheUser');
+            await supabaseStorage.addBadge('cache@example.com', 'Cached Badge', '📦');
+            const badges1 = await supabaseStorage.getBadges('cache@example.com');
             
             const queryCountBefore = mockClient.callLog.filter(
                 log => log.type === 'query' && log.table === 'badges'
             ).length;
             
-            const badges2 = await supabaseStorage.getBadges('CacheUser');
+            const badges2 = await supabaseStorage.getBadges('cache@example.com');
             
             const queryCountAfter = mockClient.callLog.filter(
                 log => log.type === 'query' && log.table === 'badges'
@@ -309,7 +364,7 @@ describe('Supabase Integration', () => {
         });
         
         test('should clear cache on logout', async () => {
-            await supabaseStorage.getUserId('CacheUser');
+            await supabaseStorage.getUserId('cache@example.com');
             expect(supabaseStorage.cache.users).not.toBeNull();
             
             await supabaseStorage.logout();
@@ -319,23 +374,22 @@ describe('Supabase Integration', () => {
         });
         
         test('should clear cache when adding badge', async () => {
-            await supabaseStorage.getBadges('CacheUser');
+            await supabaseStorage.getBadges('cache@example.com');
             expect(supabaseStorage.cache.badges).not.toBeNull();
             
-            await supabaseStorage.addBadge('CacheUser', 'New Badge', '🎁');
+            await supabaseStorage.addBadge('cache@example.com', 'New Badge', '🎁');
             
             expect(supabaseStorage.cache.badges).toBeNull();
         });
     });
     
     describe('Fallback to localStorage', () => {
-        test('should fall back when Supabase fails', async () => {
-            mockClient.rpc = () => Promise.reject(new Error('Network error'));
-            
+        test('should use localStorage for non-email username', async () => {
             const result = await supabaseStorage.setCurrentUser('FallbackUser');
             
-            expect(result).toBe(true);
-            expect(sessionStorage.getItem('lumi_current_user')).toBe('FallbackUser');
+            expect(result.success).toBe(true);
+            expect(result.usedLocalStorage).toBe(true);
+            expect(sessionStorage.getItem('lumi_use_local_only')).toBe('true');
         });
         
         test('should fall back for badge operations', async () => {
@@ -426,7 +480,7 @@ describe('Data Migration Utility', () => {
     describe('User Migration', () => {
         test('should migrate user with badges', async () => {
             localStorage.setItem('lumi_users', JSON.stringify({
-                'MigrateUser': {
+                'migrate@example.com': {
                     badges: [
                         { name: 'Badge 1', emoji: '🥇', earnedAt: '2024-01-01T00:00:00.000Z' },
                         { name: 'Badge 2', emoji: '🥈', earnedAt: '2024-01-02T00:00:00.000Z' }
@@ -435,7 +489,9 @@ describe('Data Migration Utility', () => {
                 }
             }));
             
-            const result = await migrationUtil.migrateUserData('MigrateUser');
+            await supabaseStorage.setCurrentUser('migrate@example.com', 'password123');
+            
+            const result = await migrationUtil.migrateUserData('migrate@example.com');
             
             expect(result.success).toBe(true);
             expect(result.migratedCount).toBe(2);
@@ -464,12 +520,12 @@ describe('Data Migration Utility', () => {
         });
         
         test('should verify successful migration', async () => {
-            await userStorage.addBadge('VerifyUser', 'Test Badge', '✅');
+            await userStorage.addBadge('verify@example.com', 'Test Badge', '✅');
             
-            await supabaseStorage.setCurrentUser('VerifyUser');
-            await supabaseStorage.addBadge('VerifyUser', 'Test Badge', '✅');
+            await supabaseStorage.setCurrentUser('verify@example.com', 'password123');
+            await supabaseStorage.addBadge('verify@example.com', 'Test Badge', '✅');
             
-            const verification = await migrationUtil.verifyMigration('VerifyUser');
+            const verification = await migrationUtil.verifyMigration('verify@example.com');
             
             expect(verification.success).toBe(true);
             expect(verification.localCount).toBe(1);
@@ -477,13 +533,13 @@ describe('Data Migration Utility', () => {
         });
         
         test('should detect migration mismatch', async () => {
-            await userStorage.addBadge('MismatchUser', 'Badge 1', '1️⃣');
-            await userStorage.addBadge('MismatchUser', 'Badge 2', '2️⃣');
+            await userStorage.addBadge('mismatch@example.com', 'Badge 1', '1️⃣');
+            await userStorage.addBadge('mismatch@example.com', 'Badge 2', '2️⃣');
             
-            await supabaseStorage.setCurrentUser('MismatchUser');
-            await supabaseStorage.addBadge('MismatchUser', 'Badge 1', '1️⃣');
+            await supabaseStorage.setCurrentUser('mismatch@example.com', 'password123');
+            await supabaseStorage.addBadge('mismatch@example.com', 'Badge 1', '1️⃣');
             
-            const verification = await migrationUtil.verifyMigration('MismatchUser');
+            const verification = await migrationUtil.verifyMigration('mismatch@example.com');
             
             expect(verification.success).toBe(false);
             expect(verification.localCount).toBe(2);

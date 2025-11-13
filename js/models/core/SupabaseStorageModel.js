@@ -46,26 +46,16 @@ class SupabaseStorageModel {
     
     async setCurrentUser(username, password) {
         if (!username || username.trim() === '') {
-            return false;
+            return { success: false };
         }
         
         const trimmedUsername = username.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const isEmail = emailRegex.test(trimmedUsername);
         
-        if (password && password.trim() !== '') {
+        if (password && password.trim() !== '' && isEmail) {
             try {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                const isEmail = emailRegex.test(trimmedUsername);
-                
-                let email;
-                if (isEmail) {
-                    email = trimmedUsername.toLowerCase();
-                } else {
-                    const sanitized = trimmedUsername.toLowerCase()
-                        .replace(/[^a-z0-9]/g, '_')
-                        .replace(/_{2,}/g, '_')
-                        .replace(/^_|_$/g, '');
-                    email = `${sanitized}@lumi.app`;
-                }
+                const email = trimmedUsername.toLowerCase();
                 
                 let authResult = await this.client.auth.signInWithPassword({
                     email: email,
@@ -80,17 +70,42 @@ class SupabaseStorageModel {
                             options: {
                                 data: {
                                     username: trimmedUsername
-                                }
+                                },
+                                emailRedirectTo: window.location.origin
                             }
                         });
                         
                         if (authResult.error) throw authResult.error;
+                        
+                        if (authResult.data && authResult.data.user) {
+                            const user = authResult.data.user;
+                            if (!user.email_confirmed_at && !user.confirmed_at) {
+                                return { 
+                                    success: false, 
+                                    needsEmailConfirmation: true, 
+                                    email: email,
+                                    message: 'Моля, потвърдете имейла си за да продължите. Проверете входящата си поща.'
+                                };
+                            }
+                        }
                     } else {
                         throw authResult.error;
                     }
                 }
                 
                 if (authResult.data && authResult.data.user) {
+                    const user = authResult.data.user;
+                    
+                    if (!user.email_confirmed_at && !user.confirmed_at) {
+                        await this.client.auth.signOut();
+                        return {
+                            success: false,
+                            needsEmailConfirmation: true,
+                            email: email,
+                            message: 'Моля, потвърдете имейла си за да продължите. Проверете входящата си поща.'
+                        };
+                    }
+                    
                     const { data, error } = await this.client
                         .rpc('get_or_create_user', { p_username: trimmedUsername });
                     
@@ -99,49 +114,33 @@ class SupabaseStorageModel {
                     this.currentUserId = data;
                     sessionStorage.setItem('lumi_current_user', trimmedUsername);
                     sessionStorage.setItem('lumi_user_id', data);
-                    sessionStorage.setItem('lumi_auth_user', authResult.data.user.id);
+                    sessionStorage.setItem('lumi_auth_user', user.id);
                     sessionStorage.removeItem('lumi_use_local_only');
                     
-                    return true;
+                    return { success: true, emailConfirmed: true };
                 }
                 
-                return false;
+                return { success: false };
             } catch (error) {
                 console.error('Error with password authentication:', error);
                 
                 if (this.config.fallbackToLocalStorage) {
                     sessionStorage.setItem('lumi_current_user', trimmedUsername);
                     sessionStorage.setItem('lumi_use_local_only', 'true');
-                    return true;
+                    return { success: true, usedLocalStorage: true };
                 }
                 
-                return false;
+                return { success: false, error: error.message };
             }
         }
         
-        try {
-            const { data, error } = await this.client
-                .rpc('get_or_create_user', { p_username: trimmedUsername });
-            
-            if (error) throw error;
-            
-            this.currentUserId = data;
+        if (this.config.fallbackToLocalStorage) {
             sessionStorage.setItem('lumi_current_user', trimmedUsername);
-            sessionStorage.setItem('lumi_user_id', data);
-            sessionStorage.removeItem('lumi_use_local_only');
-            
-            return true;
-        } catch (error) {
-            console.error('Error setting current user:', error);
-            
-            if (this.config.fallbackToLocalStorage) {
-                sessionStorage.setItem('lumi_current_user', trimmedUsername);
-                sessionStorage.setItem('lumi_use_local_only', 'true');
-                return true;
-            }
-            
-            return false;
+            sessionStorage.setItem('lumi_use_local_only', 'true');
+            return { success: true, usedLocalStorage: true };
         }
+        
+        return { success: false };
     }
     
     async logout() {

@@ -16,9 +16,9 @@ class DataMigrationUtil {
                 return { success: true, message: 'No data to migrate' };
             }
             
-            const success = await this.supabaseStorage.setCurrentUser(username);
-            if (!success) {
-                throw new Error('Failed to create user in Supabase');
+            const result = await this.supabaseStorage.setCurrentUser(username);
+            if (!result || !result.success) {
+                throw new Error('Failed to create user in Supabase - email and password required for cloud sync');
             }
             
             const badges = userData.badges || [];
