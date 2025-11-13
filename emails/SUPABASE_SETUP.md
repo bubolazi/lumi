@@ -20,7 +20,7 @@ This guide provides quick copy-paste instructions for configuring the email conf
 
 In the **Subject** field, enter:
 ```
-Потвърди своя имейл - УЧЕБЕН ТЕРМИНАЛ
+Потвърди своя имейл - LUMI
 ```
 
 ### 3. Configure HTML Template

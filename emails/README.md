@@ -1,6 +1,6 @@
 # Email Templates for Lumi Learning
 
-This directory contains email templates used for user registration and authentication in the УЧЕБЕН ТЕРМИНАЛ (Learning Terminal) application.
+This directory contains email templates used for user registration and authentication in the LUMI application.
 
 ## Templates
 

@@ -33,6 +33,32 @@ header {
     flex-wrap: wrap;
 }
 
+.header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+}
+
+.logo-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.header-logo {
+    height: 60px;
+    width: auto;
+    margin-bottom: 5px;
+}
+
+.header-subtitle {
+    font-size: 0.75rem;
+    opacity: 0.6;
+    font-style: italic;
+    margin: 0;
+}
+
 header h1 {
     font-size: 1.5rem;
     font-weight: normal;
@@ -44,6 +70,7 @@ header h1 {
 .level-info {
     font-size: 0.9rem;
     opacity: 0.8;
+    margin-top: 5px;
 }
 
 .user-info {
