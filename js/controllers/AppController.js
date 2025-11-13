@@ -36,6 +36,17 @@ class AppController {
                 return;
             }
             
+            // Handle Escape key to dismiss feedback modal and return to home
+            if (e.key === 'Escape') {
+                if (this.view.isFeedbackModalVisible()) {
+                    e.preventDefault();
+                    this.view.hideFeedbackModal();
+                    // Navigate to home screen (subject selection)
+                    this.initializeSubjectSelection();
+                    return;
+                }
+            }
+            
             // Handle star (*) key globally for badge display
             if (e.key === '*') {
                 const currentUser = this.userStorage.getCurrentUser();
