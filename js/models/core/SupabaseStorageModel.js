@@ -64,8 +64,27 @@ class SupabaseStorageModel {
                 
                 if (authResult.error) {
                     if (authResult.error.message.includes('Invalid login credentials')) {
-                        // User doesn't exist, try to create new account
+                        // User doesn't exist, try to create new account with Turnstile verification
                         console.log('User not found, attempting to create new account...');
+                        
+                        // Get Turnstile token if available (from TurnstileConfig)
+                        let captchaToken = null;
+                        if (window.TurnstileConfig && window.turnstile) {
+                            try {
+                                captchaToken = await new Promise((resolve, reject) => {
+                                    const widgetId = window.turnstile.render('#turnstile-widget', {
+                                        sitekey: window.TurnstileConfig.siteKey,
+                                        callback: (token) => resolve(token),
+                                        'error-callback': () => reject(new Error('Turnstile verification failed'))
+                                    });
+                                    if (!widgetId) reject(new Error('Turnstile widget failed to render'));
+                                });
+                            } catch (captchaError) {
+                                console.error('Turnstile error:', captchaError);
+                                throw new Error('Моля, завършете проверката за сигурност.');
+                            }
+                        }
+                        
                         authResult = await this.client.auth.signUp({
                             email: email,
                             password: password,
@@ -75,7 +94,8 @@ class SupabaseStorageModel {
                                     email: email,
                                     display_name: displayName || email.split('@')[0]
                                 },
-                                emailRedirectTo: window.location.origin
+                                emailRedirectTo: window.location.origin,
+                                captchaToken: captchaToken
                             }
                         });
                         
@@ -93,8 +113,22 @@ class SupabaseStorageModel {
                         
                         if (authResult.data && authResult.data.user) {
                             const user = authResult.data.user;
+                            
+                            // Create user in database immediately after signup
+                            // This ensures the user exists for future logins
+                            try {
+                                const { data: userId, error: userError } = await this.client
+                                    .rpc('get_or_create_user', { p_username: email });
+                                
+                                if (userError) {
+                                    console.error('Error creating user in database:', userError);
+                                }
+                            } catch (dbError) {
+                                console.error('Failed to create user in database:', dbError);
+                            }
+                            
+                            // Always sign out unconfirmed users and show modal
                             if (!user.email_confirmed_at && !user.confirmed_at) {
-                                // Sign out the user since email is not confirmed yet
                                 await this.client.auth.signOut();
                                 return { 
                                     success: false, 

@@ -3,6 +3,8 @@ class SupabaseConfig {
         this.supabaseUrl = '';
         this.supabaseAnonKey = '';
         
+        this.turnstileSiteKey = '';
+        
         this.enabled = false;
         
         this.fallbackToLocalStorage = true;
@@ -12,5 +14,9 @@ class SupabaseConfig {
     
     isEnabled() {
         return this.enabled && this.supabaseUrl && this.supabaseAnonKey;
+    }
+    
+    isTurnstileEnabled() {
+        return this.enabled && this.turnstileSiteKey;
     }
 }
