@@ -31,8 +31,12 @@ class UserStorageModel {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const isEmail = emailRegex.test(trimmedUsername);
         
-        if (this.supabaseStorage && this.supabaseStorage.isAvailable() && password && password.trim() !== '' && isEmail) {
-            return await this.supabaseStorage.setCurrentUser(trimmedUsername, password, displayName);
+        if (isEmail && this.supabaseStorage && this.supabaseStorage.isAvailable()) {
+            if (password && password.trim() !== '') {
+                return await this.supabaseStorage.setCurrentUser(trimmedUsername, password, displayName);
+            }
+            // Email provided but no password - shouldn't reach here due to UI flow
+            console.warn('Email provided without password - using localStorage');
         }
         
         sessionStorage.setItem(this.CURRENT_USER_KEY, trimmedUsername);
