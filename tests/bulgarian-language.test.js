@@ -16,8 +16,39 @@ describe('Bulgarian Language - Letters Activity', () => {
         model = new BulgarianLanguageModel(localization, lettersExtension);
     });
 
-    test('Letters Level 1 (vowels) generates valid vowels', () => {
+    test('Letters Level 1 (emoji letter recognition) generates valid emoji and letter', () => {
         model.setLevel(1, 'letters');
+
+        const emojiMap = LettersActivity.getLetterEmojiMap();
+        const validLetters = Object.keys(emojiMap);
+        const validEmojis = Object.values(emojiMap).flat();
+
+        for (let i = 0; i < 50; i++) {
+            const problem = model.generateProblem();
+
+            // Verify problem has required properties
+            expect(problem).toHaveProperty('display');
+            expect(problem).toHaveProperty('answer');
+            expect(problem).toHaveProperty('operation');
+            expect(problem).toHaveProperty('letter');
+
+            // Verify operation type
+            expect(problem.operation).toBe('emoji_letter_recognition');
+
+            // Verify the emoji is valid
+            expect(validEmojis).toContain(problem.display);
+
+            // Verify the letter is valid
+            expect(validLetters).toContain(problem.letter);
+            expect(problem.answer).toBe(problem.letter);
+
+            // Verify the emoji belongs to the letter
+            expect(emojiMap[problem.letter]).toContain(problem.display);
+        }
+    });
+
+    test('Letters Level 2 (vowels) generates valid vowels', () => {
+        model.setLevel(2, 'letters');
 
         const vowels = ['А', 'Е', 'И', 'О', 'У', 'Ъ', 'Ю', 'Я'];
 
@@ -36,8 +67,8 @@ describe('Bulgarian Language - Letters Activity', () => {
         }
     });
 
-    test('Letters Level 2 (consonants) generates valid consonants', () => {
-        model.setLevel(2, 'letters');
+    test('Letters Level 3 (consonants) generates valid consonants', () => {
+        model.setLevel(3, 'letters');
 
         const consonants = ['Б', 'В', 'Г', 'Д', 'Ж', 'З', 'Й', 'К', 'Л', 'М', 'Н', 'П', 'Р', 'С', 'Т', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ'];
 
@@ -49,8 +80,8 @@ describe('Bulgarian Language - Letters Activity', () => {
         }
     });
 
-    test('Letters Level 3 (all letters) generates valid letters', () => {
-        model.setLevel(3, 'letters');
+    test('Letters Level 4 (all letters) generates valid letters', () => {
+        model.setLevel(4, 'letters');
 
         const allLetters = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ю', 'Я'];
 
@@ -189,11 +220,24 @@ describe('Bulgarian Language Model - Answer Validation', () => {
         model = new BulgarianLanguageModel(localization, lettersExtension);
     });
 
-    test('checkAnswer accepts empty input (Enter = correct)', () => {
+    test('checkAnswer accepts correct letter for emoji recognition', () => {
         model.setLevel(1, 'letters');
+        const problem = model.generateProblem();
+
+        // Correct letter should be accepted (case insensitive)
+        expect(model.checkAnswer(problem.answer)).toBe(true);
+        expect(model.checkAnswer(problem.answer.toLowerCase())).toBe(true);
+        
+        // Wrong letter should be rejected
+        const wrongLetter = problem.answer === 'А' ? 'Б' : 'А';
+        expect(model.checkAnswer(wrongLetter)).toBe(false);
+    });
+
+    test('checkAnswer accepts empty input for regular letters (Enter = correct)', () => {
+        model.setLevel(2, 'letters');
         model.generateProblem();
 
-        // Empty input should be treated as correct
+        // Empty input should be treated as correct for non-emoji levels
         expect(model.checkAnswer('')).toBe(true);
         expect(model.checkAnswer(null)).toBe(true);
         expect(model.checkAnswer(undefined)).toBe(true);

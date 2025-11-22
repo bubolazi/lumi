@@ -102,7 +102,12 @@ class AppView {
     
     // Display a problem (math or Bulgarian language)
     displayProblem(problem) {
-        if (problem.operation === 'read') {
+        if (problem.operation === 'emoji_letter_recognition') {
+            // Letter recognition with emoji - show large emoji
+            this.showStandardDisplay();
+            this.elements.problemDisplay.innerHTML = `<div class="emoji-letter-display">${problem.display}</div>`;
+            this.elements.terminalInput.type = 'text';
+        } else if (problem.operation === 'read') {
             // Bulgarian Language activity - just show the letter/syllable/word
             this.showStandardDisplay();
             this.elements.problemDisplay.textContent = problem.display;
@@ -113,14 +118,17 @@ class AppView {
                 ? this.localization.t('WHICH_DIGIT_ONES')
                 : this.localization.t('WHICH_DIGIT_TENS');
             this.elements.problemDisplay.innerHTML = `<div class="place-value-number">${problem.display}</div><div class="place-value-question">${questionText}</div>`;
+            this.elements.terminalInput.type = 'number';
         } else if (problem.operation === 'place_value_calculation') {
             // Place Value Level 2 - Step-by-step calculation with history
             this.displayPlaceValueStep(problem);
+            this.elements.terminalInput.type = 'number';
         } else {
             // Standard math problem
             this.showStandardDisplay();
             this.elements.problemDisplay.textContent = 
                 `${problem.num1} ${problem.operation} ${problem.num2} = ?`;
+            this.elements.terminalInput.type = 'number';
         }
     }
     

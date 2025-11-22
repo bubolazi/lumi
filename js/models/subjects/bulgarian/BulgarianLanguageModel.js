@@ -22,8 +22,9 @@ class BulgarianLanguageModel {
     
     // Check if the parent input is correct (Enter = correct, Backspace handled separately)
     checkAnswer(userAnswer) {
-        // For Bulgarian language, empty input (Enter key) means correct
-        // Wrong answers are submitted via Backspace key and handled separately in the controller
+        if (this.currentProblem && this.currentProblem.operation === 'emoji_letter_recognition') {
+            return userAnswer.toUpperCase() === this.currentProblem.answer;
+        }
         return userAnswer === '' || userAnswer === null || userAnswer === undefined;
     }
     

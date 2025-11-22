@@ -187,7 +187,7 @@ describe('Bug Fix - Bulgarian Language Input Handling', () => {
     test('Letters activity generates valid problems', () => {
         const lettersExtension = bulgarianActivityManager.getOperationExtension('letters');
         const bulgarianModel = new BulgarianLanguageModel(localization, lettersExtension);
-        bulgarianModel.setLevel(1, 'letters');
+        bulgarianModel.setLevel(2, 'letters');
         
         for (let i = 0; i < 10; i++) {
             const problem = bulgarianModel.generateProblem();
@@ -217,7 +217,7 @@ describe('Bug Fix - Bulgarian Language Input Handling', () => {
         // Switch to Bulgarian Letters (simulate new subject/activity)
         const lettersExtension = bulgarianActivityManager.getOperationExtension('letters');
         model = new BulgarianLanguageModel(localization, lettersExtension);
-        model.setLevel(1, 'letters');
+        model.setLevel(2, 'letters');
         
         const bulgarianProblem = model.generateProblem();
         expect(bulgarianProblem.operation).toBe('read');
@@ -232,7 +232,7 @@ describe('Bug Fix - Bulgarian Language Input Handling', () => {
         // Start with Bulgarian Letters
         const lettersExtension = bulgarianActivityManager.getOperationExtension('letters');
         let model = new BulgarianLanguageModel(localization, lettersExtension);
-        model.setLevel(1, 'letters');
+        model.setLevel(2, 'letters');
         
         const bulgarianProblem = model.generateProblem();
         expect(bulgarianProblem.operation).toBe('read');

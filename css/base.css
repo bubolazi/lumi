@@ -243,6 +243,13 @@ main {
     letter-spacing: 2px;
 }
 
+/* Emoji Letter Recognition - Large emoji display */
+.emoji-letter-display {
+    font-size: 12rem;
+    line-height: 1;
+    margin-bottom: 40px;
+}
+
 .input-line {
     display: flex;
     align-items: center;

@@ -2,9 +2,44 @@
 class LettersActivity {
     static getLevels() {
         return {
-            1: { descriptionKey: 'VOWELS' },
-            2: { descriptionKey: 'CONSONANTS' },
-            3: { descriptionKey: 'ALL_LETTERS' }
+            1: { descriptionKey: 'LETTER_RECOGNITION_EMOJI' },
+            2: { descriptionKey: 'VOWELS' },
+            3: { descriptionKey: 'CONSONANTS' },
+            4: { descriptionKey: 'ALL_LETTERS' }
+        };
+    }
+    
+    static getLetterEmojiMap() {
+        return {
+            'А': ['🍎', '🚗', '🎨'],
+            'Б': ['🍌', '🦋', '🥖'],
+            'В': ['🐺', '🌊', '🎻'],
+            'Г': ['🍄', '🦆', '🪿'],
+            'Д': ['🌳', '🏠', '🚪'],
+            'Е': ['🦔', '🥚'],
+            'Ж': ['🐸', '🌟'],
+            'З': ['🐰', '🦷', '🌟'],
+            'И': ['🦔', '🎮'],
+            'Й': ['🍦'],
+            'К': ['🐱', '🧁', '🐶'],
+            'Л': ['🦁', '🍋', '🦊'],
+            'М': ['🐻', '🍯', '🦋'],
+            'Н': ['👃', '🧵'],
+            'О': ['🍊', '👁️', '🔥'],
+            'П': ['🐧', '🦜', '🎁'],
+            'Р': ['🐟', '🌹', '🤚'],
+            'С': ['☀️', '🐘', '⭐'],
+            'Т': ['🐯', '🌷', '🍰'],
+            'У': ['👂', '🦉'],
+            'Ф': ['⚽', '🏈'],
+            'Х': ['🍞', '🐹'],
+            'Ц': ['🌺', '💐'],
+            'Ч': ['☕', '🥤', '🧦'],
+            'Ш': ['🧢', '🎪', '🍫'],
+            'Щ': ['🪴', '🌵'],
+            'Ъ': ['🏠', '🌲'],
+            'Ю': ['🧭', '🎡'],
+            'Я': ['🍎', '🥚', '⚓']
         };
     }
     
@@ -14,20 +49,30 @@ class LettersActivity {
         
         let letter;
         if (level === 1) {
-            // Only vowels
-            letter = vowels[Math.floor(Math.random() * vowels.length)];
+            const emojiMap = this.getLetterEmojiMap();
+            const letters = Object.keys(emojiMap);
+            letter = letters[Math.floor(Math.random() * letters.length)];
+            const emojis = emojiMap[letter];
+            const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            return {
+                display: emoji,
+                answer: letter,
+                operation: 'emoji_letter_recognition',
+                letter: letter
+            };
         } else if (level === 2) {
-            // Only consonants
+            letter = vowels[Math.floor(Math.random() * vowels.length)];
+        } else if (level === 3) {
             letter = consonants[Math.floor(Math.random() * consonants.length)];
         } else {
-            // All letters
             const allLetters = [...vowels, ...consonants];
             letter = allLetters[Math.floor(Math.random() * allLetters.length)];
         }
         
         return {
             display: letter,
-            answer: 'correct', // Parent confirms by pressing Enter
+            answer: 'correct',
             operation: 'read'
         };
     }
