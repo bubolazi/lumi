@@ -2,27 +2,59 @@ class UserStorageModel {
     constructor() {
         this.USERS_KEY = 'lumi_users';
         this.CURRENT_USER_KEY = 'lumi_current_user';
+        
+        this.supabaseConfig = typeof SupabaseConfig !== 'undefined' 
+            ? new SupabaseConfig() 
+            : null;
+        
+        this.supabaseStorage = this.supabaseConfig && this.supabaseConfig.isEnabled()
+            ? new SupabaseStorageModel(this.supabaseConfig)
+            : null;
+        
+        if (this.supabaseStorage && this.supabaseStorage.isAvailable()) {
+            console.log('UserStorageModel: Using Supabase backend');
+        } else {
+            console.log('UserStorageModel: Using localStorage backend');
+        }
     }
     
     getCurrentUser() {
         return sessionStorage.getItem(this.CURRENT_USER_KEY);
     }
     
-    setCurrentUser(username) {
+    async setCurrentUser(username, password, displayName) {
         if (!username || username.trim() === '') {
-            return false;
+            return { success: false };
         }
         const trimmedUsername = username.trim();
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const isEmail = emailRegex.test(trimmedUsername);
+        
+        if (isEmail && this.supabaseStorage && this.supabaseStorage.isAvailable()) {
+            if (password && password.trim() !== '') {
+                return await this.supabaseStorage.setCurrentUser(trimmedUsername, password, displayName);
+            }
+            // Email provided but no password - shouldn't reach here due to UI flow
+            console.warn('Email provided without password - using localStorage');
+        }
+        
         sessionStorage.setItem(this.CURRENT_USER_KEY, trimmedUsername);
+        sessionStorage.setItem('lumi_use_local_only', 'true');
         
         if (!this.userExists(trimmedUsername)) {
             this.createUser(trimmedUsername);
         }
-        return true;
+        return { success: true, usedLocalStorage: true };
     }
     
     logout() {
-        sessionStorage.removeItem(this.CURRENT_USER_KEY);
+        if (this.supabaseStorage && this.supabaseStorage.isAvailable()) {
+            this.supabaseStorage.logout();
+        } else {
+            sessionStorage.removeItem(this.CURRENT_USER_KEY);
+            sessionStorage.removeItem('lumi_use_local_only');
+        }
     }
     
     getAllUsers() {
@@ -67,7 +99,13 @@ class UserStorageModel {
         return users[username] || null;
     }
     
-    addBadge(username, badgeName, badgeEmoji = '') {
+    async addBadge(username, badgeName, badgeEmoji = '') {
+        const useLocalOnly = sessionStorage.getItem('lumi_use_local_only') === 'true';
+        
+        if (this.supabaseStorage && this.supabaseStorage.isAvailable() && !useLocalOnly) {
+            return await this.supabaseStorage.addBadge(username, badgeName, badgeEmoji);
+        }
+        
         let users = this.getAllUsers();
         if (!users[username]) {
             this.createUser(username);
@@ -88,7 +126,13 @@ class UserStorageModel {
         return this.saveAllUsers(users);
     }
     
-    getBadges(username) {
+    async getBadges(username) {
+        const useLocalOnly = sessionStorage.getItem('lumi_use_local_only') === 'true';
+        
+        if (this.supabaseStorage && this.supabaseStorage.isAvailable() && !useLocalOnly) {
+            return await this.supabaseStorage.getBadges(username);
+        }
+        
         const userData = this.getUserData(username);
         if (!userData || !userData.badges) {
             return [];
@@ -102,7 +146,14 @@ class UserStorageModel {
         });
     }
     
-    getBadgeCount(username) {
-        return this.getBadges(username).length;
+    async getBadgeCount(username) {
+        const useLocalOnly = sessionStorage.getItem('lumi_use_local_only') === 'true';
+        
+        if (this.supabaseStorage && this.supabaseStorage.isAvailable() && !useLocalOnly) {
+            return await this.supabaseStorage.getBadgeCount(username);
+        }
+        
+        const badges = await this.getBadges(username);
+        return badges.length;
     }
 }

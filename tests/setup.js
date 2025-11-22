@@ -4,8 +4,11 @@ const path = require('path');
 
 // List of files to load (relative to project root)
 const files = [
+    'js/config/SupabaseConfig.js',
     'js/models/core/LocalizationModel.js',
+    'js/models/core/SupabaseStorageModel.js',
     'js/models/core/UserStorageModel.js',
+    'js/utils/DataMigrationUtil.js',
     'js/models/subjects/math/activities/AdditionLevels.js',
     'js/models/subjects/math/activities/SubtractionLevels.js',
     'js/models/subjects/math/activities/PlaceValueActivity.js',

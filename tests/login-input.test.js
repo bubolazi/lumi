@@ -25,13 +25,19 @@ describe('Bug Fix - Login Input Handling', () => {
         document.body.innerHTML = `
             <div id="login-modal" style="display: none;">
                 <div class="login-content">
-                    <div class="login-prompt">ВЪВЕДИ ТВОЕТО ИМЕ:</div>
+                    <div class="login-prompt" id="login-prompt">ВЪВЕДИ ТВОЕТО ИМЕ:</div>
                     <div class="login-input-line">
                         <span class="input-prompt">></span>
                         <input type="text" id="login-input" autocomplete="off" maxlength="30">
                         <span class="login-cursor"></span>
                     </div>
-                    <div class="login-instructions">НАТИСНИ ENTER ЗА ВХОД • ESC ЗА ОТКАЗ</div>
+                    <div class="login-input-line" id="password-input-line" style="display: none;">
+                        <span class="input-prompt">></span>
+                        <input type="password" id="password-input" autocomplete="off" maxlength="50">
+                        <span class="login-cursor"></span>
+                    </div>
+                    <div class="login-info" id="login-info" style="display: none;"></div>
+                    <div class="login-instructions" id="login-instructions">НАТИСНИ ENTER ЗА ВХОД • ESC ЗА ОТКАЗ</div>
                 </div>
             </div>
             <div id="breadcrumb-nav"></div>
@@ -67,25 +73,39 @@ describe('Bug Fix - Login Input Handling', () => {
     });
 
     test('Login input should accept numeric characters', (done) => {
-        view.promptUserLogin((username) => {
+        view.promptUserLogin((username, password) => {
             expect(username).toBe('123');
+            expect(password).toBe('');
             done();
         });
 
         loginInput.value = '123';
         const enterEvent = new KeyboardEvent('keydown', { key: 'Enter' });
         loginInput.dispatchEvent(enterEvent);
+        
+        setTimeout(() => {
+            const passwordInput = document.getElementById('password-input');
+            const enterEvent2 = new KeyboardEvent('keydown', { key: 'Enter' });
+            passwordInput.dispatchEvent(enterEvent2);
+        }, 10);
     });
 
     test('Login input should accept alphanumeric usernames', (done) => {
-        view.promptUserLogin((username) => {
+        view.promptUserLogin((username, password) => {
             expect(username).toBe('Ivan123');
+            expect(password).toBe('');
             done();
         });
 
         loginInput.value = 'Ivan123';
         const enterEvent = new KeyboardEvent('keydown', { key: 'Enter' });
         loginInput.dispatchEvent(enterEvent);
+        
+        setTimeout(() => {
+            const passwordInput = document.getElementById('password-input');
+            const enterEvent2 = new KeyboardEvent('keydown', { key: 'Enter' });
+            passwordInput.dispatchEvent(enterEvent2);
+        }, 10);
     });
 
     test('Login input should allow typing without interference from keyboard handlers', () => {
@@ -151,7 +171,7 @@ describe('Bug Fix - Login Input Handling', () => {
     });
 
     test('Login modal should clear input on close', (done) => {
-        view.promptUserLogin((username) => {
+        view.promptUserLogin((username, password) => {
             expect(loginInput.value).toBe('');
             done();
         });
@@ -159,6 +179,12 @@ describe('Bug Fix - Login Input Handling', () => {
         loginInput.value = 'TestUser';
         const enterEvent = new KeyboardEvent('keydown', { key: 'Enter' });
         loginInput.dispatchEvent(enterEvent);
+        
+        setTimeout(() => {
+            const passwordInput = document.getElementById('password-input');
+            const enterEvent2 = new KeyboardEvent('keydown', { key: 'Enter' });
+            passwordInput.dispatchEvent(enterEvent2);
+        }, 10);
     });
 
     test('Keyboard selection handlers should be unbound when login modal opens', () => {

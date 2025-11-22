@@ -377,7 +377,7 @@ main {
     margin-bottom: 30px;
 }
 
-#login-input {
+#login-input, #password-input {
     background: transparent;
     border: none;
     font-family: monospace;

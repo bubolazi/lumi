@@ -25,6 +25,11 @@ class AppView {
             logoutButton: document.getElementById('logout-button'),
             loginModal: document.getElementById('login-modal'),
             loginInput: document.getElementById('login-input'),
+            loginPrompt: document.getElementById('login-prompt'),
+            passwordInput: document.getElementById('password-input'),
+            passwordInputLine: document.getElementById('password-input-line'),
+            loginInfo: document.getElementById('login-info'),
+            loginInstructions: document.getElementById('login-instructions'),
             feedbackModal: document.getElementById('feedback-modal'),
             feedbackHeader: document.getElementById('feedback-header'),
             feedbackEmoji: document.getElementById('feedback-emoji'),
@@ -626,7 +631,10 @@ class AppView {
             return;
         }
         
-        this.elements.userDisplay.textContent = `${this.localization.t('USER_LOGGED_IN')} ${username}`;
+        // If user is logged in with Supabase, show display name instead of email
+        const displayName = sessionStorage.getItem('lumi_display_name') || username;
+        
+        this.elements.userDisplay.textContent = `${this.localization.t('USER_LOGGED_IN')} ${displayName}`;
         this.elements.userInfo.style.display = 'flex';
     }
     
@@ -637,6 +645,11 @@ class AppView {
     promptUserLogin(callback) {
         this.elements.loginModal.style.display = 'flex';
         this.elements.loginInput.value = '';
+        this.elements.passwordInput.value = '';
+        this.elements.passwordInputLine.style.display = 'none';
+        this.elements.loginInfo.style.display = 'none';
+        this.elements.loginPrompt.textContent = 'ВЪВЕДИ ТВОЕТО ИМЕ ИЛИ ИМЕЙЛ:';
+        this.elements.loginInstructions.textContent = 'НАТИСНИ ENTER ЗА ВХОД • ESC ЗА ОТКАЗ';
         
         const savedHandlers = {
             subject: this._subjectKeyHandler,
@@ -651,19 +664,111 @@ class AppView {
             this.elements.loginInput.focus();
         }, 0);
         
+        let username = '';
+        let password = '';
+        let isPasswordStep = false;
+        let isDisplayNameStep = false;
+        
         const stopPropagation = (e) => {
             e.stopPropagation();
         };
         
+        const isValidEmail = (str) => {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(str);
+        };
+        
         const handleSubmit = (e) => {
             if (e.key === 'Enter') {
-                const username = this.elements.loginInput.value.trim();
-                if (username !== '') {
-                    cleanup(true);
-                    callback(username);
+                if (!isPasswordStep) {
+                    username = this.elements.loginInput.value.trim();
+                    if (username !== '') {
+                        const isEmail = isValidEmail(username);
+                        
+                        if (isEmail) {
+                            isPasswordStep = true;
+                            this.elements.loginPrompt.textContent = 'ВЪВЕДИ ПАРОЛА:';
+                            this.elements.passwordInputLine.style.display = 'flex';
+                            this.elements.loginInfo.style.display = 'block';
+                            this.elements.loginInfo.innerHTML = 'С ИМЕЙЛ И ПАРОЛА: СИНХРОНИЗАЦИЯ МЕЖДУ УСТРОЙСТВА<br>Ще получите имейл за потвърждение при първи вход';
+                            this.elements.loginInstructions.textContent = 'ENTER = ПРОДЪЛЖИ • ESC = НАЗАД';
+                            
+                            this.elements.loginInput.removeEventListener('keydown', handleSubmit);
+                            this.elements.passwordInput.addEventListener('keydown', handlePasswordSubmit);
+                            this.elements.passwordInput.addEventListener('keydown', stopPropagation);
+                            
+                            setTimeout(() => {
+                                this.elements.passwordInput.focus();
+                            }, 0);
+                        } else {
+                            cleanup(true);
+                            callback(username, '');
+                        }
+                    }
                 }
             } else if (e.key === 'Escape') {
                 cleanup(false);
+            }
+        };
+        
+        const handlePasswordSubmit = (e) => {
+            if (e.key === 'Enter') {
+                password = this.elements.passwordInput.value.trim();
+                
+                // Transition to display name step
+                isPasswordStep = false;
+                isDisplayNameStep = true;
+                this.elements.loginPrompt.textContent = 'ВЪВЕДИ ТВОЕТО ИМЕ (за показване):';
+                this.elements.passwordInputLine.style.display = 'none';
+                this.elements.loginInfo.innerHTML = 'Това име ще се показва в приложението';
+                this.elements.loginInstructions.textContent = 'ENTER = ЗАВЪРШИ • ESC = НАЗАД';
+                
+                this.elements.passwordInput.removeEventListener('keydown', handlePasswordSubmit);
+                this.elements.loginInput.addEventListener('keydown', handleDisplayNameSubmit);
+                
+                this.elements.loginInput.value = '';
+                setTimeout(() => {
+                    this.elements.loginInput.focus();
+                }, 0);
+            } else if (e.key === 'Escape') {
+                isPasswordStep = false;
+                this.elements.passwordInputLine.style.display = 'none';
+                this.elements.loginInfo.style.display = 'none';
+                this.elements.loginPrompt.textContent = 'ВЪВЕДИ ТВОЕТО ИМЕ ИЛИ ИМЕЙЛ:';
+                this.elements.loginInstructions.textContent = 'НАТИСНИ ENTER ЗА ВХОД • ESC ЗА ОТКАЗ';
+                this.elements.passwordInput.value = '';
+                
+                this.elements.passwordInput.removeEventListener('keydown', handlePasswordSubmit);
+                this.elements.loginInput.addEventListener('keydown', handleSubmit);
+                
+                setTimeout(() => {
+                    this.elements.loginInput.focus();
+                }, 0);
+            }
+        };
+        
+        const handleDisplayNameSubmit = (e) => {
+            if (e.key === 'Enter') {
+                const displayName = this.elements.loginInput.value.trim();
+                if (displayName !== '') {
+                    cleanup(true);
+                    callback(username, password, displayName);
+                }
+            } else if (e.key === 'Escape') {
+                isDisplayNameStep = false;
+                isPasswordStep = true;
+                this.elements.loginPrompt.textContent = 'ВЪВЕДИ ПАРОЛА:';
+                this.elements.passwordInputLine.style.display = 'flex';
+                this.elements.loginInfo.innerHTML = 'С ИМЕЙЛ И ПАРОЛА: СИНХРОНИЗАЦИЯ МЕЖДУ УСТРОЙСТВА<br>Ще получите имейл за потвърждение при първи вход';
+                this.elements.loginInstructions.textContent = 'ENTER = ПРОДЪЛЖИ • ESC = НАЗАД';
+                this.elements.loginInput.value = '';
+                
+                this.elements.loginInput.removeEventListener('keydown', handleDisplayNameSubmit);
+                this.elements.passwordInput.addEventListener('keydown', handlePasswordSubmit);
+                
+                setTimeout(() => {
+                    this.elements.passwordInput.focus();
+                }, 0);
             }
         };
         
@@ -671,7 +776,13 @@ class AppView {
             this.elements.loginModal.style.display = 'none';
             this.elements.loginInput.removeEventListener('keydown', handleSubmit);
             this.elements.loginInput.removeEventListener('keydown', stopPropagation);
+            this.elements.loginInput.removeEventListener('keydown', handleDisplayNameSubmit);
+            this.elements.passwordInput.removeEventListener('keydown', handlePasswordSubmit);
+            this.elements.passwordInput.removeEventListener('keydown', stopPropagation);
             this.elements.loginInput.value = '';
+            this.elements.passwordInput.value = '';
+            this.elements.passwordInputLine.style.display = 'none';
+            this.elements.loginInfo.style.display = 'none';
             
             if (!loginSuccessful) {
                 if (savedHandlers.subject) {
@@ -740,8 +851,13 @@ class AppView {
                 ? this.localization.t('FEEDBACK_CORRECT')
                 : this.localization.t('FEEDBACK_INCORRECT'));
         
-        if (badgeName && badgeEmoji) {
+        // If custom emoji provided, use it; otherwise follow default logic
+        if (badgeEmoji) {
             this.elements.feedbackEmoji.textContent = badgeEmoji;
+            this.elements.feedbackBadge.textContent = badgeName;
+        } else if (badgeName) {
+            // Badge name without custom emoji - show empty emoji
+            this.elements.feedbackEmoji.textContent = '';
             this.elements.feedbackBadge.textContent = badgeName;
         } else if (!isCorrect) {
             this.elements.feedbackEmoji.textContent = this.localization.t('FEEDBACK_WRONG_EMOJI');
