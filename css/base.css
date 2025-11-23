@@ -243,11 +243,25 @@ main {
     letter-spacing: 2px;
 }
 
-/* Emoji Letter Recognition - Large emoji display */
+/* Emoji Letter Recognition - Large emoji and letter display */
+.emoji-letter-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
 .emoji-letter-display {
     font-size: 12rem;
     line-height: 1;
-    margin-bottom: 40px;
+}
+
+.emoji-letter-text {
+    font-size: 12rem;
+    font-weight: bold;
+    line-height: 1;
+    letter-spacing: 0;
 }
 
 .input-line {
