@@ -106,7 +106,6 @@ class AppView {
             // Letter recognition with emoji - show large emoji and letter side by side
             this.showStandardDisplay();
             this.elements.problemDisplay.innerHTML = `<div class="emoji-letter-container"><div class="emoji-letter-display">${problem.display}</div><div class="emoji-letter-text">${problem.letter}</div></div>`;
-            this.elements.terminalInput.type = 'text';
         } else if (problem.operation === 'read') {
             // Bulgarian Language activity - just show the letter/syllable/word
             this.showStandardDisplay();

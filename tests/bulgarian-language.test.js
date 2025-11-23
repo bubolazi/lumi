@@ -220,24 +220,21 @@ describe('Bulgarian Language Model - Answer Validation', () => {
         model = new BulgarianLanguageModel(localization, lettersExtension);
     });
 
-    test('checkAnswer accepts correct letter for emoji recognition', () => {
+    test('checkAnswer accepts empty input for emoji recognition (Enter = correct)', () => {
         model.setLevel(1, 'letters');
-        const problem = model.generateProblem();
+        model.generateProblem();
 
-        // Correct letter should be accepted (case insensitive)
-        expect(model.checkAnswer(problem.answer)).toBe(true);
-        expect(model.checkAnswer(problem.answer.toLowerCase())).toBe(true);
-        
-        // Wrong letter should be rejected
-        const wrongLetter = problem.answer === 'А' ? 'Б' : 'А';
-        expect(model.checkAnswer(wrongLetter)).toBe(false);
+        // Empty input should be treated as correct (parent presses Enter)
+        expect(model.checkAnswer('')).toBe(true);
+        expect(model.checkAnswer(null)).toBe(true);
+        expect(model.checkAnswer(undefined)).toBe(true);
     });
 
     test('checkAnswer accepts empty input for regular letters (Enter = correct)', () => {
         model.setLevel(2, 'letters');
         model.generateProblem();
 
-        // Empty input should be treated as correct for non-emoji levels
+        // Empty input should be treated as correct for all Bulgarian levels
         expect(model.checkAnswer('')).toBe(true);
         expect(model.checkAnswer(null)).toBe(true);
         expect(model.checkAnswer(undefined)).toBe(true);
