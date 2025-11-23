@@ -78,7 +78,7 @@ class LocalizationModel {
                 'TOOLTIP_CLOSE': 'Натиснете + за затваряне',
 
                 // Bulgarian Language level descriptions
-                'LETTER_RECOGNITION_EMOJI': 'РАЗПОЗНАВАНЕ НА БУКВИ С ЕМОДЖИ',
+                'LETTER_RECOGNITION_EMOJI': 'БУКВИ С КАРТИНКИ',
                 'VOWELS': 'ГЛАСНИ БУКВИ',
                 'CONSONANTS': 'СЪГЛАСНИ БУКВИ',
                 'ALL_LETTERS': 'ВСИЧКИ БУКВИ',
