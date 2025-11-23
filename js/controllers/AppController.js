@@ -36,6 +36,17 @@ class AppController {
                 return;
             }
             
+            // Handle Escape key to dismiss feedback modal and return to home
+            if (e.key === 'Escape') {
+                if (this.view.isFeedbackModalVisible()) {
+                    e.preventDefault();
+                    this.view.hideFeedbackModal();
+                    // Navigate to home screen (subject selection)
+                    this.initializeSubjectSelection();
+                    return;
+                }
+            }
+            
             // Handle star (*) key globally for badge display
             if (e.key === '*') {
                 const currentUser = this.userStorage.getCurrentUser();
@@ -114,10 +125,25 @@ class AppController {
         const currentUser = this.userStorage.getCurrentUser();
         
         if (!currentUser) {
-            this.view.promptUserLogin((username) => {
-                if (this.userStorage.setCurrentUser(username)) {
+            this.view.promptUserLogin(async (username, password, displayName) => {
+                const result = await this.userStorage.setCurrentUser(username, password, displayName);
+                if (result && result.needsEmailConfirmation) {
+                    // Show email confirmation modal (requires manual dismissal)
+                    this.view.showFeedbackModal({
+                        isCorrect: true,
+                        badgeName: '',
+                        badgeEmoji: '📧',
+                        header: 'ПОТВЪРЖДЕНИЕ НА ИМЕЙЛ',
+                        footer: result.message || 'Моля, потвърдете имейла си за да продължите. Проверете входящата си поща.'
+                    });
+                } else if (result && result.success) {
                     this.updateUserDisplay();
                     this.proceedWithSubjectSelection(subjectName);
+                } else if (result && result.error) {
+                    this.view.showMessage('Грешка при влизане: ' + result.error, false);
+                } else if (!result || !result.success) {
+                    // Handle other failure cases
+                    this.view.showMessage('Неуспешно влизане. Моля, опитайте отново.', false);
                 }
             });
         } else {
@@ -373,7 +399,7 @@ class AppController {
     }
     
     // Handle Enter key press - dismiss message or check answer
-    handleEnterKey() {
+    async handleEnterKey() {
         // If feedback modal is visible, dismiss it first
         if (this.view.isFeedbackModalVisible()) {
             this.view.hideFeedbackModal();
@@ -411,7 +437,7 @@ class AppController {
         }
         
         // Otherwise, check the answer
-        this.checkAnswer();
+        await this.checkAnswer();
     }
     
     // Handle + key press - show tooltips if available
@@ -469,7 +495,7 @@ class AppController {
     }
     
     // Check the user's answer
-    checkAnswer() {
+    async checkAnswer() {
         const userInput = this.view.getUserInput();
         
         // Check if this is an emoji letter recognition problem
@@ -495,7 +521,7 @@ class AppController {
         
         // Check if this is a multi-step Place Value problem
         if (problem.operation === 'place_value_calculation' && problem.currentStep) {
-            this.checkPlaceValueStep(parseInt(userInput));
+            await this.checkPlaceValueStep(parseInt(userInput));
             return;
         }
         
@@ -506,7 +532,7 @@ class AppController {
             // Check if user earned a badge
             const badgeData = this.model.checkBadge();
             if (badgeData) {
-                const badgeEmoji = this.saveBadge(badgeData.badgeName);
+                const badgeEmoji = await this.saveBadge(badgeData.badgeName);
                 this.view.showFeedbackModal({
                     isCorrect: true,
                     badgeName: badgeData.badgeName,
@@ -541,7 +567,7 @@ class AppController {
     }
     
     // Check Place Value step-by-step answer
-    checkPlaceValueStep(userAnswer) {
+    async checkPlaceValueStep(userAnswer) {
         const problem = this.model.currentProblem;
         const currentStep = problem.currentStep;
         const expectedAnswer = problem.stepAnswers[currentStep - 1];
@@ -564,7 +590,7 @@ class AppController {
                 
                 const badgeData = this.model.checkBadge();
                 if (badgeData) {
-                    const badgeEmoji = this.saveBadge(badgeData.badgeName);
+                    const badgeEmoji = await this.saveBadge(badgeData.badgeName);
                     this.view.showFeedbackModal({
                         isCorrect: true,
                         badgeName: badgeData.badgeName,
@@ -729,13 +755,13 @@ class AppController {
         this.initializeSubjectSelection();
     }
     
-    handleStarKey() {
+    async handleStarKey() {
         const currentUser = this.userStorage.getCurrentUser();
         if (!currentUser) {
             return;
         }
         
-        const badges = this.userStorage.getBadges(currentUser);
+        const badges = await this.userStorage.getBadges(currentUser);
         const badgeCount = badges.length;
         const totalPages = Math.ceil(badgeCount / 5) || 1;
         
@@ -755,12 +781,12 @@ class AppController {
         }
     }
     
-    saveBadge(badgeMessage) {
+    async saveBadge(badgeMessage) {
         const currentUser = this.userStorage.getCurrentUser();
         if (currentUser) {
             const animalName = this.localization.extractAnimalFromBadge(badgeMessage);
             const badgeEmoji = this.localization.getBadgeEmoji(animalName);
-            this.userStorage.addBadge(currentUser, badgeMessage, badgeEmoji);
+            await this.userStorage.addBadge(currentUser, badgeMessage, badgeEmoji);
             return badgeEmoji;
         }
         return '⭐';

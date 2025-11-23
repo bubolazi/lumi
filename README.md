@@ -103,10 +103,14 @@ lumi/
 
 ## Testing
 
-The application includes a comprehensive test suite with 38 automated tests covering:
+The application includes a comprehensive test suite with 120 automated tests covering:
+- User storage and data persistence (localStorage + Supabase)
+- Supabase integration and fallback mechanisms
+- Data migration utilities
 - Math operations (addition, subtraction, place value)
 - Bulgarian language activities (letters, syllables, words)
 - Navigation and state management
+- Input handling and validation
 
 ```bash
 # Run tests
@@ -153,19 +157,65 @@ lumi/
 
 ## Database Integration
 
-The application currently uses localStorage for data persistence. For cross-device and cross-browser synchronization, we have prepared a comprehensive **Supabase integration guide**:
+The application supports both **localStorage** (default) and **Supabase** (cloud database) for data persistence.
 
-- 📖 **[Full Integration Guide](docs/SUPABASE_INTEGRATION_GUIDE.md)** - Complete step-by-step implementation plan
-- 🚀 **[Quick Start Guide](docs/SUPABASE_QUICK_START.md)** - Get started in 30 minutes
-- 🗄️ **[Database Schema](docs/supabase-schema.sql)** - Ready-to-execute SQL script
+### Current Status: ✅ Implementation Complete
 
-### Benefits of Supabase Integration
+The hybrid storage architecture is fully implemented and tested:
+- ✅ Supabase client integration with CDN
+- ✅ Hybrid storage model (Supabase + localStorage fallback)
+- ✅ User management and badge tracking
+- ✅ Data migration utility
+- ✅ Comprehensive test suite (120 tests passing)
+- ✅ Graceful fallback on network errors
 
-- ✅ Cross-device synchronization
-- ✅ Cross-browser data persistence
-- ✅ Cloud backup and recovery
-- ✅ Future-ready for leaderboards and social features
-- ✅ Maintains backward compatibility with localStorage
+### Using localStorage (Default)
+
+By default, the application uses localStorage for data persistence. No configuration required - it just works!
+
+### Enabling Supabase
+
+To enable cloud synchronization with Supabase:
+
+1. **Create a Supabase project** at [supabase.com](https://supabase.com) (free tier available)
+
+2. **Execute the database schema**:
+   - Copy the contents of `docs/supabase-schema.sql`
+   - Run it in your Supabase SQL Editor
+
+3. **Configure credentials** in `js/config/SupabaseConfig.js`:
+   ```javascript
+   this.supabaseUrl = 'YOUR_SUPABASE_PROJECT_URL';
+   this.supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
+   this.enabled = true;
+   ```
+
+4. **Reload the application** - it will automatically use Supabase!
+
+### Documentation
+
+- 📖 **[Full Integration Guide](docs/SUPABASE_INTEGRATION_GUIDE.md)** - Complete implementation details
+- 🚀 **[Quick Start Guide](docs/SUPABASE_QUICK_START.md)** - Setup in 30 minutes
+- 🗄️ **[Database Schema](docs/supabase-schema.sql)** - Ready-to-execute SQL
+- 📋 **[Implementation Summary](docs/SUPABASE_IMPLEMENTATION_SUMMARY.md)** - Architecture overview
+
+### Benefits
+
+- ✅ **Cross-device sync**: Access your data from any device
+- ✅ **Cross-browser**: Switch browsers, keep your progress
+- ✅ **Cloud backup**: Never lose your data
+- ✅ **Fallback support**: Works offline with localStorage
+- ✅ **Future-ready**: Foundation for leaderboards, social features
+- ✅ **Zero config**: Works with localStorage by default
+
+### Security
+
+The Supabase `anon` (public) key is safe to commit and expose in client-side code:
+- 🔒 Protected by Row Level Security (RLS) policies at database level
+- 🔒 Rate limited by Supabase to prevent abuse
+- 🔒 Cannot access or modify data beyond RLS policy permissions
+
+**Never commit the `service_role` key** - use it only in server environments!
 
 ## Future Enhancements
 
