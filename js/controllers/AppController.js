@@ -472,11 +472,15 @@ class AppController {
     checkAnswer() {
         const userInput = this.view.getUserInput();
         
+        // Check if this is an emoji letter recognition problem
+        const problem = this.model.currentProblem;
+        const isEmojiLetterRecognition = problem && problem.operation === 'emoji_letter_recognition';
+        
         // For Bulgarian Language, allow empty input (parent just presses Enter)
         // For Math, require a number
         if (this.currentSubject === 'bulgarian') {
             // Bulgarian: only empty (Enter for correct) is valid
-            // Wrong answers are submitted via Backspace, not by typing
+            // Wrong answers are submitted via Delete, not by typing
             if (userInput !== '') {
                 this.view.showMessage(this.model.localization.t('ERROR_INVALID_INPUT'), false);
                 return;
@@ -490,7 +494,6 @@ class AppController {
         }
         
         // Check if this is a multi-step Place Value problem
-        const problem = this.model.currentProblem;
         if (problem.operation === 'place_value_calculation' && problem.currentStep) {
             this.checkPlaceValueStep(parseInt(userInput));
             return;
@@ -590,13 +593,17 @@ class AppController {
         }
     }
     
-    // Check answer as wrong (for Backspace submissions in Bulgarian)
+    // Check answer as wrong (for Delete key submissions in Bulgarian)
     checkAnswerAsWrong() {
         // For Bulgarian subject, show incorrect answer message
         this.view.showFeedbackModal({
             isCorrect: false,
             footer: this.localization.t('INCORRECT_ANSWER_BULGARIAN')
         });
+        
+        // Clear input and generate next problem after modal
+        this.view.clearAndFocusInput();
+        this.generateNewProblem();
     }
     
     // Navigate back to the previous screen
