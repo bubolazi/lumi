@@ -691,6 +691,7 @@ class AppView {
 
         const cleanup = () => {
             this.elements.loginModal.style.display = 'none';
+            authInput.value = '';  // Clear input on cleanup
             authInput.onkeydown = null;
             // Restore handlers
             if (savedHandlers.subject) {

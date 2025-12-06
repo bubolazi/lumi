@@ -75,8 +75,9 @@ describe('Bug Fix - Login Input Handling', () => {
     });
 
     test('Login input should accept numeric characters', (done) => {
-        view.promptUserLogin((username) => {
-            expect(username).toBe('123');
+        view.promptUserLogin((result) => {
+            expect(result.type).toBe('local');
+            expect(result.username).toBe('123');
             done();
         });
 
@@ -86,8 +87,9 @@ describe('Bug Fix - Login Input Handling', () => {
     });
 
     test('Login input should accept alphanumeric usernames', (done) => {
-        view.promptUserLogin((username) => {
-            expect(username).toBe('Ivan123');
+        view.promptUserLogin((result) => {
+            expect(result.type).toBe('local');
+            expect(result.username).toBe('Ivan123');
             done();
         });
 
