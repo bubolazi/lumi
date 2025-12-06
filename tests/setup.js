@@ -4,6 +4,7 @@ const path = require('path');
 
 // List of files to load (relative to project root)
 const files = [
+    'js/services/ApiService.js',  // Must be loaded first - used by UserStorageModel
     'js/models/core/LocalizationModel.js',
     'js/models/core/UserStorageModel.js',
     'js/models/subjects/math/activities/AdditionLevels.js',
@@ -30,7 +31,7 @@ const domDependentFiles = [
 files.forEach(file => {
     const filePath = path.join(__dirname, '..', file);
     const code = fs.readFileSync(filePath, 'utf8');
-    
+
     // Extract class names from the code
     const classMatches = code.match(/class\s+(\w+)/g);
     if (classMatches) {
@@ -54,7 +55,7 @@ globalThis.loadDOMDependentClasses = () => {
     domDependentFiles.forEach(file => {
         const filePath = path.join(__dirname, '..', file);
         const code = fs.readFileSync(filePath, 'utf8');
-        
+
         // Extract class names from the code
         const classMatches = code.match(/class\s+(\w+)/g);
         if (classMatches) {

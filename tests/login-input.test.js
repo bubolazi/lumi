@@ -23,15 +23,23 @@ describe('Bug Fix - Login Input Handling', () => {
 
     beforeEach(() => {
         document.body.innerHTML = `
-            <div id="login-modal" style="display: none;">
-                <div class="login-content">
-                    <div class="login-prompt">ВЪВЕДИ ТВОЕТО ИМЕ:</div>
-                    <div class="login-input-line">
-                        <span class="input-prompt">></span>
-                        <input type="text" id="login-input" autocomplete="off" maxlength="30">
-                        <span class="login-cursor"></span>
+            <div id="login-modal" class="login-modal" style="display: none;">
+                <div class="modal-content" id="login-modal-content">
+                    <h2 class="terminal-header">ВХОД</h2>
+                    <div id="auth-container">
+                        <div class="input-group" id="auth-input-group">
+                            <label id="auth-label" for="auth-input">ПОТРЕБИТЕЛСКО ИМЕ:</label>
+                            <input type="text" id="auth-input" class="terminal-input" autocomplete="off">
+                            <div id="auth-message" class="auth-message"></div>
+                        </div>
+                        <div id="turnstile-container" style="margin-top: 15px; display: none;">
+                            <div id="turnstile-widget"></div>
+                        </div>
                     </div>
-                    <div class="login-instructions">НАТИСНИ ENTER ЗА ВХОД • ESC ЗА ОТКАЗ</div>
+                    <div class="modal-footer">
+                        <div class="key-hint"><span class="key">ENTER</span> ПОТВЪРДИ</div>
+                        <div class="key-hint"><span class="key">ESC</span> ОТКАЖИ</div>
+                    </div>
                 </div>
             </div>
             <div id="breadcrumb-nav"></div>
@@ -58,7 +66,7 @@ describe('Bug Fix - Login Input Handling', () => {
 
         localization = new LocalizationModel('bg');
         view = new AppView(localization);
-        loginInput = document.getElementById('login-input');
+        loginInput = document.getElementById('auth-input');  // Changed from 'login-input'
         loginModal = document.getElementById('login-modal');
     });
 
@@ -90,19 +98,19 @@ describe('Bug Fix - Login Input Handling', () => {
 
     test('Login input should allow typing without interference from keyboard handlers', () => {
         let subjectSelectionTriggered = false;
-        
+
         view.bindSubjectKeyboardSelection(() => {
             subjectSelectionTriggered = true;
         });
-        
-        view.promptUserLogin(() => {});
 
-        const keyEvent = new KeyboardEvent('keydown', { 
+        view.promptUserLogin(() => { });
+
+        const keyEvent = new KeyboardEvent('keydown', {
             key: '1',
             bubbles: true,
-            cancelable: true 
+            cancelable: true
         });
-        
+
         loginInput.dispatchEvent(keyEvent);
 
         expect(subjectSelectionTriggered).toBe(false);
@@ -110,19 +118,19 @@ describe('Bug Fix - Login Input Handling', () => {
     });
 
     test('Escape key should close login modal', () => {
-        view.promptUserLogin(() => {});
-        
+        view.promptUserLogin(() => { });
+
         expect(loginModal.style.display).toBe('flex');
-        
+
         const escEvent = new KeyboardEvent('keydown', { key: 'Escape' });
         loginInput.dispatchEvent(escEvent);
-        
+
         expect(loginModal.style.display).toBe('none');
     });
 
     test('Empty username should not trigger callback', () => {
         let callbackCalled = false;
-        
+
         view.promptUserLogin(() => {
             callbackCalled = true;
         });
@@ -137,7 +145,7 @@ describe('Bug Fix - Login Input Handling', () => {
 
     test('Whitespace-only username should not trigger callback', () => {
         let callbackCalled = false;
-        
+
         view.promptUserLogin(() => {
             callbackCalled = true;
         });
@@ -162,12 +170,12 @@ describe('Bug Fix - Login Input Handling', () => {
     });
 
     test('Keyboard selection handlers should be unbound when login modal opens', () => {
-        view.bindSubjectKeyboardSelection(() => {});
-        
+        view.bindSubjectKeyboardSelection(() => { });
+
         expect(view._subjectKeyHandler).toBeDefined();
-        
-        view.promptUserLogin(() => {});
-        
+
+        view.promptUserLogin(() => { });
+
         expect(view._subjectKeyHandler).toBeNull();
     });
 });
@@ -181,8 +189,10 @@ describe('Bug Fix - Global Navigation Handler During Login', () => {
 
     beforeEach(() => {
         document.body.innerHTML = `
-            <div id="login-modal" style="display: none;">
-                <input type="text" id="login-input">
+            <div id="login-modal" class="login-modal" style="display: none;">
+                <div class="modal-content">
+                    <input type="text" id="auth-input" class="terminal-input">
+                </div>
             </div>
             <div id="breadcrumb-nav"></div>
             <div id="user-info"></div>
@@ -219,32 +229,32 @@ describe('Bug Fix - Global Navigation Handler During Login', () => {
 
     test('Global navigation handler should not interfere when login modal is visible', () => {
         loginModal.style.display = 'flex';
-        
+
         let navigationOccurred = false;
         const originalNavigateBack = controller.navigateBack;
         controller.navigateBack = () => {
             navigationOccurred = true;
         };
 
-        const backspaceEvent = new KeyboardEvent('keydown', { 
+        const backspaceEvent = new KeyboardEvent('keydown', {
             key: 'Backspace',
             bubbles: true,
-            cancelable: true 
+            cancelable: true
         });
         document.dispatchEvent(backspaceEvent);
 
         expect(navigationOccurred).toBe(false);
-        
+
         controller.navigateBack = originalNavigateBack;
     });
 
     test('Global navigation handler should work when login modal is hidden', () => {
         loginModal.style.display = 'none';
-        
+
         controller.currentSubject = 'math';
         controller.currentActivity = 'addition';
         controller.navigationStack = ['subject', 'activity'];
-        
+
         const subjectSelect = document.getElementById('subject-select');
         subjectSelect.classList.add('active');
 
@@ -254,15 +264,15 @@ describe('Bug Fix - Global Navigation Handler During Login', () => {
             navigationOccurred = true;
         };
 
-        const backspaceEvent = new KeyboardEvent('keydown', { 
+        const backspaceEvent = new KeyboardEvent('keydown', {
             key: 'Backspace',
             bubbles: true,
-            cancelable: true 
+            cancelable: true
         });
         document.dispatchEvent(backspaceEvent);
 
         expect(navigationOccurred).toBe(true);
-        
+
         controller.navigateBack = originalNavigateBack;
     });
 });
