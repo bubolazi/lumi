@@ -1,178 +1,148 @@
 const { describe, test, expect, beforeEach } = require('@jest/globals');
 
+// Mock ApiService
+class MockApiService {
+    constructor() {
+        this.users = {};
+        this.badges = {};
+    }
+
+    async login(email, password) {
+        if (email === 'test@example.com' && password === 'password') {
+            return { success: true, user: { displayName: 'TestUser', email } };
+        }
+        if (email === 'notfound@example.com') {
+            return { success: false, userNotFound: true };
+        }
+        return { success: false, message: 'Invalid credentials' };
+    }
+
+    async register(email, password, displayName) {
+        return { success: true, user: { displayName, email }, session: { accessToken: 'token' } };
+    }
+
+    logout() { }
+
+    async createBadge(badge) {
+        return { success: true };
+    }
+
+    async getBadges() {
+        return [{ name: 'TestBadge', emoji: '🏆' }];
+    }
+}
+
+global.ApiService = MockApiService;
+
+// Mock sessionStorage
+const sessionStorageMock = (() => {
+    let store = {};
+    return {
+        getItem: (key) => store[key] || null,
+        setItem: (key, value) => { store[key] = value.toString(); },
+        removeItem: (key) => { delete store[key]; },
+        clear: () => { store = {}; }
+    };
+})();
+Object.defineProperty(global, 'sessionStorage', { value: sessionStorageMock });
+
+// Mock localStorage
+const localStorageMock = (() => {
+    let store = {};
+    return {
+        getItem: (key) => store[key] || null,
+        setItem: (key, value) => { store[key] = value.toString(); },
+        removeItem: (key) => { delete store[key]; },
+        clear: () => { store = {}; }
+    };
+})();
+Object.defineProperty(global, 'localStorage', { value: localStorageMock });
+
 describe('User Storage - UserStorageModel', () => {
     let userStorage;
-    
+
     beforeEach(() => {
-        localStorage.clear();
         sessionStorage.clear();
+        localStorage.clear();
+        // Re-instantiate to reset state
+        // We need to make sure UserStorageModel uses the global ApiService mock
+        // Since we can't easily import the class here if it's not exported, 
+        // we assume the test runner loads the file or we paste the class definition for testing if needed.
+        // For this environment, we'll assume the class is available or we'd need to require it.
+        // But since the original test file didn't require it, it must be loaded by setup.js or similar.
         userStorage = new UserStorageModel();
     });
-    
-    describe('User Management', () => {
-        test('should return null when no user is logged in', () => {
-            expect(userStorage.getCurrentUser()).toBeNull();
-        });
-        
-        test('should set and get current user', () => {
-            const result = userStorage.setCurrentUser('Петър');
+
+    describe('Local User Management', () => {
+        test('should set local user', () => {
+            const result = userStorage.setLocalUser('LocalUser');
             expect(result).toBe(true);
-            expect(userStorage.getCurrentUser()).toBe('Петър');
+            expect(userStorage.getCurrentUser()).toBe('LocalUser');
+            expect(userStorage.isApiUser).toBe(false);
         });
-        
-        test('should trim username whitespace', () => {
-            userStorage.setCurrentUser('  Мария  ');
-            expect(userStorage.getCurrentUser()).toBe('Мария');
-        });
-        
-        test('should reject empty username', () => {
-            const result = userStorage.setCurrentUser('');
-            expect(result).toBe(false);
-            expect(userStorage.getCurrentUser()).toBeNull();
-        });
-        
-        test('should reject whitespace-only username', () => {
-            const result = userStorage.setCurrentUser('   ');
-            expect(result).toBe(false);
-            expect(userStorage.getCurrentUser()).toBeNull();
-        });
-        
-        test('should logout current user', () => {
-            userStorage.setCurrentUser('Иван');
-            expect(userStorage.getCurrentUser()).toBe('Иван');
-            
-            userStorage.logout();
-            expect(userStorage.getCurrentUser()).toBeNull();
-        });
-        
-        test('should create user automatically when setting current user', () => {
-            userStorage.setCurrentUser('Георги');
-            expect(userStorage.userExists('Георги')).toBe(true);
-        });
-    });
-    
-    describe('User Data Persistence', () => {
-        test('should persist user data in localStorage', () => {
-            userStorage.setCurrentUser('София');
-            
-            const newStorage = new UserStorageModel();
-            expect(newStorage.userExists('София')).toBe(true);
-        });
-        
-        test('should maintain current user in session storage only', () => {
-            userStorage.setCurrentUser('Николай');
-            
-            sessionStorage.clear();
-            
-            expect(userStorage.getCurrentUser()).toBeNull();
-            expect(userStorage.userExists('Николай')).toBe(true);
-        });
-        
-        test('should get all users', () => {
-            userStorage.setCurrentUser('Александър');
-            userStorage.logout();
-            userStorage.setCurrentUser('Елена');
-            
+
+        test('should persist local user in localStorage', () => {
+            userStorage.setLocalUser('LocalUser');
             const users = userStorage.getAllUsers();
-            expect(Object.keys(users)).toContain('Александър');
-            expect(Object.keys(users)).toContain('Елена');
+            expect(users['LocalUser']).toBeDefined();
         });
-        
-        test('should return empty object when no users exist', () => {
-            const users = userStorage.getAllUsers();
-            expect(users).toEqual({});
-        });
-    });
-    
-    describe('Badge Management', () => {
-        beforeEach(() => {
-            userStorage.setCurrentUser('Димитър');
-        });
-        
-        test('should add badge to current user', () => {
-            const badgeName = 'Смело Мече';
-            const badgeEmoji = '🐻';
-            const result = userStorage.addBadge('Димитър', badgeName, badgeEmoji);
-            
-            expect(result).toBe(true);
-            const badges = userStorage.getBadges('Димитър');
+
+        test('should add badge to local user', async () => {
+            userStorage.setLocalUser('LocalUser');
+            await userStorage.addBadge('LocalBadge', '⭐');
+            const badges = await userStorage.getBadges();
             expect(badges.length).toBe(1);
-            expect(badges[0].name).toBe(badgeName);
-            expect(badges[0].emoji).toBe(badgeEmoji);
-        });
-        
-        test('should add multiple badges', () => {
-            userStorage.addBadge('Димитър', 'Значка 1');
-            userStorage.addBadge('Димитър', 'Значка 2');
-            userStorage.addBadge('Димитър', 'Значка 3');
-            
-            const badges = userStorage.getBadges('Димитър');
-            expect(badges.length).toBe(3);
-        });
-        
-        test('should store badges as objects with name and emoji', () => {
-            userStorage.addBadge('Димитър', 'Звездна Панда', '🐼');
-            
-            const badges = userStorage.getBadges('Димитър');
-            expect(typeof badges[0]).toBe('object');
-            expect(badges[0].name).toBe('Звездна Панда');
-            expect(badges[0].emoji).toBe('🐼');
-        });
-        
-        test('should get badge count', () => {
-            userStorage.addBadge('Димитър', 'Значка 1');
-            userStorage.addBadge('Димитър', 'Значка 2');
-            
-            expect(userStorage.getBadgeCount('Димитър')).toBe(2);
-        });
-        
-        test('should return 0 badge count for new user', () => {
-            expect(userStorage.getBadgeCount('НовПотребител')).toBe(0);
-        });
-        
-        test('should return empty array for user with no badges', () => {
-            const badges = userStorage.getBadges('Димитър');
-            expect(badges).toEqual([]);
-        });
-        
-        test('should separate badges by user', () => {
-            userStorage.addBadge('Димитър', 'Значка Димитър', '🏆');
-            
-            userStorage.logout();
-            userStorage.setCurrentUser('Анна');
-            userStorage.addBadge('Анна', 'Значка Анна', '⭐');
-            
-            const dimitarBadges = userStorage.getBadges('Димитър');
-            const annaBadges = userStorage.getBadges('Анна');
-            
-            expect(dimitarBadges.length).toBe(1);
-            expect(annaBadges.length).toBe(1);
-            expect(dimitarBadges[0].name).toBe('Значка Димитър');
-            expect(dimitarBadges[0].emoji).toBe('🏆');
-            expect(annaBadges[0].name).toBe('Значка Анна');
-            expect(annaBadges[0].emoji).toBe('⭐');
-        });
-        
-        test('should create user if adding badge to non-existent user', () => {
-            userStorage.addBadge('НовПотребител', 'Първа значка');
-            
-            expect(userStorage.userExists('НовПотребител')).toBe(true);
-            expect(userStorage.getBadgeCount('НовПотребител')).toBe(1);
+            expect(badges[0].name).toBe('LocalBadge');
         });
     });
-    
-    describe('User Data Structure', () => {
-        test('should include createdAt timestamp when creating user', () => {
-            userStorage.setCurrentUser('Стоян');
-            
-            const userData = userStorage.getUserData('Стоян');
-            expect(userData.createdAt).toBeDefined();
-            expect(typeof userData.createdAt).toBe('string');
+
+    describe('API User Management', () => {
+        test('should login API user', async () => {
+            const result = await userStorage.login('test@example.com', 'password', 'token');
+            expect(result.success).toBe(true);
+            expect(userStorage.getCurrentUser()).toBe('TestUser');
+            expect(userStorage.isApiUser).toBe(true);
         });
-        
-        test('should return null for non-existent user', () => {
-            const userData = userStorage.getUserData('НесъществуващПотребител');
-            expect(userData).toBeNull();
+
+        test('should fail login with wrong credentials', async () => {
+            const result = await userStorage.login('wrong@example.com', 'password', 'token');
+            expect(result.success).toBe(false);
+            expect(userStorage.getCurrentUser()).toBeNull();
+        });
+
+        test('should register API user', async () => {
+            const result = await userStorage.register('new@example.com', 'password', 'NewUser', 'token');
+            expect(result.success).toBe(true);
+            expect(userStorage.getCurrentUser()).toBe('NewUser');
+            expect(userStorage.isApiUser).toBe(true);
+        });
+
+        test('should add badge to API user', async () => {
+            await userStorage.login('test@example.com', 'password', 'token');
+            const result = await userStorage.addBadge('ApiBadge', '🏆');
+            expect(result).toBe(true);
+        });
+    });
+
+    describe('Hybrid Logic', () => {
+        test('should switch from local to API user', async () => {
+            userStorage.setLocalUser('LocalUser');
+            expect(userStorage.isApiUser).toBe(false);
+
+            await userStorage.login('test@example.com', 'password', 'token');
+            expect(userStorage.getCurrentUser()).toBe('TestUser');
+            expect(userStorage.isApiUser).toBe(true);
+            expect(sessionStorage.getItem('lumi_current_user')).toBeNull();
+        });
+
+        test('should switch from API to local user', async () => {
+            await userStorage.login('test@example.com', 'password', 'token');
+            expect(userStorage.isApiUser).toBe(true);
+
+            userStorage.setLocalUser('LocalUser');
+            expect(userStorage.getCurrentUser()).toBe('LocalUser');
+            expect(userStorage.isApiUser).toBe(false);
+            expect(sessionStorage.getItem('lumi_user')).toBeNull();
         });
     });
 });

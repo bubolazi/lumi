@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Flow Test</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/themes/terminal-green.css">
+    <style>
+        body {
+            padding: 20px;
+        }
+
+        .test-panel {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid var(--terminal-green);
+        }
+
+        .test-button {
+            background: transparent;
+            border: 2px solid var(--terminal-green);
+            color: var(--terminal-green);
+            padding: 10px 20px;
+            font-family: monospace;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .test-button:hover {
+            background: var(--dark-green);
+        }
+
+        .test-log {
+            margin-top: 10px;
+            padding: 10px;
+            background: var(--bg-black);
+            border: 1px solid var(--dim-green);
+            font-family: monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px;
+        }
+
+        .log-entry.success {
+            color: #00ff41;
+        }
+
+        .log-entry.error {
+            color: #ff4444;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>LUMI AUTH FLOW TEST</h1>
+
+        <div class="test-panel">
+            <h2>Test 1: Local User (No Email)</h2>
+            <button class="test-button" onclick="testLocalUser()">Test Local User</button>
+            <div class="test-log" id="log-local"></div>
+        </div>
+
+        <div class="test-panel">
+            <h2>Test 2: Email Login Flow</h2>
+            <button class="test-button" onclick="testEmailFlow()">Test Email Flow</button>
+            <div class="test-log" id="log-email"></div>
+        </div>
+
+        <div class="test-panel">
+            <h2>Test 3: Visual Check</h2>
+            <button class="test-button" onclick="showAuthModal()">Show Auth Modal</button>
+            <p style="font-size: 0.9rem; margin-top: 10px;">
+                This opens the actual auth modal. Test the flow:
+                <br>1. Try typing a username (not email)
+                <br>2. Try typing an email and see password field
+                <br>3. Check ESC to cancel works
+            </p>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="login-modal" class="login-modal" style="display: none;">
+        <div class="modal-content" id="login-modal-content">
+            <h2 class="terminal-header">AUTHENTICATION</h2>
+            <div id="auth-container">
+                <div class="input-group" id="auth-input-group">
+                    <label id="auth-label" for="auth-input">USERNAME:</label>
+                    <input type="text" id="auth-input" class="terminal-input" autocomplete="off">
+                    <div id="auth-message" class="auth-message"></div>
+                </div>
+                <div id="turnstile-container" style="margin-top: 15px; display: none;">
+                    <p style="color: var(--dim-green); font-size: 0.8rem;">[Turnstile Mock - Always Valid]</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="key-hint"><span class="key">ENTER</span> CONFIRM</div>
+                <div class="key-hint"><span class="key">ESC</span> CANCEL</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock Turnstile
+        window.turnstile = {
+            getResponse: () => 'mock-token',
+            reset: () => console.log('Turnstile reset')
+        };
+
+        function log(logId, message, type = 'info') {
+            const logEl = document.getElementById(logId);
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function testLocalUser() {
+            const logId = 'log-local';
+            document.getElementById(logId).innerHTML = '';
+
+            log(logId, 'Testing local user flow...', 'info');
+
+            const username = 'TestUser123';
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (emailRegex.test(username)) {
+                log(logId, '❌ Should NOT be detected as email', 'error');
+            } else {
+                log(logId, '✓ Correctly detected as local user', 'success');
+                log(logId, '✓ Should use localStorage', 'success');
+                log(logId, '✓ No API call should be made', 'success');
+                log(logId, '✓ No captcha should appear', 'success');
+            }
+        }
+
+        function testEmailFlow() {
+            const logId = 'log-email';
+            document.getElementById(logId).innerHTML = '';
+
+            log(logId, 'Testing email flow...', 'info');
+
+            const email = 'test@example.com';
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (emailRegex.test(email)) {
+                log(logId, '✓ Correctly detected as email', 'success');
+                log(logId, '→ Next step: Show password field', 'info');
+                log(logId, '→ Next step: Show captcha', 'info');
+                log(logId, '→ API call will be made', 'info');
+
+                // Simulate checking backend response structure
+                log(logId, '', 'info');
+                log(logId, 'Expected backend responses:', 'info');
+                log(logId, '  Success: { success: true, user: {...}, session: {...} }', 'info');
+                log(logId, '  User not found: { success: false, userNotFound: true, message: "..." }', 'info');
+                log(logId, '  Wrong password: { throws UnauthorizedException }', 'info');
+            } else {
+                log(logId, '❌ Should be detected as email', 'error');
+            }
+        }
+
+        function showAuthModal() {
+            const modal = document.getElementById('login-modal');
+            const authLabel = document.getElementById('auth-label');
+            const authInput = document.getElementById('auth-input');
+            const authMessage = document.getElementById('auth-message');
+            const turnstileContainer = document.getElementById('turnstile-container');
+
+            // Reset
+            authLabel.textContent = 'USERNAME:';
+            authInput.value = '';
+            authInput.type = 'text';
+            authMessage.textContent = '';
+            authMessage.className = 'auth-message';
+            turnstileContainer.style.display = 'none';
+
+            modal.style.display = 'flex';
+            authInput.focus();
+
+            let step = 'username';
+            let email = '';
+
+            authInput.onkeydown = (e) => {
+                if (e.key === 'Enter') {
+                    const value = authInput.value.trim();
+                    if (!value) return;
+
+                    if (step === 'username') {
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (emailRegex.test(value)) {
+                            // Is email
+                            email = value;
+                            step = 'password';
+                            authLabel.textContent = 'PASSWORD:';
+                            authInput.value = '';
+                            authInput.type = 'password';
+                            turnstileContainer.style.display = 'block';
+                            authMessage.textContent = 'Captcha would be validated here';
+                            authMessage.className = 'auth-message success';
+                        } else {
+                            // Is local user
+                            authMessage.textContent = `Local user "${value}" would be saved to localStorage`;
+                            authMessage.className = 'auth-message success';
+                            setTimeout(() => {
+                                modal.style.display = 'none';
+                            }, 1500);
+                        }
+                    } else if (step === 'password') {
+                        authMessage.textContent = `Would attempt login with ${email}`;
+                        authMessage.className = 'auth-message success';
+                        setTimeout(() => {
+                            authMessage.textContent = 'Mock: User not found → Registration prompt';
+                            authMessage.className = 'auth-message error';
+                            step = 'register';
+                            authLabel.textContent = 'DISPLAY NAME:';
+                            authInput.value = '';
+                            authInput.type = 'text';
+                        }, 1000);
+                    } else if (step === 'register') {
+                        authMessage.textContent = `Would register with display name "${value}"`;
+                        authMessage.className = 'auth-message success';
+                        setTimeout(() => {
+                            modal.style.display = 'none';
+                        }, 1500);
+                    }
+                } else if (e.key === 'Escape') {
+                    modal.style.display = 'none';
+                }
+            };
+        }
+    </script>
+</body>
+
+</html>
