@@ -36,20 +36,24 @@ header h1 {
 }
 
 /* Level and Operation selection colors */
-#level-select h2, #operation-select h2 {
+#level-select h2,
+#operation-select h2 {
     color: var(--terminal-green);
 }
 
-.level-item:hover, .operation-item:hover {
+.level-item:hover,
+.operation-item:hover {
     background-color: var(--dark-green);
 }
 
-.level-item:before, .operation-item:before {
+.level-item:before,
+.operation-item:before {
     content: "[ ] ";
     color: var(--terminal-green);
 }
 
-.level-item:hover:before, .operation-item:hover:before {
+.level-item:hover:before,
+.operation-item:hover:before {
     content: "[X] ";
     color: var(--terminal-green);
 }
@@ -99,8 +103,16 @@ header h1 {
 }
 
 @keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
+
+    0%,
+    50% {
+        opacity: 1;
+    }
+
+    51%,
+    100% {
+        opacity: 0;
+    }
 }
 
 /* Status line colors */
@@ -145,6 +157,46 @@ header h1 {
 /* Login modal colors */
 .login-modal {
     background-color: rgba(0, 0, 0, 0.8);
+}
+
+.modal-content {
+    background-color: var(--bg-black);
+    border-color: var(--terminal-green);
+}
+
+.terminal-header {
+    color: var(--terminal-green);
+}
+
+#auth-input {
+    color: var(--terminal-green);
+    border-bottom-color: var(--terminal-green);
+}
+
+.auth-message {
+    color: var(--dim-green);
+}
+
+.auth-message.error {
+    color: #ff4444;
+}
+
+.auth-message.success {
+    color: var(--terminal-green);
+}
+
+.modal-footer {
+    border-top-color: var(--dim-green);
+    color: var(--dim-green);
+}
+
+.key-hint {
+    color: var(--dim-green);
+}
+
+.key-hint .key {
+    border-color: var(--terminal-green);
+    color: var(--terminal-green);
 }
 
 .login-content {
@@ -199,30 +251,30 @@ header h1 {
     .cursor {
         height: 1.5rem;
     }
-    
+
     .login-cursor {
         height: 1.5rem;
     }
-    
+
     .login-content {
         min-width: 300px;
         padding: 30px 20px;
     }
-    
+
     #login-input {
         width: 200px;
         font-size: 1.5rem;
     }
-    
+
     .feedback-content {
         min-width: 300px;
         padding: 30px 20px;
     }
-    
+
     .feedback-emoji {
         font-size: 3rem;
     }
-    
+
     .feedback-badge {
         font-size: 1.4rem;
     }
