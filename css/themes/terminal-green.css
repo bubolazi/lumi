@@ -1,5 +1,5 @@
 /* Terminal Green Theme - Colors and theme-specific styles only */
-@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=VT323&display=swap');
 
 :root {
     --terminal-green: #00ff41;
@@ -17,7 +17,8 @@ body {
 }
 
 .container {
-    background: var(--bg-black);
+    background: rgba(0, 0, 0, 0.75);
+    /* Semi-transparent to show video */
 }
 
 /* Terminal header colors */
@@ -27,8 +28,13 @@ header {
     border-bottom: 1px solid var(--terminal-green);
 }
 
-header h1 {
+header h1,
+.header-title-text {
     color: var(--terminal-green);
+    font-family: 'VT323', monospace;
+    font-weight: 400;
+    letter-spacing: 4px;
+    font-size: 2.5rem;
 }
 
 .level-info {
@@ -277,5 +283,13 @@ header h1 {
 
     .feedback-badge {
         font-size: 1.4rem;
+    }
+}
+
+@media (max-width: 600px) {
+
+    header h1,
+    .header-title-text {
+        font-size: 3.5rem;
     }
 }
