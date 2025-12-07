@@ -22,49 +22,59 @@ body {
     flex-direction: column;
 }
 
+/* Background Video */
+.background-video {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: auto;
+    min-height: auto;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 80vh;
+    z-index: -100;
+    object-fit: contain;
+    transition: opacity 0.5s ease;
+}
+
+.background-video.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
 /* Header structure */
 header {
-    padding: 10px 0;
+    padding: 20px 0;
     text-align: left;
     margin-bottom: 20px;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     flex-wrap: wrap;
 }
 
 .header-content {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;
     flex: 1;
 }
 
 .logo-section {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
 }
 
-.header-logo {
-    height: 60px;
-    width: auto;
-    margin-bottom: 5px;
-}
-
-.header-subtitle {
-    font-size: 0.75rem;
-    opacity: 0.6;
-    font-style: italic;
+.header-title-text {
+    font-family: monospace;
+    font-size: 3rem;
+    font-weight: bold;
+    letter-spacing: 8px;
     margin: 0;
-}
-
-header h1 {
-    font-size: 1.5rem;
-    font-weight: normal;
-    margin-bottom: 5px;
+    line-height: 1;
     text-transform: uppercase;
-    letter-spacing: 2px;
 }
 
 .level-info {
@@ -109,11 +119,15 @@ main {
 }
 
 /* Level, Operation, and Subject Selection structure */
-#level-select, #operation-select, #subject-select {
+#level-select,
+#operation-select,
+#subject-select {
     font-family: monospace;
 }
 
-#level-select h2, #operation-select h2, #subject-select h2 {
+#level-select h2,
+#operation-select h2,
+#subject-select h2 {
     font-size: 1.2rem;
     margin-bottom: 20px;
     font-weight: normal;
@@ -121,12 +135,16 @@ main {
     letter-spacing: 1px;
 }
 
-.level-list, .operation-list, .subject-list {
+.level-list,
+.operation-list,
+.subject-list {
     list-style: none;
     font-size: 1rem;
 }
 
-.level-item, .operation-item, .subject-item {
+.level-item,
+.operation-item,
+.subject-item {
     margin-bottom: 8px;
     cursor: pointer;
     padding: 2px 0;
@@ -444,13 +462,27 @@ main {
 }
 
 @keyframes flash-error {
-    0%, 100% { opacity: 0.7; }
-    50% { opacity: 1; }
+
+    0%,
+    100% {
+        opacity: 0.7;
+    }
+
+    50% {
+        opacity: 1;
+    }
 }
 
 @keyframes flash-success {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 1; }
+
+    0%,
+    100% {
+        opacity: 0.8;
+    }
+
+    50% {
+        opacity: 1;
+    }
 }
 
 .modal-footer {
@@ -607,42 +639,42 @@ main {
         flex-direction: column;
         gap: 20px;
     }
-    
+
     .calculation-history {
         font-size: 1rem;
     }
-    
+
     .problem-display {
         font-size: 2rem;
         letter-spacing: 4px;
     }
-    
+
     .problem-display.compact {
         font-size: 1.5rem;
         letter-spacing: 2px;
     }
-    
+
     .main-task {
         font-size: 1.3rem;
         margin-bottom: 15px;
     }
-    
+
     .place-value-number {
         font-size: 2.5rem;
         margin-bottom: 20px;
         letter-spacing: 8px;
     }
-    
+
     .place-value-question {
         font-size: 1.3rem;
         letter-spacing: 1px;
     }
-    
+
     #terminal-input {
         font-size: 1.5rem;
         width: 100px;
     }
-    
+
     .input-line {
         font-size: 1.5rem;
     }

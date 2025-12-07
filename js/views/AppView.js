@@ -29,7 +29,8 @@ class AppView {
             feedbackHeader: document.getElementById('feedback-header'),
             feedbackEmoji: document.getElementById('feedback-emoji'),
             feedbackBadge: document.getElementById('feedback-badge'),
-            feedbackFooter: document.getElementById('feedback-footer')
+            feedbackFooter: document.getElementById('feedback-footer'),
+            backgroundVideo: document.getElementById('background-video')
         };
 
         // Track message state
@@ -49,11 +50,11 @@ class AppView {
     // Initialize static text elements with Bulgarian translations
     initializeStaticText() {
         // Update page title
-        document.title = this.localization.t('MATH_TERMINAL');
+        document.title = `LUMI | ${this.localization.t('MATH_TERMINAL')}`;
 
-        // Update header
-        const header = document.querySelector('header h1');
-        if (header) header.textContent = this.localization.t('MATH_TERMINAL');
+        // Header text is static "LUMI", no need to update from localization
+        // const header = document.querySelector('header h1');
+        // if (header) header.textContent = this.localization.t('MATH_TERMINAL');
 
         // Update subject selection screen
         const subjectSelectTitle = document.querySelector('#subject-select h2');
@@ -93,6 +94,15 @@ class AppView {
 
         // Show selected screen
         document.getElementById(screenId).classList.add('active');
+
+        // Handle background video visibility - hide only during activity (game-screen)
+        if (this.elements.backgroundVideo) {
+            if (screenId === 'game-screen') {
+                this.elements.backgroundVideo.classList.add('hidden');
+            } else {
+                this.elements.backgroundVideo.classList.remove('hidden');
+            }
+        }
 
         // Focus input if showing game screen
         if (screenId === 'game-screen') {
