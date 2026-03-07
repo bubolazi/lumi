@@ -1,6 +1,7 @@
 class UserStorageModel {
     constructor() {
         this.apiService = new ApiService();
+        this.accountModel = new AccountModel(this.apiService);
         this.currentUser = null;
         this.isApiUser = false;
 
@@ -202,5 +203,78 @@ class UserStorageModel {
     async getBadgeCount() {
         const badges = await this.getBadges();
         return badges.length;
+    }
+
+    getCurrentDisplayUser() {
+        return this.accountModel.getDisplayUser(this.currentUser);
+    }
+
+    async loginWithSso(ssoToken, targetApp) {
+        try {
+            const response = await this.accountModel.exchangeSsoToken(ssoToken, targetApp);
+            if (response && response.success && response.user) {
+                this.currentUser = response.user;
+                this.isApiUser = true;
+                sessionStorage.setItem('lumi_user', JSON.stringify(response.user));
+                sessionStorage.removeItem(this.CURRENT_USER_KEY);
+                return { success: true };
+            }
+            return { success: false, error: response && response.message };
+        } catch (e) {
+            console.error('SSO login failed', e);
+            return { success: false, error: e.message };
+        }
+    }
+
+    async getKidAccounts() {
+        if (!this.isApiUser) return [];
+        try {
+            return await this.accountModel.getKidAccounts();
+        } catch (e) {
+            console.error('Failed to get kid accounts', e);
+            return [];
+        }
+    }
+
+    async addKidAccount(displayName) {
+        if (!this.isApiUser) return { success: false, error: 'Not logged in' };
+        try {
+            return await this.accountModel.addKidAccount(displayName);
+        } catch (e) {
+            console.error('Failed to add kid account', e);
+            return { success: false, error: e.message };
+        }
+    }
+
+    async removeKidAccount(kidId) {
+        if (!this.isApiUser) return { success: false, error: 'Not logged in' };
+        try {
+            return await this.accountModel.removeKidAccount(kidId);
+        } catch (e) {
+            console.error('Failed to remove kid account', e);
+            return { success: false, error: e.message };
+        }
+    }
+
+    async switchToKidAccount(kidId) {
+        if (!this.isApiUser) return { success: false, error: 'Not logged in' };
+        try {
+            return await this.accountModel.switchToKidAccount(kidId);
+        } catch (e) {
+            console.error('Failed to switch to kid account', e);
+            return { success: false, error: e.message };
+        }
+    }
+
+    switchBackToParent() {
+        this.accountModel.switchBackToParent();
+    }
+
+    isParentAccount() {
+        return this.accountModel.isParentAccount(this.currentUser);
+    }
+
+    isKidAccount() {
+        return this.accountModel.isKidAccount(this.currentUser);
     }
 }

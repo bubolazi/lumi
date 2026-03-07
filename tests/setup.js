@@ -6,6 +6,7 @@ const path = require('path');
 const files = [
     'js/services/ApiService.js',  // Must be loaded first - used by UserStorageModel
     'js/models/core/LocalizationModel.js',
+    'js/models/core/AccountModel.js',  // Must be loaded before UserStorageModel
     'js/models/core/UserStorageModel.js',
     'js/models/subjects/math/activities/AdditionLevels.js',
     'js/models/subjects/math/activities/SubtractionLevels.js',

@@ -97,6 +97,30 @@ class ApiService {
         return this.request('/api/lumi/badges', 'POST', badge, true);
     }
 
+    async exchangeSsoToken(ssoToken, targetApp) {
+        return this.request('/api/auth/sso/exchange', 'POST', { ssoToken, targetApp });
+    }
+
+    async getLinkedApps() {
+        return this.request('/api/auth/sso/apps', 'GET', null, true);
+    }
+
+    async getKidAccounts() {
+        return this.request('/api/lumi/accounts/kids', 'GET', null, true);
+    }
+
+    async addKidAccount(displayName) {
+        return this.request('/api/lumi/accounts/kids', 'POST', { displayName }, true);
+    }
+
+    async removeKidAccount(kidId) {
+        return this.request(`/api/lumi/accounts/kids/${kidId}`, 'DELETE', null, true);
+    }
+
+    async switchToKidAccount(kidId) {
+        return this.request(`/api/lumi/accounts/kids/${kidId}/switch`, 'POST', null, true);
+    }
+
     // Helper method to check if user is authenticated
     isAuthenticated() {
         // We check if user info exists in sessionStorage
