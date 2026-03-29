@@ -5,13 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Content Security Policy for XSS protection -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; 
-                   script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; 
-                   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
-                   img-src 'self' data: https:; 
-                   connect-src 'self' http://localhost:3000 https://*.bubolazi.com https://api.bubolazi.com https://challenges.cloudflare.com; 
-                   frame-src https://challenges.cloudflare.com; 
-                   font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com; 
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self';
+                   script-src 'self' 'unsafe-inline';
+                   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+                   img-src 'self' data: https:;
+                   connect-src 'self' http://localhost:3000 https://*.bubolazi.com https://api.bubolazi.com;
+                   font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com;
                    object-src 'none';">
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="img/favicon.ico">
@@ -27,8 +26,6 @@
     <link rel="stylesheet" href="css/themes/terminal-green.css">
     <!-- Environment Configuration -->
     <script src="config.js"></script>
-    <!-- Turnstile -->
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 
 <body>
@@ -122,27 +119,6 @@
 
         <div id="terminal-message" class="terminal-message"></div>
 
-        <div id="login-modal" class="login-modal" style="display: none;">
-            <div class="modal-content" id="login-modal-content">
-                <h2 class="terminal-header">ВХОД</h2>
-                <div id="auth-container">
-                    <div class="input-group" id="auth-input-group">
-                        <label id="auth-label" for="auth-input">ПОТРЕБИТЕЛСКО ИМЕ:</label>
-                        <input type="text" id="auth-input" class="terminal-input" autocomplete="off"
-                            style="color: #00ff41; caret-color: #00ff41;">
-                        <div id="auth-message" class="auth-message"></div>
-                    </div>
-                    <div id="turnstile-container" style="margin-top: 15px; display: none;">
-                        <div id="turnstile-widget"></div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <div class="key-hint"><span class="key">ENTER</span> ПОТВЪРДИ</div>
-                    <div class="key-hint"><span class="key">ESC</span> ОТКАЖИ</div>
-                </div>
-            </div>
-        </div>
-
         <div id="feedback-modal" class="feedback-modal">
             <div class="feedback-content">
                 <div class="feedback-header" id="feedback-header"></div>
@@ -155,8 +131,9 @@
         </div>
 
         <!-- MVC Architecture with Localization and Subject/Activity Management -->
-        <!-- Core Models -->
+        <!-- Core Services -->
         <script src="js/services/ApiService.js"></script>
+        <script src="js/services/Auth0Service.js"></script>
         <script src="js/models/core/LocalizationModel.js"></script>
         <script src="js/models/core/UserStorageModel.js"></script>
         <script src="js/models/core/SubjectManager.js"></script>

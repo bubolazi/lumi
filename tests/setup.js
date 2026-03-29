@@ -4,7 +4,8 @@ const path = require('path');
 
 // List of files to load (relative to project root)
 const files = [
-    'js/services/ApiService.js',  // Must be loaded first - used by UserStorageModel
+    'js/services/ApiService.js',    // Must be loaded first - used by UserStorageModel
+    'js/services/Auth0Service.js',  // PKCE flow handler
     'js/models/core/LocalizationModel.js',
     'js/models/core/UserStorageModel.js',
     'js/models/subjects/math/activities/AdditionLevels.js',

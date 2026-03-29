@@ -1,21 +1,17 @@
 class ApiService {
     constructor(baseUrl = null) {
-        // Use config if available, otherwise use parameter or default
         this.baseUrl = baseUrl || (window.LUMI_CONFIG ? window.LUMI_CONFIG.API_BASE_URL : 'http://localhost:3000');
     }
 
-    async request(endpoint, method, body = null, requireAuth = false) {
+    async request(endpoint, method, body = null) {
         const headers = {
             'Content-Type': 'application/json'
         };
 
-        // Note: No need to manually set Authorization header
-        // Cookies are sent automatically with credentials: 'include'
-
         const config = {
             method,
             headers,
-            credentials: 'include', // Important: Send cookies with requests
+            credentials: 'include', // Send HTTP-only cookies automatically
         };
 
         if (body) {
@@ -36,78 +32,51 @@ class ApiService {
         }
     }
 
-    async login(email, password, captchaToken) {
-        try {
-            const response = await this.request('/api/lumi/auth/login', 'POST', {
-                email,
-                password,
-                captchaToken
-            });
-
-            // Tokens are now in HTTP-only cookies (set by server)
-            // We only store non-sensitive user info in sessionStorage
-            if (response.success && response.user) {
-                sessionStorage.setItem('lumi_user', JSON.stringify(response.user));
-                return response;
-            }
-
-            return response; // Return error response with userNotFound flag if present
-        } catch (error) {
-            console.error('Login error:', error);
-            return {
-                success: false,
-                message: error.message || 'Login failed',
-                userNotFound: error.userNotFound || false
-            };
-        }
-    }
-
-    async register(email, password, displayName, captchaToken) {
-        const response = await this.request('/api/lumi/auth/register', 'POST', {
-            email,
-            password,
-            displayName,
-            captchaToken
+    async exchangeCodeForSession(code, codeVerifier, redirectUri) {
+        const response = await this.request('/api/auth/callback', 'POST', {
+            code,
+            codeVerifier,
+            state: sessionStorage.getItem('oauth_state') || '',
+            redirectUri,
         });
 
-        // Tokens are now in HTTP-only cookies
-        if (response.success && response.user) {
+        if (response.user) {
             sessionStorage.setItem('lumi_user', JSON.stringify(response.user));
         }
 
         return response;
     }
 
+    async refreshSession() {
+        return this.request('/api/auth/refresh', 'POST');
+    }
+
     async logout() {
         try {
-            await this.request('/api/lumi/auth/logout', 'POST', {}, true);
+            const response = await this.request('/api/auth/logout', 'POST');
+            sessionStorage.removeItem('lumi_user');
+            return response;
         } catch (e) {
-            console.warn('Logout failed on server, clearing local state anyway', e);
+            console.warn('Logout request failed, clearing local state anyway', e);
+            sessionStorage.removeItem('lumi_user');
+            return null;
         }
-
-        // Clear user info (cookies are cleared by server)
-        sessionStorage.removeItem('lumi_user');
     }
 
     async getBadges() {
-        return this.request('/api/lumi/badges', 'GET', null, true);
+        return this.request('/api/lumi/badges', 'GET');
     }
 
     async createBadge(badge) {
-        return this.request('/api/lumi/badges', 'POST', badge, true);
+        return this.request('/api/lumi/badges', 'POST', badge);
     }
 
-    // Helper method to check if user is authenticated
     isAuthenticated() {
-        // We check if user info exists in sessionStorage
-        // The actual auth is handled by HTTP-only cookies sent automatically
         return !!sessionStorage.getItem('lumi_user');
     }
 
-    // Helper method to get current user info
     getCurrentUser() {
         const userJson = sessionStorage.getItem('lumi_user');
         return userJson ? JSON.parse(userJson) : null;
     }
 }
-

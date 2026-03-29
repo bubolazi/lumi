@@ -2,34 +2,30 @@ class UserStorageModel {
     constructor() {
         this.apiService = new ApiService();
         this.currentUser = null;
-        this.isApiUser = false;
 
         this.USERS_KEY = 'lumi_users';
         this.CURRENT_USER_KEY = 'lumi_current_user';
-        this.IS_API_USER_KEY = 'lumi_is_api_user';
 
         this.loadUserFromSession();
     }
 
     loadUserFromSession() {
-        // Check if we have an API user session
+        // Check for Auth0 user session
         const apiUserData = sessionStorage.getItem('lumi_user');
         if (apiUserData) {
             try {
                 this.currentUser = JSON.parse(apiUserData);
-                this.isApiUser = true;
                 return;
             } catch (e) {
-                console.error('Failed to parse API user data', e);
+                console.error('Failed to parse user session data', e);
                 sessionStorage.removeItem('lumi_user');
             }
         }
 
-        // Fallback to local user
+        // Fallback to legacy local user
         const localUser = sessionStorage.getItem(this.CURRENT_USER_KEY);
         if (localUser) {
             this.currentUser = { displayName: localUser };
-            this.isApiUser = false;
         }
     }
 
@@ -38,7 +34,11 @@ class UserStorageModel {
         return this.currentUser.displayName || this.currentUser.email || 'User';
     }
 
-    // Local Storage Methods (Legacy)
+    isAuthenticated() {
+        return !!this.currentUser;
+    }
+
+    // Legacy local user support (offline fallback)
     getAllUsers() {
         const usersData = localStorage.getItem(this.USERS_KEY);
         if (!usersData) return {};
@@ -62,19 +62,11 @@ class UserStorageModel {
         if (!username || username.trim() === '') return false;
         const trimmedUsername = username.trim();
 
-        // Clear API session if exists
         sessionStorage.removeItem('lumi_user');
-        sessionStorage.removeItem('lumi_access_token');
-        sessionStorage.removeItem('lumi_refresh_token');
-
-        // Set local session
         sessionStorage.setItem(this.CURRENT_USER_KEY, trimmedUsername);
-        sessionStorage.setItem(this.IS_API_USER_KEY, 'false');
 
         this.currentUser = { displayName: trimmedUsername };
-        this.isApiUser = false;
 
-        // Ensure user exists in local DB
         const users = this.getAllUsers();
         if (!users[trimmedUsername]) {
             users[trimmedUsername] = {
@@ -87,57 +79,26 @@ class UserStorageModel {
         return true;
     }
 
-    // API Methods
-    async login(email, password, captchaToken) {
-        try {
-            const response = await this.apiService.login(email, password, captchaToken);
-            if (response.success) {
-                this.currentUser = response.user;
-                this.isApiUser = true;
-                // Clear local session key to avoid confusion
-                sessionStorage.removeItem(this.CURRENT_USER_KEY);
-                return { success: true };
-            }
-            return { success: false, error: response.message, userNotFound: response.userNotFound };
-        } catch (e) {
-            console.error('Login failed', e);
-            return { success: false, error: e.message };
-        }
+    // Called after Auth0 callback completes — user is already set in sessionStorage
+    // by ApiService.exchangeCodeForSession(); just reload from session.
+    loadAuth0User() {
+        this.loadUserFromSession();
     }
 
-    async register(email, password, displayName, captchaToken) {
-        try {
-            const response = await this.apiService.register(email, password, displayName, captchaToken);
-            if (response.success) {
-                // If session is returned, we are logged in
-                if (response.session) {
-                    this.currentUser = response.user;
-                    this.isApiUser = true;
-                    sessionStorage.removeItem(this.CURRENT_USER_KEY);
-                }
-                return { success: true, session: !!response.session };
-            }
-            return { success: false, error: response.message };
-        } catch (e) {
-            console.error('Registration failed', e);
-            return { success: false, error: e.message };
-        }
-    }
+    async logout() {
+        const response = await this.apiService.logout();
 
-    logout() {
-        if (this.isApiUser) {
-            this.apiService.logout();
-        }
         sessionStorage.removeItem(this.CURRENT_USER_KEY);
-        sessionStorage.removeItem(this.IS_API_USER_KEY);
         this.currentUser = null;
-        this.isApiUser = false;
+
+        return response;
     }
 
     async addBadge(badgeName, badgeEmoji = '') {
         if (!this.currentUser) return false;
 
-        if (this.isApiUser) {
+        if (this.currentUser.id) {
+            // Auth0 user — save via API
             try {
                 await this.apiService.createBadge({ badge_name: badgeName, badge_emoji: badgeEmoji });
                 return true;
@@ -146,12 +107,11 @@ class UserStorageModel {
                 return false;
             }
         } else {
-            // Local storage logic
+            // Legacy local user
             const username = this.currentUser.displayName;
             const users = this.getAllUsers();
 
             if (!users[username]) {
-                // Should exist, but just in case
                 this.setLocalUser(username);
                 return this.addBadge(badgeName, badgeEmoji);
             }
@@ -173,7 +133,8 @@ class UserStorageModel {
     async getBadges() {
         if (!this.currentUser) return [];
 
-        if (this.isApiUser) {
+        if (this.currentUser.id) {
+            // Auth0 user — fetch via API
             try {
                 return await this.apiService.getBadges();
             } catch (e) {
@@ -181,7 +142,7 @@ class UserStorageModel {
                 return [];
             }
         } else {
-            // Local storage logic
+            // Legacy local user
             const username = this.currentUser.displayName;
             const users = this.getAllUsers();
             const userData = users[username];

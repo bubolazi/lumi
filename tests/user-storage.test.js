@@ -1,34 +1,17 @@
 const { describe, test, expect, beforeEach } = require('@jest/globals');
 
-// Mock ApiService
+// Mock ApiService matching the Auth0-based implementation
 class MockApiService {
-    constructor() {
-        this.users = {};
-        this.badges = {};
+    async logout() {
+        return { logoutUrl: 'https://auth0.example.com/v2/logout?client_id=abc' };
     }
-
-    async login(email, password) {
-        if (email === 'test@example.com' && password === 'password') {
-            return { success: true, user: { displayName: 'TestUser', email } };
-        }
-        if (email === 'notfound@example.com') {
-            return { success: false, userNotFound: true };
-        }
-        return { success: false, message: 'Invalid credentials' };
-    }
-
-    async register(email, password, displayName) {
-        return { success: true, user: { displayName, email }, session: { accessToken: 'token' } };
-    }
-
-    logout() { }
 
     async createBadge(badge) {
-        return { success: true };
+        return { id: '1', badge_name: badge.badge_name, badge_emoji: badge.badge_emoji };
     }
 
     async getBadges() {
-        return [{ name: 'TestBadge', emoji: '🏆' }];
+        return [{ name: 'TestBadge', emoji: '🏆', earnedAt: '2024-01-01' }];
     }
 }
 
@@ -64,12 +47,6 @@ describe('User Storage - UserStorageModel', () => {
     beforeEach(() => {
         sessionStorage.clear();
         localStorage.clear();
-        // Re-instantiate to reset state
-        // We need to make sure UserStorageModel uses the global ApiService mock
-        // Since we can't easily import the class here if it's not exported, 
-        // we assume the test runner loads the file or we paste the class definition for testing if needed.
-        // For this environment, we'll assume the class is available or we'd need to require it.
-        // But since the original test file didn't require it, it must be loaded by setup.js or similar.
         userStorage = new UserStorageModel();
     });
 
@@ -78,7 +55,6 @@ describe('User Storage - UserStorageModel', () => {
             const result = userStorage.setLocalUser('LocalUser');
             expect(result).toBe(true);
             expect(userStorage.getCurrentUser()).toBe('LocalUser');
-            expect(userStorage.isApiUser).toBe(false);
         });
 
         test('should persist local user in localStorage', () => {
@@ -94,55 +70,110 @@ describe('User Storage - UserStorageModel', () => {
             expect(badges.length).toBe(1);
             expect(badges[0].name).toBe('LocalBadge');
         });
+
+        test('should return empty badges for local user with no badges', async () => {
+            userStorage.setLocalUser('NewUser');
+            const badges = await userStorage.getBadges();
+            expect(badges).toEqual([]);
+        });
     });
 
-    describe('API User Management', () => {
-        test('should login API user', async () => {
-            const result = await userStorage.login('test@example.com', 'password', 'token');
-            expect(result.success).toBe(true);
+    describe('Auth0 User Management', () => {
+        test('should load Auth0 user from sessionStorage', () => {
+            sessionStorage.setItem('lumi_user', JSON.stringify({
+                id: 'auth0|abc123',
+                email: 'test@example.com',
+                displayName: 'TestUser'
+            }));
+
+            userStorage.loadAuth0User();
             expect(userStorage.getCurrentUser()).toBe('TestUser');
-            expect(userStorage.isApiUser).toBe(true);
+            expect(userStorage.isAuthenticated()).toBe(true);
         });
 
-        test('should fail login with wrong credentials', async () => {
-            const result = await userStorage.login('wrong@example.com', 'password', 'token');
-            expect(result.success).toBe(false);
-            expect(userStorage.getCurrentUser()).toBeNull();
+        test('should identify Auth0 user by id property', () => {
+            sessionStorage.setItem('lumi_user', JSON.stringify({
+                id: 'auth0|abc123',
+                email: 'test@example.com',
+                displayName: 'TestUser'
+            }));
+            userStorage.loadAuth0User();
+
+            expect(userStorage.currentUser.id).toBe('auth0|abc123');
         });
 
-        test('should register API user', async () => {
-            const result = await userStorage.register('new@example.com', 'password', 'NewUser', 'token');
-            expect(result.success).toBe(true);
-            expect(userStorage.getCurrentUser()).toBe('NewUser');
-            expect(userStorage.isApiUser).toBe(true);
+        test('should get badges from API for Auth0 user', async () => {
+            sessionStorage.setItem('lumi_user', JSON.stringify({
+                id: 'auth0|abc123',
+                email: 'test@example.com',
+                displayName: 'TestUser'
+            }));
+            userStorage.loadAuth0User();
+
+            const badges = await userStorage.getBadges();
+            expect(badges.length).toBe(1);
+            expect(badges[0].name).toBe('TestBadge');
         });
 
-        test('should add badge to API user', async () => {
-            await userStorage.login('test@example.com', 'password', 'token');
+        test('should add badge via API for Auth0 user', async () => {
+            sessionStorage.setItem('lumi_user', JSON.stringify({
+                id: 'auth0|abc123',
+                email: 'test@example.com',
+                displayName: 'TestUser'
+            }));
+            userStorage.loadAuth0User();
+
             const result = await userStorage.addBadge('ApiBadge', '🏆');
             expect(result).toBe(true);
         });
     });
 
-    describe('Hybrid Logic', () => {
-        test('should switch from local to API user', async () => {
-            userStorage.setLocalUser('LocalUser');
-            expect(userStorage.isApiUser).toBe(false);
+    describe('Logout', () => {
+        test('should clear session on logout', async () => {
+            sessionStorage.setItem('lumi_user', JSON.stringify({
+                id: 'auth0|abc123',
+                email: 'test@example.com',
+                displayName: 'TestUser'
+            }));
+            userStorage.loadAuth0User();
+            expect(userStorage.isAuthenticated()).toBe(true);
 
-            await userStorage.login('test@example.com', 'password', 'token');
-            expect(userStorage.getCurrentUser()).toBe('TestUser');
-            expect(userStorage.isApiUser).toBe(true);
-            expect(sessionStorage.getItem('lumi_current_user')).toBeNull();
+            await userStorage.logout();
+            expect(userStorage.getCurrentUser()).toBeNull();
+            expect(userStorage.isAuthenticated()).toBe(false);
         });
 
-        test('should switch from API to local user', async () => {
-            await userStorage.login('test@example.com', 'password', 'token');
-            expect(userStorage.isApiUser).toBe(true);
+        test('should return logoutUrl from API on logout', async () => {
+            sessionStorage.setItem('lumi_user', JSON.stringify({
+                id: 'auth0|abc123',
+                email: 'test@example.com',
+                displayName: 'TestUser'
+            }));
+            userStorage.loadAuth0User();
 
+            const response = await userStorage.logout();
+            expect(response).toBeDefined();
+            expect(response.logoutUrl).toContain('auth0.example.com');
+        });
+    });
+
+    describe('isAuthenticated', () => {
+        test('should return false when no user', () => {
+            expect(userStorage.isAuthenticated()).toBe(false);
+        });
+
+        test('should return true for local user', () => {
             userStorage.setLocalUser('LocalUser');
-            expect(userStorage.getCurrentUser()).toBe('LocalUser');
-            expect(userStorage.isApiUser).toBe(false);
-            expect(sessionStorage.getItem('lumi_user')).toBeNull();
+            expect(userStorage.isAuthenticated()).toBe(true);
+        });
+
+        test('should return true for Auth0 user', () => {
+            sessionStorage.setItem('lumi_user', JSON.stringify({
+                id: 'auth0|abc123',
+                displayName: 'TestUser'
+            }));
+            userStorage.loadAuth0User();
+            expect(userStorage.isAuthenticated()).toBe(true);
         });
     });
 });

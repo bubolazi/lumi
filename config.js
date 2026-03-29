@@ -17,22 +17,29 @@
     if (isLocal) {
         // Development Configuration
         console.log('🔧 Loading DEVELOPMENT configuration');
+        // TODO: Add AUTH0_CLIENT_ID for local development
         config = {
-            // API Configuration
-            API_BASE_URL: 'http://localhost:3000',
+            API_BASE_URL: `http://${hostname}:3000`,
 
-            // Cloudflare Turnstile Configuration
-            TURNSTILE_SITE_KEY: '1x00000000000000000000AA', // Test key
+            // Auth0 Configuration (replace with your Auth0 tenant values)
+            AUTH0_DOMAIN: 'bubolazi.eu.auth0.com',         // e.g. dev-abc123.eu.auth0.com
+            AUTH0_CLIENT_ID: 'e1qhxPEMMn7As6W5LIaCFnzowbgqh4vn',   // Lumi Application client_id
+            AUTH0_AUDIENCE: 'https://api.bubolazi.com',     // API resource server identifier
+            AUTH0_CALLBACK_URL: `http://${hostname}:8000/callback`,
+            AUTH0_LOGOUT_URL: `http://${hostname}:8000`,
         };
     } else {
         // Production Configuration
         console.log('🚀 Loading PRODUCTION configuration');
         config = {
-            // API Configuration
             API_BASE_URL: 'https://api.bubolazi.com',
 
-            // Cloudflare Turnstile Configuration
-            TURNSTILE_SITE_KEY: '0x4AAAAAACBMVCK4HE7B42vy', // Real production key
+            // Auth0 Configuration (replace with your Auth0 tenant values)
+            AUTH0_DOMAIN: 'bubolazi.eu.auth0.com',         // e.g. bubolazi.eu.auth0.com
+            AUTH0_CLIENT_ID: 'e1qhxPEMMn7As6W5LIaCFnzowbgqh4vn',   // Lumi Application client_id
+            AUTH0_AUDIENCE: 'https://api.bubolazi.com',     // API resource server identifier
+            AUTH0_CALLBACK_URL: `https://${hostname}/callback`,
+            AUTH0_LOGOUT_URL: `https://${hostname}`,
         };
     }
 
@@ -43,4 +50,5 @@
     console.log(`📍 Hostname: ${hostname}`);
     console.log(`⚙️  Environment: ${isLocal ? 'Development' : 'Production'}`);
     console.log(`🔗 API URL: ${config.API_BASE_URL}`);
+    console.log(`🔐 Auth0 Domain: ${config.AUTH0_DOMAIN}`);
 })();

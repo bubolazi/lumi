@@ -1,9 +1,10 @@
 // Controller: Coordinates between Model and View
 class AppController {
-    constructor(localization, subjectManager, userStorage) {
+    constructor(localization, subjectManager, userStorage, auth0Service) {
         this.localization = localization;
         this.subjectManager = subjectManager;
         this.userStorage = userStorage;
+        this.auth0Service = auth0Service;
         this.activityManager = null; // Will be set after subject selection
         this.view = new AppView(localization);
         this.model = null; // Will be initialized after operation/activity selection
@@ -29,13 +30,6 @@ class AppController {
     // Bind global keyboard handler for navigation
     bindGlobalNavigation() {
         this.globalNavigationHandler = (e) => {
-            const loginModal = document.getElementById('login-modal');
-            const isLoginVisible = loginModal && loginModal.style.display !== 'none';
-
-            if (isLoginVisible) {
-                return;
-            }
-
             // Handle Enter key globally for dismissing modals/messages
             if (e.key === 'Enter') {
                 // Check if feedback modal is visible
@@ -157,35 +151,8 @@ class AppController {
         const currentUser = this.userStorage.getCurrentUser();
 
         if (!currentUser) {
-            this.view.promptUserLogin(async (authData) => {
-                if (authData.type === 'local') {
-                    // Local user (legacy)
-                    if (this.userStorage.setLocalUser(authData.username)) {
-                        this.updateUserDisplay();
-                        this.proceedWithSubjectSelection(subjectName);
-                    }
-                    return { success: true };
-                }
-                else if (authData.type === 'login') {
-                    // API Login
-                    const result = await this.userStorage.login(authData.email, authData.password, authData.captchaToken);
-                    if (result.success) {
-                        this.updateUserDisplay();
-                        this.proceedWithSubjectSelection(subjectName);
-                    }
-                    return result;
-                }
-                else if (authData.type === 'register') {
-                    // API Register
-                    const result = await this.userStorage.register(authData.email, authData.password, authData.name, authData.captchaToken);
-                    if (result.success && result.session) {
-                        // Auto-login if session returned
-                        this.updateUserDisplay();
-                        this.proceedWithSubjectSelection(subjectName);
-                    }
-                    return result;
-                }
-            });
+            // Redirect to Auth0 Universal Login; return path restores subject selection
+            this.auth0Service.initiateLogin('/');
         } else {
             this.proceedWithSubjectSelection(subjectName);
         }
@@ -789,10 +756,15 @@ class AppController {
         this.view.updateUserDisplay(currentUser);
     }
 
-    handleLogout() {
-        this.userStorage.logout();
+    async handleLogout() {
+        const response = await this.userStorage.logout();
         this.updateUserDisplay();
         this.initializeSubjectSelection();
+
+        // Redirect to Auth0 logout to clear the SSO session
+        if (response && response.logoutUrl) {
+            window.location.href = response.logoutUrl;
+        }
     }
 
     async handleStarKey() {
