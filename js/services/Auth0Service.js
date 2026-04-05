@@ -18,17 +18,13 @@ class Auth0Service {
             .replace(/=/g, '');
     }
 
-    generateState() {
-        const array = new Uint8Array(16);
-        crypto.getRandomValues(array);
-        return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
-    }
-
     async initiateLogin(returnPath, locale = 'en') {
         const config = window.LUMI_CONFIG;
         const codeVerifier = this.generateCodeVerifier();
         const codeChallenge = await this.generateCodeChallenge(codeVerifier);
-        const state = this.generateState();
+
+        const stateResponse = await fetch(`${config.API_BASE_URL}/api/auth/state`);
+        const { state } = await stateResponse.json();
 
         sessionStorage.setItem('pkce_code_verifier', codeVerifier);
         sessionStorage.setItem('oauth_state', state);
@@ -74,6 +70,7 @@ class Auth0Service {
         const result = await apiService.exchangeCodeForSession(
             code,
             codeVerifier,
+            returnedState,
             window.LUMI_CONFIG.AUTH0_CALLBACK_URL,
         );
 

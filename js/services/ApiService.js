@@ -32,11 +32,11 @@ class ApiService {
         }
     }
 
-    async exchangeCodeForSession(code, codeVerifier, redirectUri) {
+    async exchangeCodeForSession(code, codeVerifier, state, redirectUri) {
         const response = await this.request('/api/auth/callback', 'POST', {
             code,
             codeVerifier,
-            state: sessionStorage.getItem('oauth_state') || '',
+            state,
             redirectUri,
         });
 

@@ -25,7 +25,7 @@
             AUTH0_DOMAIN: 'bubolazi.eu.auth0.com',         // e.g. dev-abc123.eu.auth0.com
             AUTH0_CLIENT_ID: 'e1qhxPEMMn7As6W5LIaCFnzowbgqh4vn',   // Lumi Application client_id
             AUTH0_AUDIENCE: 'https://api.bubolazi.com',     // API resource server identifier
-            AUTH0_CALLBACK_URL: `http://${hostname}:8000/callback`,
+            AUTH0_CALLBACK_URL: `http://${hostname}:8000`,
             AUTH0_LOGOUT_URL: `http://${hostname}:8000`,
         };
     } else {
