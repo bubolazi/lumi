@@ -83,6 +83,35 @@ header {
     margin-top: 5px;
 }
 
+.locale-switcher {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 5px;
+    font-family: monospace;
+    font-size: 0.75rem;
+}
+
+.locale-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: monospace;
+    font-size: 0.75rem;
+    padding: 0;
+    opacity: 0.4;
+    color: inherit;
+}
+
+.locale-btn.active {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+.locale-sep {
+    opacity: 0.4;
+}
+
 .user-info {
     display: flex;
     align-items: center;

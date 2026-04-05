@@ -1,30 +1,46 @@
 // Controller: Coordinates between Model and View
 class AppController {
-    constructor(localization, subjectManager, userStorage, auth0Service) {
+    constructor(localization, subjectManager, userStorage, auth0Service, apiService) {
         this.localization = localization;
         this.subjectManager = subjectManager;
         this.userStorage = userStorage;
         this.auth0Service = auth0Service;
-        this.activityManager = null; // Will be set after subject selection
+        this.apiService = apiService;
+        this.activityManager = null;
         this.view = new AppView(localization);
-        this.model = null; // Will be initialized after operation/activity selection
-        this.currentSubject = null; // Track current subject
-        this.currentActivity = null; // Track current activity
-        this.currentLevel = null; // Track current level
-        this.navigationStack = []; // Stack for tracking navigation history
-        this.badgesPage = 0; // Track current badges page
-        this.badgesVisible = false; // Track if badges are visible
+        this.model = null;
+        this.currentSubject = null;
+        this.currentActivity = null;
+        this.currentLevel = null;
+        this.navigationStack = [];
+        this.badgesPage = 0;
+        this.badgesVisible = false;
 
-        // Bind global navigation handler
         this.bindGlobalNavigation();
-
-        // Bind logout button
         this.view.bindLogoutButton(() => this.handleLogout());
-
-        // Update user display
+        this.bindLocaleSwitcher();
+        this.view.updateLocaleSwitcher(localization.getCurrentLanguage());
         this.updateUserDisplay();
 
         this.initializeSubjectSelection();
+    }
+
+    bindLocaleSwitcher() {
+        document.querySelectorAll('.locale-btn').forEach(btn => {
+            btn.addEventListener('click', () => this.handleLocaleSwitch(btn.dataset.lang));
+        });
+    }
+
+    handleLocaleSwitch(lang) {
+        if (lang === this.localization.getCurrentLanguage()) return;
+        this.localization.setLanguage(lang);
+        this.localization.persistLocale();
+        this.view.updateLocaleSwitcher(lang);
+        this.view.applyStaticText();
+        this.view.renderSubjectList(this.subjectManager.getAvailableSubjects(), this.localization);
+        if (this.userStorage.isAuthenticated() && this.apiService) {
+            this.apiService.setUserLocale(lang);
+        }
     }
 
     // Bind global keyboard handler for navigation
@@ -151,8 +167,7 @@ class AppController {
         const currentUser = this.userStorage.getCurrentUser();
 
         if (!currentUser) {
-            // Redirect to Auth0 Universal Login; return path restores subject selection
-            this.auth0Service.initiateLogin('/');
+            this.auth0Service.initiateLogin('/', this.localization.getCurrentLanguage());
         } else {
             this.proceedWithSubjectSelection(subjectName);
         }
@@ -584,7 +599,7 @@ class AppController {
             if (currentStep < 4) {
                 // Move to next step
                 problem.currentStep++;
-                this.view.showMessage('ПРАВИЛНО! Следваща стъпка...', false);
+                this.view.showMessage(this.localization.t('STEP_CORRECT_NEXT'), false);
                 // After a short delay, show the next step
                 setTimeout(() => {
                     this.view.hideMessage();

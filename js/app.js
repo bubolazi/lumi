@@ -1,4 +1,3 @@
-// Application Entry Point - MVC Initialization with Subject Selection
 class LumiApp {
     constructor() {
         this.init();
@@ -13,35 +12,42 @@ class LumiApp {
     }
 
     async initializeMVC() {
+        const apiService = new ApiService();
         const auth0Service = new Auth0Service();
 
-        // Handle Auth0 callback before initializing the app
         if (auth0Service.isCallbackRequest()) {
             try {
-                const apiService = new ApiService();
-                const result = await auth0Service.handleCallback(apiService);
-
-                // Reload with the clean return path (history.replaceState already called)
-                // Re-initialize now that user is authenticated
-                this.startApp(auth0Service);
-                return;
+                await auth0Service.handleCallback(apiService);
             } catch (e) {
                 console.error('Auth0 callback failed:', e);
-                // Clear any stale PKCE state and proceed unauthenticated
                 sessionStorage.removeItem('pkce_code_verifier');
                 sessionStorage.removeItem('oauth_state');
                 sessionStorage.removeItem('oauth_return_path');
             }
         }
 
-        this.startApp(auth0Service);
+        const locale = await this.resolveLocale(apiService);
+        this.startApp(auth0Service, apiService, locale);
     }
 
-    startApp(auth0Service) {
-        const localization = new LocalizationModel('bg');
-        const userStorage = new UserStorageModel();
+    async resolveLocale(apiService) {
+        const stored = localStorage.getItem('lumi_locale');
+        if (stored) return stored;
+
+        if (apiService.isAuthenticated()) {
+            const result = await apiService.getUserLocale();
+            if (result && result.locale) return result.locale;
+        }
+
+        const result = await apiService.detectLocale();
+        return result.locale || 'en';
+    }
+
+    startApp(auth0Service, apiService, locale) {
+        const localization = new LocalizationModel(locale);
+        const userStorage = new UserStorageModel(apiService);
         const subjectManager = new SubjectManager();
-        const controller = new AppController(localization, subjectManager, userStorage, auth0Service);
+        const controller = new AppController(localization, subjectManager, userStorage, auth0Service, apiService);
 
         this.localization = localization;
         this.userStorage = userStorage;
@@ -50,7 +56,7 @@ class LumiApp {
 
         window.lumiApp = this;
 
-        console.log('Learning App initialized with Auth0 SSO');
+        console.log('Learning App initialized');
     }
 }
 

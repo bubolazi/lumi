@@ -1,50 +1,40 @@
-// Localization Model - Manages language translations
 class LocalizationModel {
-    constructor(language = 'bg') {
+    constructor(language = 'en') {
         this.currentLanguage = language;
         this.translations = this.getTranslations();
     }
 
-    // Get all translations for different languages
     getTranslations() {
         return {
             'bg': {
-                // Page title and header
                 'MATH_TERMINAL': 'УЧЕБЕН ТЕРМИНАЛ v0.1',
                 'LEVEL': 'НИВО',
 
-                // Subjects
                 'SELECT_SUBJECT': 'ИЗБЕРЕТЕ ПРЕДМЕТ:',
                 'MATH_SUBJECT': 'МАТЕМАТИКА',
                 'BULGARIAN_SUBJECT': 'БЪЛГАРСКИ ЕЗИК',
                 'SUBJECT_INSTRUCTIONS': 'ИЗБЕРЕТЕ НОМЕР НА ПРЕДМЕТ • BACKSPACE = НАЗАД',
 
-                // Operations
                 'ADDITION': 'СЪБИРАНЕ',
                 'PLACE_VALUE': 'ЕДИНИЦИ И ДЕСЕТИЦИ',
                 'SUBTRACTION': 'ИЗВАЖДАНЕ',
                 'MULTIPLICATION': 'УМНОЖЕНИЕ',
                 'DIVISION': 'ДЕЛЕНИЕ',
 
-                // Bulgarian Language Activities
                 'LETTERS': 'БУКВИ',
                 'SYLLABLES': 'СРИЧКИ',
                 'WORDS': 'ДУМИ',
 
-                // Operation/Activity selection
                 'SELECT_OPERATION': 'ИЗБЕРЕТЕ ДЕЙНОСТ:',
                 'OPERATION_INSTRUCTIONS': 'ИЗБЕРЕТЕ НОМЕР НА ДЕЙНОСТ • BACKSPACE = НАЗАД',
 
-                // Level selection screen
                 'SELECT_DIFFICULTY_LEVEL': 'ИЗБЕРЕТЕ НИВО НА ТРУДНОСТ:',
-                // Math level descriptions
                 'SINGLE_DIGITS': 'ЕДНОЦИФРЕНИ ЧИСЛА (1-9)',
                 'DOUBLE_DIGITS': 'ДВУЦИФРЕНИ ЧИСЛА (10-19)',
                 'UP_TO_20': 'ДО 20',
                 'UP_TO_50': 'ДО 50',
                 'UP_TO_100': 'ДО 100',
 
-                // Place Value level descriptions
                 'PLACE_VALUE_RECOGNITION': 'РАЗПОЗНАВАНЕ НА ЕДИНИЦИ И ДЕСЕТИЦИ',
                 'PLACE_VALUE_CALCULATION': 'СТЪПКА ПО СТЪПКА СМЯТАНЕ',
                 'WHICH_DIGIT_ONES': 'Коя цифра е в единиците?',
@@ -58,26 +48,22 @@ class LocalizationModel {
                 'STEP_TENS': 'Десетици',
                 'STEP_COMBINE': 'Резултат',
 
-                // Step descriptions for Place Value Level 2 - Addition
                 'STEP_DESC_ONES': 'Изчисляване на единици',
                 'STEP_DESC_CARRY': 'Определяне на пренос',
                 'STEP_DESC_TENS': 'Изчисляване на десетици',
                 'STEP_DESC_COMBINE': 'Комбиниране на резултата',
 
-                // Step descriptions for Place Value Level 2 - Subtraction
                 'STEP_DESC_ONES_SUB': 'Изчисляване на единици',
                 'STEP_DESC_BORROW': 'Определяне на заемане',
                 'STEP_DESC_TENS_SUB': 'Изчисляване на десетици',
                 'STEP_DESC_COMBINE_SUB': 'Комбиниране на резултата',
 
-                // Tooltips for Place Value
                 'TOOLTIP_CARRY': 'Преносът е цифрата от десетиците когато сборът на единиците е 10 или повече. Например: 7 + 8 = 15, преносът е 1.',
                 'TOOLTIP_BORROW': 'Заемането е когато трябва да вземем 1 десетица и да я превърнем в 10 единици. Например: 32 - 18, заемаме 1 десетица за единиците.',
                 'TOOLTIP_ICON': '<i>i</i>',
                 'TOOLTIP_HELP': 'Натиснете + за обяснение',
                 'TOOLTIP_CLOSE': 'Натиснете + за затваряне',
 
-                // Bulgarian Language level descriptions
                 'LETTER_RECOGNITION_EMOJI': 'БУКВИ С КАРТИНКИ',
                 'VOWELS': 'ГЛАСНИ БУКВИ',
                 'CONSONANTS': 'СЪГЛАСНИ БУКВИ',
@@ -91,14 +77,14 @@ class LocalizationModel {
 
                 'LEVEL_INSTRUCTIONS': 'ИЗБЕРЕТЕ НОМЕР НА НИВО • BACKSPACE = НАЗАД',
 
-                // Game screen
                 'INPUT_PROMPT': '>',
                 'SCORE': 'ТОЧКИ',
                 'PROBLEMS': 'ЗАДАЧИ',
                 'GAME_INSTRUCTIONS': 'ENTER = ПРАВИЛНО • DEL = ГРЕШНО • BACKSPACE = НАЗАД',
                 'GAME_INSTRUCTIONS_MATH': 'НАТИСНЕТЕ ENTER ЗА ИЗПРАЩАНЕ НА ОТГОВОР • BACKSPACE = НАЗАД',
 
-                // Reward messages
+                'STEP_CORRECT_NEXT': 'ПРАВИЛНО! Следваща стъпка...',
+
                 'REWARD_MESSAGES': [
                     'ПРАВИЛНО! БРАВО!',
                     'ОТЛИЧНО ПРЕСМЯТАНЕ!',
@@ -112,7 +98,6 @@ class LocalizationModel {
                     'ВПЕЧАТЛЯВАЩА ТОЧНОСТ!'
                 ],
 
-                // Subtraction-specific reward messages
                 'SUBTRACTION_REWARD_MESSAGES': [
                     'ОТЛИЧНО ИЗВАЖДАНЕ!',
                     'ПЕРФЕКТНО ПРЕСМЯТАНЕ!',
@@ -126,7 +111,6 @@ class LocalizationModel {
                     'НЕВЕРОЯТНИ УМЕНИЯ ЗА ИЗВАЖДАНЕ!'
                 ],
 
-                // Place Value reward messages
                 'PLACE_VALUE_REWARD_MESSAGES': [
                     'ОТЛИЧНО! ПОЗНАВАШ ЕДИНИЦИТЕ И ДЕСЕТИЦИТЕ!',
                     'ПЕРФЕКТНО РАЗБИРАНЕ!',
@@ -140,7 +124,6 @@ class LocalizationModel {
                     'ЧУДЕСНО РАЗБИРАНЕ НА ЧИСЛАТА!'
                 ],
 
-                // Bulgarian Language reward messages
                 'BULGARIAN_REWARD_MESSAGES': [
                     'БРАВО! ОТЛИЧНО ЧЕТЕНЕ!',
                     'ПЕРФЕКТНО ПРОЧЕТЕНА!',
@@ -154,8 +137,6 @@ class LocalizationModel {
                     'ЧУДЕСНО ПРОЧЕТЕНО!'
                 ],
 
-                // Badge system - Animals organized by gender
-                // Среден род (neuter) - ends in -о, -е
                 'BADGE_ANIMALS_NEUTER': [
                     'Мече',
                     'Зайче',
@@ -172,7 +153,6 @@ class LocalizationModel {
                     'Папагалче'
                 ],
 
-                // Женски род (feminine) - ends in -а, -я
                 'BADGE_ANIMALS_FEMININE': [
                     'Катеричка',
                     'Коала',
@@ -186,7 +166,6 @@ class LocalizationModel {
                     'Пчеличка'
                 ],
 
-                // Мъжки род (masculine) - ends in consonant
                 'BADGE_ANIMALS_MASCULINE': [
                     'Пеликан',
                     'Делфин',
@@ -195,8 +174,6 @@ class LocalizationModel {
                     'Октопод'
                 ],
 
-                // Badge system - Adjectives organized by gender
-                // Среден род (neuter) - ends in -о, -е
                 'BADGE_ADJECTIVES_NEUTER': [
                     'Слънчево',
                     'Усмихнато',
@@ -228,7 +205,6 @@ class LocalizationModel {
                     'Чудесно'
                 ],
 
-                // Женски род (feminine) - ends in -а, -я
                 'BADGE_ADJECTIVES_FEMININE': [
                     'Слънчева',
                     'Усмихната',
@@ -260,7 +236,6 @@ class LocalizationModel {
                     'Чудесна'
                 ],
 
-                // Мъжки род (masculine) - ends in consonant
                 'BADGE_ADJECTIVES_MASCULINE': [
                     'Слънчев',
                     'Усмихнат',
@@ -292,10 +267,8 @@ class LocalizationModel {
                     'Чудесен'
                 ],
 
-                // Badge message template
                 'BADGE_MESSAGE': 'Печелиш значка',
 
-                // Badge animal emoji mappings
                 'BADGE_ANIMAL_EMOJIS': {
                     'Мече': '🐻',
                     'Зайче': '🐰',
@@ -327,12 +300,10 @@ class LocalizationModel {
                     'Октопод': '🐙'
                 },
 
-                // Feedback modal headers
                 'FEEDBACK_CORRECT': 'ПРАВИЛНО!',
                 'FEEDBACK_INCORRECT': 'НЕПРАВИЛНО',
                 'FEEDBACK_WRONG_EMOJI': '❌',
 
-                // User login/logout
                 'USER_PROMPT': 'Въведи твоето име:',
                 'USER_LOGGED_IN': 'Потребител:',
                 'LOGOUT': 'ИЗХОД',
@@ -344,28 +315,90 @@ class LocalizationModel {
                 'BADGES_PRESS_STAR': 'Натисни * за следващи значки',
                 'BADGES_CLOSE': 'Натисни * за затваряне',
 
-                // Error messages
                 'ERROR_INVALID_INPUT': 'ГРЕШКА: НЕВАЛИДЕН ВХОД',
                 'INCORRECT_ANSWER': 'НЕПРАВИЛНО. ОТГОВОР:',
                 'INCORRECT_ANSWER_BULGARIAN': 'ОПИТАЙ ПАК!'
             },
 
-            // Keep English as fallback
             'en': {
-                'MATH_TERMINAL': 'MATH TERMINAL v1.0',
+                'MATH_TERMINAL': 'LEARNING TERMINAL v0.1',
                 'LEVEL': 'LEVEL',
+
+                'SELECT_SUBJECT': 'SELECT SUBJECT:',
+                'MATH_SUBJECT': 'MATHEMATICS',
+                'BULGARIAN_SUBJECT': 'BULGARIAN LANGUAGE',
+                'SUBJECT_INSTRUCTIONS': 'SELECT SUBJECT NUMBER • BACKSPACE = BACK',
+
                 'ADDITION': 'ADDITION',
+                'PLACE_VALUE': 'ONES AND TENS',
+                'SUBTRACTION': 'SUBTRACTION',
+                'MULTIPLICATION': 'MULTIPLICATION',
+                'DIVISION': 'DIVISION',
+
+                'LETTERS': 'LETTERS',
+                'SYLLABLES': 'SYLLABLES',
+                'WORDS': 'WORDS',
+
+                'SELECT_OPERATION': 'SELECT ACTIVITY:',
+                'OPERATION_INSTRUCTIONS': 'SELECT ACTIVITY NUMBER • BACKSPACE = BACK',
+
                 'SELECT_DIFFICULTY_LEVEL': 'SELECT DIFFICULTY LEVEL:',
                 'SINGLE_DIGITS': 'SINGLE DIGITS (1-9)',
                 'DOUBLE_DIGITS': 'DOUBLE DIGITS (10-19)',
                 'UP_TO_20': 'UP TO 20',
                 'UP_TO_50': 'UP TO 50',
                 'UP_TO_100': 'UP TO 100',
-                'LEVEL_INSTRUCTIONS': 'CLICK ON A LEVEL TO START • REFRESH PAGE TO RETURN HERE',
+
+                'PLACE_VALUE_RECOGNITION': 'ONES AND TENS RECOGNITION',
+                'PLACE_VALUE_CALCULATION': 'STEP-BY-STEP CALCULATION',
+                'WHICH_DIGIT_ONES': 'Which digit is in the ones place?',
+                'WHICH_DIGIT_TENS': 'Which digit is in the tens place?',
+                'ONES_STEP': 'First: add the ones',
+                'CARRY_STEP': 'Second: what is the carry?',
+                'TENS_STEP': 'Third: add the tens',
+                'COMBINE_STEP': 'Fourth: combine the result',
+                'STEP_ONES': 'Ones',
+                'STEP_CARRY': 'Carry',
+                'STEP_TENS': 'Tens',
+                'STEP_COMBINE': 'Result',
+
+                'STEP_DESC_ONES': 'Calculate ones',
+                'STEP_DESC_CARRY': 'Determine carry',
+                'STEP_DESC_TENS': 'Calculate tens',
+                'STEP_DESC_COMBINE': 'Combine the result',
+
+                'STEP_DESC_ONES_SUB': 'Calculate ones',
+                'STEP_DESC_BORROW': 'Determine borrow',
+                'STEP_DESC_TENS_SUB': 'Calculate tens',
+                'STEP_DESC_COMBINE_SUB': 'Combine the result',
+
+                'TOOLTIP_CARRY': 'The carry is the tens digit when the sum of the ones is 10 or more. For example: 7 + 8 = 15, the carry is 1.',
+                'TOOLTIP_BORROW': 'Borrowing is when we need to take 1 ten and convert it into 10 ones. For example: 32 - 18, we borrow 1 ten for the ones.',
+                'TOOLTIP_ICON': '<i>i</i>',
+                'TOOLTIP_HELP': 'Press + for explanation',
+                'TOOLTIP_CLOSE': 'Press + to close',
+
+                'LETTER_RECOGNITION_EMOJI': 'LETTERS WITH PICTURES',
+                'VOWELS': 'VOWELS',
+                'CONSONANTS': 'CONSONANTS',
+                'ALL_LETTERS': 'ALL LETTERS',
+                'SIMPLE_SYLLABLES': 'SIMPLE SYLLABLES',
+                'COMPLEX_SYLLABLES': 'COMPLEX SYLLABLES',
+                'ALL_SYLLABLES': 'ALL SYLLABLES',
+                'TWO_SYLLABLE_WORDS': 'TWO-SYLLABLE WORDS',
+                'THREE_SYLLABLE_WORDS': 'THREE-SYLLABLE WORDS',
+                'ALL_WORDS': 'ALL WORDS',
+
+                'LEVEL_INSTRUCTIONS': 'SELECT LEVEL NUMBER • BACKSPACE = BACK',
+
                 'INPUT_PROMPT': '>',
                 'SCORE': 'SCORE',
                 'PROBLEMS': 'PROBLEMS',
-                'GAME_INSTRUCTIONS': 'PRESS ENTER TO SUBMIT ANSWER • REFRESH PAGE TO RETURN TO LEVELS',
+                'GAME_INSTRUCTIONS': 'ENTER = CORRECT • DEL = WRONG • BACKSPACE = BACK',
+                'GAME_INSTRUCTIONS_MATH': 'PRESS ENTER TO SUBMIT ANSWER • BACKSPACE = BACK',
+
+                'STEP_CORRECT_NEXT': 'CORRECT! Next step...',
+
                 'REWARD_MESSAGES': [
                     'CORRECT! WELL DONE!',
                     'EXCELLENT CALCULATION!',
@@ -378,7 +411,46 @@ class LocalizationModel {
                     'FLAWLESS EXECUTION!',
                     'IMPRESSIVE ACCURACY!'
                 ],
-                // English doesn't have grammatical gender, so we use single lists
+
+                'SUBTRACTION_REWARD_MESSAGES': [
+                    'EXCELLENT SUBTRACTION!',
+                    'PERFECT CALCULATION!',
+                    'OUTSTANDING SUBTRACTION WORK!',
+                    'BRILLIANT MINUS SKILLS!',
+                    'SUPERB SUBTRACTION!',
+                    'FLAWLESS SUBTRACTION!',
+                    'MAGNIFICENT SUBTRACTION!',
+                    'IMPRESSIVE MINUS WORK!',
+                    'EXCEPTIONAL SUBTRACTION!',
+                    'INCREDIBLE SUBTRACTION SKILLS!'
+                ],
+
+                'PLACE_VALUE_REWARD_MESSAGES': [
+                    'EXCELLENT! YOU KNOW YOUR ONES AND TENS!',
+                    'PERFECT UNDERSTANDING!',
+                    'OUTSTANDING WORK!',
+                    'BRILLIANT PLACE VALUE KNOWLEDGE!',
+                    'SUPERB!',
+                    'FLAWLESS RECOGNITION!',
+                    'MAGNIFICENT WORK!',
+                    'IMPRESSIVE!',
+                    'EXCEPTIONAL!',
+                    'WONDERFUL NUMBER UNDERSTANDING!'
+                ],
+
+                'BULGARIAN_REWARD_MESSAGES': [
+                    'BRAVO! EXCELLENT READING!',
+                    'PERFECTLY READ!',
+                    'OUTSTANDING WORK!',
+                    'BRILLIANT READING!',
+                    'SUPERB!',
+                    'FLAWLESSLY READ!',
+                    'MAGNIFICENT WORK!',
+                    'IMPRESSIVE READING!',
+                    'EXCEPTIONAL SKILL!',
+                    'WONDERFULLY READ!'
+                ],
+
                 'BADGE_ANIMALS_NEUTER': [
                     'Bear Cub',
                     'Bunny',
@@ -394,6 +466,7 @@ class LocalizationModel {
                     'Owlet',
                     'Parrot'
                 ],
+
                 'BADGE_ANIMALS_FEMININE': [
                     'Squirrel',
                     'Koala',
@@ -406,6 +479,7 @@ class LocalizationModel {
                     'Ant',
                     'Bee'
                 ],
+
                 'BADGE_ANIMALS_MASCULINE': [
                     'Pelican',
                     'Dolphin',
@@ -413,6 +487,7 @@ class LocalizationModel {
                     'Hamster',
                     'Octopus'
                 ],
+
                 'BADGE_ADJECTIVES_NEUTER': [
                     'Sunny',
                     'Smiling',
@@ -443,6 +518,7 @@ class LocalizationModel {
                     'Wonderful',
                     'Amazing'
                 ],
+
                 'BADGE_ADJECTIVES_FEMININE': [
                     'Sunny',
                     'Smiling',
@@ -473,6 +549,7 @@ class LocalizationModel {
                     'Wonderful',
                     'Amazing'
                 ],
+
                 'BADGE_ADJECTIVES_MASCULINE': [
                     'Sunny',
                     'Smiling',
@@ -503,38 +580,82 @@ class LocalizationModel {
                     'Wonderful',
                     'Amazing'
                 ],
-                'BADGE_MESSAGE': 'Great work! You earned a badge:',
+
+                'BADGE_MESSAGE': 'You earned a badge:',
+
+                'BADGE_ANIMAL_EMOJIS': {
+                    'Bear Cub': '🐻',
+                    'Bunny': '🐰',
+                    'Kitten': '🐱',
+                    'Puppy': '🐶',
+                    'Fox Cub': '🦊',
+                    'Tiger Cub': '🐯',
+                    'Elephant': '🐘',
+                    'Giraffe': '🦒',
+                    'Chick': '🐥',
+                    'Duckling': '🦆',
+                    'Seahorse': '🐴',
+                    'Owlet': '🦉',
+                    'Parrot': '🦜',
+                    'Squirrel': '🐿️',
+                    'Koala': '🐨',
+                    'Panda': '🐼',
+                    'Sheep': '🐑',
+                    'Butterfly': '🦋',
+                    'Ladybug': '🐞',
+                    'Fish': '🐠',
+                    'Turtle': '🐢',
+                    'Ant': '🐜',
+                    'Bee': '🐝',
+                    'Pelican': '🦩',
+                    'Dolphin': '🐬',
+                    'Penguin': '🐧',
+                    'Hamster': '🐹',
+                    'Octopus': '🐙'
+                },
+
+                'FEEDBACK_CORRECT': 'CORRECT!',
+                'FEEDBACK_INCORRECT': 'INCORRECT',
+                'FEEDBACK_WRONG_EMOJI': '❌',
+
+                'USER_PROMPT': 'Enter your name:',
+                'USER_LOGGED_IN': 'User:',
+                'LOGOUT': 'LOGOUT',
+                'BADGES_TITLE': 'BADGES',
+                'BADGES_COUNT': 'Badge count:',
+                'BADGES_HELP': '* = SHOW BADGES',
+                'NO_BADGES': 'No badges yet. Get 5 correct answers to earn your first badge!',
+                'BADGES_PAGE': 'Badges {current} - {end} of {total}',
+                'BADGES_PRESS_STAR': 'Press * for next badges',
+                'BADGES_CLOSE': 'Press * to close',
+
                 'ERROR_INVALID_INPUT': 'ERROR: INVALID INPUT',
-                'INCORRECT_ANSWER': 'INCORRECT. ANSWER:'
+                'INCORRECT_ANSWER': 'INCORRECT. ANSWER:',
+                'INCORRECT_ANSWER_BULGARIAN': 'TRY AGAIN!'
             }
         };
     }
 
-    // Get translation for a key
     t(key) {
         const translations = this.translations[this.currentLanguage];
         if (translations && translations[key]) {
             return translations[key];
         }
 
-        // Fallback to English if key not found in current language
         const englishTranslations = this.translations['en'];
         if (englishTranslations && englishTranslations[key]) {
             return englishTranslations[key];
         }
 
-        // Return key itself if no translation found
         console.warn(`Translation not found for key: ${key}`);
         return key;
     }
 
-    // Get array translation (like reward messages)
     tArray(key) {
         const translation = this.t(key);
         return Array.isArray(translation) ? translation : [translation];
     }
 
-    // Change language
     setLanguage(language) {
         if (this.translations[language]) {
             this.currentLanguage = language;
@@ -543,17 +664,18 @@ class LocalizationModel {
         return false;
     }
 
-    // Get current language
     getCurrentLanguage() {
         return this.currentLanguage;
     }
 
-    // Get available languages
     getAvailableLanguages() {
         return Object.keys(this.translations);
     }
 
-    // Get emoji for a badge animal name
+    persistLocale() {
+        localStorage.setItem('lumi_locale', this.currentLanguage);
+    }
+
     getBadgeEmoji(animalName) {
         const emojiMap = this.t('BADGE_ANIMAL_EMOJIS');
         if (emojiMap && typeof emojiMap === 'object') {
@@ -562,8 +684,12 @@ class LocalizationModel {
         return '⭐';
     }
 
-    // Extract animal name from full badge name (e.g., "Слънчево Мече" -> "Мече")
     extractAnimalFromBadge(badgeName) {
+        const emojiMap = this.t('BADGE_ANIMAL_EMOJIS');
+        if (emojiMap && typeof emojiMap === 'object') {
+            const animalKey = Object.keys(emojiMap).find(key => badgeName.endsWith(key));
+            if (animalKey) return animalKey;
+        }
         const words = badgeName.trim().split(' ');
         return words[words.length - 1];
     }

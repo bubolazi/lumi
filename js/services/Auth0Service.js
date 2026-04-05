@@ -24,7 +24,7 @@ class Auth0Service {
         return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    async initiateLogin(returnPath) {
+    async initiateLogin(returnPath, locale = 'en') {
         const config = window.LUMI_CONFIG;
         const codeVerifier = this.generateCodeVerifier();
         const codeChallenge = await this.generateCodeChallenge(codeVerifier);
@@ -43,6 +43,7 @@ class Auth0Service {
             state,
             code_challenge: codeChallenge,
             code_challenge_method: 'S256',
+            ui_locales: locale,
         });
 
         window.location.href = `https://${config.AUTH0_DOMAIN}/authorize?${params}`;

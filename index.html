@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bg">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -43,10 +43,15 @@
                 <div class="level-info">
                     <span id="breadcrumb-nav"></span>
                 </div>
+                <div class="locale-switcher" id="locale-switcher">
+                    <button class="locale-btn active" data-lang="en">EN</button>
+                    <span class="locale-sep">|</span>
+                    <button class="locale-btn" data-lang="bg">BG</button>
+                </div>
             </div>
             <div class="user-info" id="user-info" style="display: none;">
                 <span id="user-display"></span>
-                <button id="logout-button" class="logout-button">ИЗХОД</button>
+                <button id="logout-button" class="logout-button">LOGOUT</button>
             </div>
         </header>
 
@@ -132,10 +137,10 @@
 
         <!-- MVC Architecture with Localization and Subject/Activity Management -->
         <!-- Core Services -->
-        <script src="js/services/ApiService.js"></script>
-        <script src="js/services/Auth0Service.js"></script>
-        <script src="js/models/core/LocalizationModel.js"></script>
-        <script src="js/models/core/UserStorageModel.js"></script>
+        <script src="js/services/ApiService.js?v=2"></script>
+        <script src="js/services/Auth0Service.js?v=2"></script>
+        <script src="js/models/core/LocalizationModel.js?v=2"></script>
+        <script src="js/models/core/UserStorageModel.js?v=2"></script>
         <script src="js/models/core/SubjectManager.js"></script>
 
         <!-- Math Subject -->
@@ -154,8 +159,8 @@
 
         <!-- View and Controller -->
         <script src="js/views/AppView.js?v=2"></script>
-        <script src="js/controllers/AppController.js"></script>
-        <script src="js/app.js"></script>
+        <script src="js/controllers/AppController.js?v=2"></script>
+        <script src="js/app.js?v=2"></script>
 </body>
 
 </html>

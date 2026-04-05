@@ -1,6 +1,6 @@
 class UserStorageModel {
-    constructor() {
-        this.apiService = new ApiService();
+    constructor(apiService) {
+        this.apiService = apiService || new ApiService();
         this.currentUser = null;
 
         this.USERS_KEY = 'lumi_users';

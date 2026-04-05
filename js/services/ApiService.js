@@ -71,6 +71,27 @@ class ApiService {
         return this.request('/api/lumi/badges', 'POST', badge);
     }
 
+    async detectLocale() {
+        try {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            return await this.request(`/api/locale/detect?tz=${encodeURIComponent(tz)}`, 'GET');
+        } catch (e) {
+            return { locale: 'en' };
+        }
+    }
+
+    async getUserLocale() {
+        try {
+            return await this.request('/api/lumi/locale', 'GET');
+        } catch (e) {
+            return { locale: null };
+        }
+    }
+
+    async setUserLocale(locale) {
+        return this.request('/api/lumi/locale', 'PUT', { locale });
+    }
+
     isAuthenticated() {
         return !!sessionStorage.getItem('lumi_user');
     }

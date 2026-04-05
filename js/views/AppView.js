@@ -42,34 +42,24 @@ class AppView {
         this.currentSubject = null; // Will be set by controller
 
         // Initialize static UI text
-        this.initializeStaticText();
+        this.applyStaticText();
     }
 
-    // Initialize static text elements with Bulgarian translations
-    initializeStaticText() {
-        // Update page title
+    applyStaticText() {
         document.title = `LUMI | ${this.localization.t('MATH_TERMINAL')}`;
 
-        // Header text is static "LUMI", no need to update from localization
-        // const header = document.querySelector('header h1');
-        // if (header) header.textContent = this.localization.t('MATH_TERMINAL');
-
-        // Update subject selection screen
         const subjectSelectTitle = document.querySelector('#subject-select h2');
         if (subjectSelectTitle) subjectSelectTitle.textContent = this.localization.t('SELECT_SUBJECT');
 
         const subjectInstructions = document.querySelector('#subject-select .instructions');
         if (subjectInstructions) subjectInstructions.textContent = this.localization.t('SUBJECT_INSTRUCTIONS');
 
-        // Update operation selection screen
         const operationSelectTitle = document.querySelector('#operation-select h2');
         if (operationSelectTitle) operationSelectTitle.textContent = this.localization.t('SELECT_OPERATION');
 
-        // Update level selection screen
         const levelSelectTitle = document.querySelector('#level-select h2');
         if (levelSelectTitle) levelSelectTitle.textContent = this.localization.t('SELECT_DIFFICULTY_LEVEL');
 
-        // Update instructions
         const operationInstructions = document.querySelector('#operation-select .instructions');
         if (operationInstructions) operationInstructions.textContent = this.localization.t('OPERATION_INSTRUCTIONS');
 
@@ -79,8 +69,17 @@ class AppView {
         const gameInstructions = document.querySelector('#game-screen .instructions');
         if (gameInstructions) gameInstructions.textContent = this.localization.t('GAME_INSTRUCTIONS');
 
-        // Update HTML lang attribute
+        if (this.elements.logoutButton) {
+            this.elements.logoutButton.textContent = this.localization.t('LOGOUT');
+        }
+
         document.documentElement.lang = this.localization.getCurrentLanguage();
+    }
+
+    updateLocaleSwitcher(lang) {
+        document.querySelectorAll('.locale-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.lang === lang);
+        });
     }
 
     // Show a specific screen
